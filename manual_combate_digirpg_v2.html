@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual de Combate — DigiRider RPG</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #080a0f;
+    --panel: #0d1017;
+    --panel2: #111520;
+    --border: #1a2030;
+    --border2: #232d40;
+    --text: #c8d4e8;
+    --text-dim: #5a6880;
+    --text-mute: #3a4458;
+    --gold: #c8a84a;
+    --gold-dim: #7a6228;
+    --cyan: #38c4c4;
+    --green: #3ec870;
+    --red: #e04848;
+    --purple: #b070e0;
+    --orange: #e08840;
+    --blue: #4898e8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  /* ═══ HEADER ═══ */
+  .hero {
+    border-bottom: 1px solid var(--border);
+    padding: 36px 40px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  }
+  .hero-eyebrow {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px; letter-spacing: 3px; color: var(--gold);
+    text-transform: uppercase; margin-bottom: 10px;
+  }
+  .hero h1 {
+    font-size: 32px; font-weight: 700; letter-spacing: 1px;
+    color: var(--text); margin-bottom: 8px;
+  }
+  .hero p {
+    font-size: 14px; color: var(--text-dim); max-width: 640px;
+  }
+
+  /* ═══ LAYOUT ═══ */
+  .layout { display: grid; grid-template-columns: 220px 1fr; max-width: 1180px; margin: 0 auto; }
+
+  .toc {
+    padding: 32px 20px;
+    border-right: 1px solid var(--border);
+    align-self: start;
+    position: sticky;
+    top: 0;
+  }
+  .toc-label {
+    font-family: 'Share Tech Mono', monospace; font-size: 10px;
+    letter-spacing: 2px; color: var(--text-mute); margin-bottom: 14px;
+  }
+  .toc a {
+    display: block; font-size: 13px; color: var(--text-dim);
+    text-decoration: none; padding: 6px 0 6px 12px;
+    border-left: 2px solid var(--border2);
+    transition: all .15s; margin-bottom: 2px;
+  }
+  .toc a:hover { color: var(--cyan); border-color: var(--cyan); }
+
+  .content { padding: 40px 40px 80px; }
+
+  section { margin-bottom: 56px; scroll-margin-top: 20px; }
+  section:last-child { margin-bottom: 0; }
+
+  .sec-eyebrow {
+    font-family: 'Share Tech Mono', monospace; font-size: 11px;
+    letter-spacing: 2px; color: var(--text-mute); margin-bottom: 6px;
+  }
+  h2 {
+    font-size: 22px; font-weight: 700; letter-spacing: .5px;
+    color: var(--text); margin-bottom: 18px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  h2 .glyph { color: var(--cyan); font-size: 18px; }
+  h3 {
+    font-size: 15px; font-weight: 600; color: var(--text);
+    margin-bottom: 6px;
+  }
+  p { color: var(--text-dim); font-size: 14px; margin-bottom: 10px; }
+  p strong { color: var(--text); font-weight: 600; }
+  .lead { color: var(--text); font-size: 15px; margin-bottom: 20px; }
+
+  /* ═══ TURN FLOW ═══ */
+  .flow { display: flex; flex-direction: column; gap: 0; }
+  .step {
+    display: grid; grid-template-columns: 44px 1fr; gap: 16px;
+    padding: 18px 0; border-top: 1px solid var(--border);
+  }
+  .step:first-child { border-top: none; }
+  .step-num {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 1px solid var(--border2); background: var(--panel2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Share Tech Mono', monospace; font-size: 13px;
+    color: var(--cyan); flex-shrink: 0;
+  }
+  .step-head { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .step-tag {
+    font-family: 'Share Tech Mono', monospace; font-size: 9px;
+    color: var(--gold); letter-spacing: 1px; margin-left: 8px;
+  }
+  .step-desc { font-size: 13.5px; color: var(--text-dim); line-height: 1.65; }
+  .step-desc strong { color: var(--text); }
+
+  .example {
+    background: var(--panel); border: 1px solid var(--border2);
+    border-left: 2px solid var(--cyan); border-radius: 4px;
+    padding: 10px 14px; margin-top: 10px;
+    font-family: 'Share Tech Mono', monospace; font-size: 12.5px;
+    color: var(--text-dim); line-height: 1.7;
+  }
+  .example .roll { color: var(--gold); font-weight: 700; }
+  .example .label { color: var(--cyan); text-transform: uppercase; font-size: 10px; letter-spacing: 1px; display: block; margin-bottom: 4px; }
+
+  .info-box, .warn-box, .new-box {
+    border-radius: 6px; padding: 14px 18px; margin: 16px 0;
+    font-size: 13.5px; line-height: 1.65;
+  }
+  .info-box { background: rgba(72,152,232,.06); border: 1px solid rgba(72,152,232,.25); color: #a8c8ec; }
+  .warn-box { background: rgba(224,136,64,.06); border: 1px solid rgba(224,136,64,.25); color: #f0c090; }
+  .new-box  { background: rgba(62,200,112,.06); border: 1px solid rgba(62,200,112,.3); color: #a8e8c0; }
+  .info-box strong, .warn-box strong, .new-box strong { color: inherit; }
+  .tag-novo {
+    font-family: 'Share Tech Mono', monospace; font-size: 9px;
+    background: var(--green); color: #06140a; padding: 2px 7px;
+    border-radius: 3px; letter-spacing: 1px; margin-right: 8px;
+  }
+
+  /* ═══ ATTR CARDS ═══ */
+  .attr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 12px; margin-bottom: 20px; }
+  .attr-card {
+    background: var(--panel); border: 1px solid var(--border2);
+    border-radius: 6px; padding: 16px 18px; border-top: 2px solid;
+  }
+  .attr-card .attr-icon { font-size: 18px; margin-bottom: 8px; display: block; }
+  .attr-card h3 { margin-bottom: 2px; }
+  .attr-card .attr-tag { font-size: 11px; font-style: italic; color: var(--text-mute); margin-bottom: 8px; display: block; }
+  .attr-card p { font-size: 13px; margin-bottom: 0; }
+  .c-fisico { border-color: var(--red); } .c-fisico .attr-icon { color: var(--red); }
+  .c-habilidade { border-color: var(--cyan); } .c-habilidade .attr-icon { color: var(--cyan); }
+  .c-movimento { border-color: var(--green); } .c-movimento .attr-icon { color: var(--green); }
+  .c-sentidos { border-color: var(--blue); } .c-sentidos .attr-icon { color: var(--blue); }
+  .c-inteligencia { border-color: var(--purple); } .c-inteligencia .attr-icon { color: var(--purple); }
+
+  /* ═══ TABLE ═══ */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th {
+    text-align: left; font-family: 'Share Tech Mono', monospace; font-size: 10px;
+    letter-spacing: 1px; color: var(--text-mute); text-transform: uppercase;
+    padding: 8px 12px; border-bottom: 1px solid var(--border2);
+  }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+  tr:last-child td { border-bottom: none; }
+  td.mono { font-family: 'Share Tech Mono', monospace; color: var(--gold); }
+
+  /* ═══ DAMAGE FLOW ═══ */
+  .dmg-chain {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    background: var(--panel); border: 1px solid var(--border2);
+    border-radius: 6px; padding: 16px 20px; margin-bottom: 20px;
+  }
+  .dmg-node {
+    font-family: 'Share Tech Mono', monospace; font-size: 12px;
+    padding: 6px 12px; border-radius: 4px; border: 1px solid var(--border2);
+    color: var(--text); white-space: nowrap;
+  }
+  .dmg-node.start { border-color: var(--red); color: #f08080; }
+  .dmg-node.end { border-color: var(--green); color: #80e0a0; }
+  .dmg-arrow { color: var(--text-mute); font-size: 14px; }
+
+  /* ═══ TRIANGLE ═══ */
+  .tri-wrap { display: flex; justify-content: center; margin: 28px 0; }
+  .tri-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; max-width: 640px; width: 100%; }
+  .tri-card {
+    background: var(--panel); border: 1px solid var(--border2);
+    border-radius: 6px; padding: 16px; text-align: center;
+  }
+  .tri-name { font-size: 16px; font-weight: 700; margin-bottom: 10px; }
+  .tri-row { font-size: 11.5px; margin-bottom: 4px; line-height: 1.5; }
+  .tri-vant { color: var(--green); }
+  .tri-fraq { color: var(--red); }
+
+  /* ═══ POWER BUILDER EXAMPLE ═══ */
+  .power-box {
+    background: var(--panel); border: 1px solid var(--border2);
+    border-radius: 8px; overflow: hidden; margin: 16px 0;
+  }
+  .power-box-head {
+    padding: 14px 20px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .power-box-head h3 { margin: 0; color: var(--gold); }
+  .power-box-meta { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-mute); }
+  .power-box-body { padding: 16px 20px; }
+  .power-formula {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    font-size: 13px; margin-bottom: 12px;
+  }
+  .formula-part {
+    background: var(--panel2); border: 1px solid var(--border2);
+    border-radius: 4px; padding: 5px 10px; font-size: 12.5px;
+  }
+  .formula-pts { font-family: 'Share Tech Mono', monospace; color: var(--gold); font-size: 10px; }
+  .formula-plus { color: var(--text-mute); }
+  .formula-eq { color: var(--cyan); font-weight: 700; }
+
+  /* ═══ USES GRID ═══ */
+  .uses-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin: 16px 0; }
+  .uses-card {
+    background: var(--panel); border: 1px solid var(--border2);
+    border-radius: 6px; padding: 14px; text-align: center;
+  }
+  .uses-pts { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--text-mute); margin-bottom: 6px; }
+  .uses-val { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .uses-val.u-ilim { color: var(--green); }
+  .uses-val.u-3x { color: var(--blue); }
+  .uses-val.u-2x { color: var(--purple); }
+  .uses-val.u-1x { color: var(--orange); }
+  .uses-sub { font-size: 10.5px; color: var(--text-mute); line-height: 1.4; }
+
+  /* ═══ CARGA DE DADOS ═══ */
+  .carga-explica {
+    background: var(--panel); border: 1px solid var(--border2);
+    border-radius: 8px; padding: 20px 24px; margin: 16px 0;
+  }
+  .carga-bar-row { display: flex; align-items: center; gap: 14px; margin: 14px 0; }
+  .carga-bar-track {
+    flex: 1; height: 22px; background: var(--panel2); border: 1px solid var(--border2);
+    border-radius: 4px; overflow: hidden; display: flex;
+  }
+  .carga-bar-seg {
+    height: 100%; display: flex; align-items: center; justify-content: center;
+    font-family: 'Share Tech Mono', monospace; font-size: 9px; color: #06140a; font-weight: 700;
+  }
+  .carga-bar-label { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--text-dim); white-space: nowrap; width: 110px; }
+
+  .carga-table-pts td:first-child { font-family: 'Share Tech Mono', monospace; color: var(--gold); }
+
+  /* ═══ ELEMENT GRID ═══ */
+  .elem-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap: 10px; margin: 16px 0; }
+  .elem-card {
+    background: var(--panel); border: 1px solid var(--border2);
+    border-radius: 6px; padding: 12px 14px;
+  }
+  .elem-card .elem-name { font-size: 13.5px; font-weight: 700; margin-bottom: 4px; }
+  .elem-card .elem-desc { font-size: 11.5px; color: var(--text-dim); line-height: 1.5; }
+
+  footer {
+    text-align: center; padding: 28px; border-top: 1px solid var(--border);
+    font-family: 'Share Tech Mono', monospace; font-size: 10px;
+    letter-spacing: 1px; color: var(--text-mute);
+  }
+
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    .toc { position: static; border-right: none; border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 4px 16px; }
+    .toc-label { width: 100%; }
+    .content { padding: 28px 20px 60px; }
+    .hero { padding: 28px 20px 22px; }
+    .uses-grid { grid-template-columns: repeat(2,1fr); }
+    .tri-grid { grid-template-columns: 1fr; }
+    .carga-bar-label { width: 80px; font-size: 10px; }
+  }
+
+/* ── BACK TO TOP ─────────────────────────────────── */
+#back-top {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  width: 44px; height: 44px;
+  background: #11151c;
+  border: 1px solid #38c4c4;
+  color: #38c4c4;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 3px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s, transform .25s, background .15s;
+  z-index: 999;
+  font-family: 'Share Tech Mono', monospace;
+}
+#back-top.visible { opacity: 1; pointer-events: all; }
+#back-top:hover { background: #38c4c4; color: #000; transform: translateY(-3px); }
+</style>
+</head>
+<body>
+<button id="back-top" title="Voltar ao topo" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<a href="index.html" style="display:inline-flex;align-items:center;gap:8px;margin:16px 20px;padding:8px 16px;background:#0f1218;border:1px solid #1e2530;border-radius:4px;color:#5b9ef5;font-family:Share Tech Mono,monospace;font-size:12px;letter-spacing:2px;text-decoration:none;text-transform:uppercase;" onmouseover="this.style.borderColor='+'#5b9ef5'+'" onmouseout="this.style.borderColor='+'#1e2530'+'">&#8592; P&aacute;gina Inicial</a>
+
+<div class="hero">
+  <div class="hero-eyebrow">// DIGIRPG · MANUAL DE REGRAS</div>
+  <h1>Sistema de Combate</h1>
+  <p>Sequência de turno, os cinco atributos, escala de HP/dados, cálculo de dano e construção de poderes — tudo num só lugar.</p>
+</div>
+
+<div class="layout">
+  <nav class="toc">
+    <div class="toc-label">NESTA PÁGINA</div>
+    <a href="#evolucao">HP & Dados por Estágio</a>
+    <a href="#turno">Sequência de Turno</a>
+    <a href="#atributos">Os 5 Atributos</a>
+    <a href="#triangulo">Triângulo & Elementos</a>
+    <a href="#dano">Cálculo de Dano</a>
+    <a href="#poderes">Construção de Poderes</a>
+    <a href="#carga">Carga de Dados (Usos)</a>
+  </nav>
+
+  <main class="content">
+
+    <!-- ═══════════ HP & DADOS ═══════════ -->
+    <section id="evolucao">
+      <div class="sec-eyebrow">PARTE 1</div>
+      <h2><span class="glyph">▣</span>HP e Dados por Estágio Evolutivo</h2>
+
+      <table>
+        <thead><tr><th>Estágio</th><th>Nome</th><th>HP base</th><th>Dado base</th><th>Pts extras</th><th>Dado máximo</th></tr></thead>
+        <tbody>
+          <tr><td>E1</td><td>Bebê</td><td class="mono">20 HP</td><td class="mono">2d4</td><td>8 pts livres</td><td class="mono">D6</td></tr>
+          <tr><td>E2</td><td>Criança</td><td class="mono">40 HP</td><td class="mono">3d4</td><td>+4 pts</td><td class="mono">D8</td></tr>
+          <tr><td>E3</td><td>Adulto</td><td class="mono">60 HP</td><td class="mono">4d4</td><td>+4 pts</td><td class="mono">D10</td></tr>
+          <tr><td>E4</td><td>Perfeito</td><td class="mono">80 HP</td><td class="mono">5d4</td><td>+4 pts</td><td class="mono">D12</td></tr>
+          <tr><td>E5</td><td>Final</td><td class="mono">100 HP</td><td class="mono">6d4</td><td>+4 pts</td><td class="mono">D20</td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-box">🎲 <strong>Escala de dados:</strong> 2d4 → 2d6 → 2d8 → 2d10 → 2d12 → 2d20 → 2d100. Cada upgrade de patamar custa <strong>+2 pts</strong>.</div>
+
+      <h3 style="margin-top:20px">Como os pontos extras se acumulam</h3>
+      <p>Cada estágio libera <strong>8 pts livres no E1</strong>, e a partir do E2 ganha-se <strong>+4 pts por estágio</strong>. Esses pontos não são substituídos: o Digimon entra em cada novo estágio com a soma de tudo que já tinha, mais o ganho do estágio atual.</p>
+      <table>
+        <thead><tr><th>Estágio</th><th>Ganho neste estágio</th><th>Total acumulado</th></tr></thead>
+        <tbody>
+          <tr><td>E1</td><td class="mono">8 pts</td><td class="mono">8 pts</td></tr>
+          <tr><td>E2</td><td class="mono">+4 pts</td><td class="mono">12 pts</td></tr>
+          <tr><td>E3</td><td class="mono">+4 pts</td><td class="mono">16 pts</td></tr>
+          <tr><td>E4</td><td class="mono">+4 pts</td><td class="mono">20 pts</td></tr>
+          <tr><td>E5</td><td class="mono">+4 pts</td><td class="mono">24 pts</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ═══════════ TURNO ═══════════ -->
+    <section id="turno">
+      <div class="sec-eyebrow">PARTE 2</div>
+      <h2><span class="glyph">◈</span>Sequência de um Turno de Combate</h2>
+
+      <div class="flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-head">Iniciativa <span class="step-tag">SENTIDOS</span></div>
+            <div class="step-desc">Role <strong>Sentidos</strong> no início do combate. Quem tirar maior resultado age primeiro. Sentidos altos detectam emboscadas e permitem agir antes do inimigo.</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-head">Reposicionamento <span class="step-tag">MOVIMENTO</span></div>
+            <div class="step-desc">Na sua ação, o Digimon pode se deslocar usando <strong>Movimento</strong>. Alto Movimento permite flanquear, escapar ou alcançar alvos distantes.</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-head">Ataque <span class="step-tag">FÍSICO OU HABILIDADE</span></div>
+            <div class="step-desc">Role <strong>Físico</strong> para ataques corpo a corpo (garra, soco, investida). Role <strong>Habilidade</strong> para ataques à distância ou poderes especiais. O resultado total é o dano causado ao inimigo.</div>
+            <div class="example"><span class="label">Exemplo</span>Agumon (Físico 2d8) ataca → rola <span class="roll">5 + 7 = 12 de dano</span></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">4</div>
+          <div>
+            <div class="step-head">Defesa ou Esquiva <span class="step-tag">FÍSICO OU MOVIMENTO</span></div>
+            <div class="step-desc">O defensor pode rolar <strong>Físico</strong> para absorver/bloquear ou <strong>Movimento</strong> para esquivar (reflexo). Se Movimento ≥ ataque, evita metade do dano. Com <strong>Reflexo de Batalha Nível 2</strong>, pode contra-atacar sem gastar ação.</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">5</div>
+          <div>
+            <div class="step-head">Poder Especial <span class="step-tag">INTELIGÊNCIA + HABILIDADE</span></div>
+            <div class="step-desc"><strong>Inteligência</strong> governa o uso estratégico de poderes (quando e como usar). <strong>Habilidade</strong> determina a precisão e eficácia do poder disparado. Juntos, definem combos táticos poderosos.</div>
+            <div class="example"><span class="label">Exemplo de tática</span>Role Inteligência para analisar fraqueza → use poder elemental via Habilidade com <span class="roll">+1 dado de bônus</span></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">6</div>
+          <div>
+            <div class="step-head">Ação do Parceiro Humano <span class="step-tag">CARTA OU TALENTO</span></div>
+            <div class="step-desc">O parceiro humano pode usar uma <strong>Carta de Digivice</strong> ou um <strong>Talento de combate</strong> na sua ação, apoiando o Digimon com bônus, curas ou efeitos especiais. Pode também gastar <strong>Energia de Fusão</strong>.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════ ATRIBUTOS ═══════════ -->
+    <section id="atributos">
+      <div class="sec-eyebrow">PARTE 3</div>
+      <h2><span class="glyph">◆</span>Os 5 Atributos e seu Papel no Combate</h2>
+
+      <div class="attr-grid">
+        <div class="attr-card c-fisico">
+          <span class="attr-icon">⚔</span>
+          <h3>Físico</h3>
+          <span class="attr-tag">"Força & Resistência"</span>
+          <p>Dano corpo a corpo, capacidade de absorver golpes, testes de bloqueio. Digimon pesados investem aqui. Dado base: 2d4 no E1, sobe até 6d4 no E5 (+ pontos distribuídos).</p>
+        </div>
+        <div class="attr-card c-habilidade">
+          <span class="attr-icon">✦</span>
+          <h3>Habilidade</h3>
+          <span class="attr-tag">"Precisão & Poderes"</span>
+          <p>Ataques à distância, disparar poderes especiais, precisão geral. Rege também a defesa contra poderes de Habilidade inimigos. Vital para Digimon mágicos/técnicos.</p>
+        </div>
+        <div class="attr-card c-movimento">
+          <span class="attr-icon">◉</span>
+          <h3>Movimento</h3>
+          <span class="attr-tag">"Velocidade & Evasão"</span>
+          <p>Determina iniciativa (junto a Sentidos), deslocamento por turno e esquiva. Role Movimento vs ataque inimigo para evitar metade do dano. Também permite flanquear.</p>
+        </div>
+        <div class="attr-card c-sentidos">
+          <span class="attr-icon">◈</span>
+          <h3>Sentidos</h3>
+          <span class="attr-tag">"Percepção & Reação"</span>
+          <p>Iniciativa no combate (quem age primeiro). Detecta emboscadas, lê o campo de batalha, resiste a efeitos de Medo. Rege também persuasão de Digimon hostis.</p>
+        </div>
+        <div class="attr-card c-inteligencia">
+          <span class="attr-icon">◇</span>
+          <h3>Inteligência</h3>
+          <span class="attr-tag">"Tática & Estratégia"</span>
+          <p>Analisa fraquezas inimigas, ativa poderes complexos, resiste a hacking. Digimon com Int alta revelam fraquezas e coordenam aliados. Rege o uso correto de efeitos.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════ TRIÂNGULO ═══════════ -->
+    <section id="triangulo">
+      <div class="sec-eyebrow">PARTE 4</div>
+      <h2><span class="glyph">▲</span>Triângulo de Atributos & Elementos</h2>
+      <p class="lead">O cálculo de dano cita <strong>"+2 se Vacina vs Vírus"</strong> — esse bônus vem do triângulo abaixo.</p>
+
+      <div class="tri-wrap">
+        <div class="tri-grid">
+          <div class="tri-card">
+            <div class="tri-name" style="color:var(--green)">Vacina</div>
+            <div class="tri-row tri-vant">▲ +2 dano vs Vírus</div>
+            <div class="tri-row tri-vant">▲ Resiste a Corrupção</div>
+            <div class="tri-row tri-fraq">▼ −1 dado vs Dados</div>
+          </div>
+          <div class="tri-card">
+            <div class="tri-name" style="color:var(--red)">Vírus</div>
+            <div class="tri-row tri-vant">▲ +2 dano vs Dados</div>
+            <div class="tri-row tri-vant">▲ Penaliza 1 rolagem/cena</div>
+            <div class="tri-row tri-fraq">▼ −1 dado vs Vacina</div>
+          </div>
+          <div class="tri-card">
+            <div class="tri-name" style="color:var(--blue)">Dados</div>
+            <div class="tri-row tri-vant">▲ +2 dano vs Vacina</div>
+            <div class="tri-row tri-vant">▲ +1 dado em Inteligência</div>
+            <div class="tri-row tri-fraq">▼ −1 dado vs Vírus</div>
+          </div>
+        </div>
+      </div>
+      <div class="info-box">Vacina &gt; Vírus &gt; Dados &gt; Vacina, em ciclo. <strong>Livre</strong> não participa do triângulo — sem vantagem nem fraqueza fixa, mas 1×/sessão pode ignorar completamente o triângulo num confronto.</div>
+
+      <h3 style="margin-top:24px;margin-bottom:10px">Elementos em combate</h3>
+      <div class="elem-grid">
+        <div class="elem-card"><div class="elem-name">🔥 Fogo</div><div class="elem-desc">Queima: +1d6/turno. Fraco vs Gelo/Água.</div></div>
+        <div class="elem-card"><div class="elem-name">❄️ Gelo</div><div class="elem-desc">−1 dado Movimento (Congelar). Fraco vs Fogo.</div></div>
+        <div class="elem-card"><div class="elem-name">⚡ Trovão</div><div class="elem-desc">Atordoa 1 ação. +5 dano vs Máquina. Fraco vs Terra.</div></div>
+        <div class="elem-card"><div class="elem-name">💨 Vento</div><div class="elem-desc">+1 dado Movimento. Fraco vs Trovão.</div></div>
+        <div class="elem-card"><div class="elem-name">🌑 Trevas</div><div class="elem-desc">Aplica Medo (−2 dados, 2 turnos).</div></div>
+        <div class="elem-card"><div class="elem-name">✨ Luz</div><div class="elem-desc">+dano vs Vírus/Trevas. Restaura HP.</div></div>
+      </div>
+    </section>
+
+    <!-- ═══════════ DANO ═══════════ -->
+    <section id="dano">
+      <div class="sec-eyebrow">PARTE 5</div>
+      <h2><span class="glyph">⚔</span>Como o Dano Funciona</h2>
+
+      <h3>Dano Físico — role Físico</h3>
+      <p>Soma dos dados de Físico = dano direto. Modificadores: <strong>+2 se Vacina vs Vírus</strong> (ou equivalente do triângulo), <strong>+bônus de Traço</strong> (ex.: Feroz: +2 no 1º ataque), <strong>+carta de Digivice</strong>.</p>
+      <div class="example"><span class="label">Exemplo</span>Agumon E3, Físico 2d10: rola <span class="roll">7+9 = 16</span> + Vacina vs Vírus <span class="roll">+2 = 18 de dano</span></div>
+
+      <div class="dmg-chain">
+        <div class="dmg-node start">Dano bruto rolado</div>
+        <span class="dmg-arrow">→</span>
+        <div class="dmg-node">+ bônus de tipo / traço / carta</div>
+        <span class="dmg-arrow">→</span>
+        <div class="dmg-node">− Redução de Dano (RD)</div>
+        <span class="dmg-arrow">→</span>
+        <div class="dmg-node end">Dano final ao HP</div>
+      </div>
+
+      <h3>Redução de Dano (RD)</h3>
+      <p>Cartas de equipamento como <strong>Escudo de Dados Básico</strong> conferem RD 3 contra o próximo ataque. Alguns poderes especiais (Armadura Digital) reduzem o próximo dano em 15. RD é subtraído do dano antes de aplicar ao HP.</p>
+
+      <h3>Esquiva — role Movimento</h3>
+      <p>O defensor rola Movimento. Se resultado ≥ ataque inimigo, evita metade do dano. Com <strong>Reflexo de Batalha Nível 2</strong>, pode contra-atacar imediatamente sem gastar ação.</p>
+      <div class="example"><span class="label">Exemplo</span>Inimigo ataca com <span class="roll">12</span>. Defensor rola Movimento → <span class="roll">9</span>. Resultado menor: recebe dano total. Se rolasse <span class="roll">13+</span>, evitaria metade.</div>
+
+      <h3>Dano Contínuo (DoT)</h3>
+      <p>Efeitos como <strong>Queima</strong> (Fogo: +1d6/turno por 3 turnos) ou <strong>Raiz Anciã</strong> (Planta: 1d6/turno) aplicam dano no início de cada turno do alvo. Acumulam com dano direto.</p>
+
+      <h3>Dano por Reflexo — Retaliação</h3>
+      <p>Alguns poderes e traços causam dano automático ao atacante. Exemplo: <strong>Retaliação Automática</strong> (passivo) — ao receber dano, causa 1d4 ao atacante automaticamente por 3 turnos.</p>
+
+      <div class="warn-box">
+        <span class="tag-novo" style="background:var(--orange);color:#2a1604">ATENÇÃO</span>
+        <strong>Ordem de aplicação importa.</strong> Bônus de tipo e traço se somam ANTES da Redução de Dano ser subtraída — nunca depois.
+      </div>
+    </section>
+
+    <!-- ═══════════ PODERES ═══════════ -->
+    <section id="poderes">
+      <div class="sec-eyebrow">PARTE 6</div>
+      <h2><span class="glyph">✦</span>Construção de Poderes Especiais</h2>
+      <p class="lead">Poderes são montados combinando efeitos de uma lista fixa. O custo total em pontos determina o quanto o poder pesa sobre a Carga de Dados do Digimon — veja a seção seguinte para entender por quê.</p>
+
+      <h3>Exemplo de montagem — "Garra Ígnea"</h3>
+      <div class="power-box">
+        <div class="power-box-head">
+          <h3>Garra Ígnea</h3>
+          <span class="power-box-meta">E3 · ADULTO · 16 PTS DISPONÍVEIS</span>
+        </div>
+        <div class="power-box-body">
+          <div class="power-formula">
+            <div class="formula-part">Dano Físico Médio <span class="formula-pts">3pts</span></div>
+            <span class="formula-plus">+</span>
+            <div class="formula-part">Queima: Dano Contínuo <span class="formula-pts">2pts</span></div>
+            <span class="formula-plus">+</span>
+            <div class="formula-part">Alcance Curto <span class="formula-pts">1pt</span></div>
+            <span class="formula-eq">=</span>
+            <div class="formula-part" style="border-color:var(--gold);color:var(--gold)">6 pts totais</div>
+          </div>
+          <p style="margin-bottom:0"><strong>Custo:</strong> 6 pts → consome a faixa de Carga "3×/combate" (ver tabela na próxima seção). Rola Físico para dano + 1d6/turno de Queima por 3 turnos.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════ CARGA DE DADOS ═══════════ -->
+    <section id="carga">
+      <div class="sec-eyebrow">PARTE 7</div>
+      <h2><span class="glyph">⚡</span>Carga de Dados — por que um poder só pode ser usado X vezes</h2>
+      <p class="lead">Todo Digimon sustenta seus poderes através de uma reserva interna de processamento chamada <strong>Carga de Dados</strong>. Quanto mais complexo o poder (mais pontos ele custa), mais Carga ele consome de uma só vez — e é por isso que poderes caros têm poucos usos: eles literalmente saturam o sistema do Digimon mais rápido.</p>
+
+      <div class="carga-explica">
+        <h3 style="margin-bottom:14px">Reserva de Carga = HP base do estágio</h3>
+        <p style="margin-bottom:16px">A Carga de Dados disponível por combate é igual ao <strong>HP base do estágio evolutivo</strong> do Digimon (ver Parte 1). Cada vez que um poder é usado, ele consome Carga igual a <strong>seu custo em pontos × 4</strong>. Quando a Carga acaba, o Digimon não consegue mais usar nenhum poder especial até o fim do combate — só ataques básicos de Físico ou Habilidade continuam disponíveis.</p>
+
+        <div class="carga-bar-row">
+          <span class="carga-bar-label">E3 · 60 Carga</span>
+          <div class="carga-bar-track">
+            <div class="carga-bar-seg" style="width:40%;background:var(--blue)">6pts</div>
+            <div class="carga-bar-seg" style="width:40%;background:var(--blue)">6pts</div>
+            <div class="carga-bar-seg" style="width:20%;background:var(--text-mute)">livre</div>
+          </div>
+        </div>
+        <p style="font-size:12px;margin-bottom:0">Exemplo: um Adulto (E3) com 60 de Carga pode usar "Garra Ígnea" (6 pts × 4 = 24 Carga) duas vezes antes de ficar sem reserva — batendo exatamente com a faixa "3×/combate" buscando margem para um terceiro uso parcial ou outro poder leve.</p>
+      </div>
+
+      <h3 style="margin-top:24px">Tabela de consumo e usos por custo</h3>
+      <div class="uses-grid">
+        <div class="uses-card">
+          <div class="uses-pts">1–4 PTS</div>
+          <div class="uses-val u-ilim">Ilimitado</div>
+          <div class="uses-sub">Consome pouca Carga (4–16) — o Digimon recupera o suficiente a cada turno para sustentar.</div>
+        </div>
+        <div class="uses-card">
+          <div class="uses-pts">5–8 PTS</div>
+          <div class="uses-val u-3x">3× / combate</div>
+          <div class="uses-sub">Consumo de 20–32 Carga por uso — pesa o bastante para limitar repetições.</div>
+        </div>
+        <div class="uses-card">
+          <div class="uses-pts">9–12 PTS</div>
+          <div class="uses-val u-2x">2× / combate</div>
+          <div class="uses-sub">36–48 de Carga — mais da metade da reserva de um Digimon mediano em dois usos.</div>
+        </div>
+        <div class="uses-card">
+          <div class="uses-pts">13+ PTS</div>
+          <div class="uses-val u-1x">1× / combate</div>
+          <div class="uses-sub">52+ de Carga — satura quase toda a reserva em um único disparo.</div>
+        </div>
+      </div>
+
+      <div class="new-box">
+        <span class="tag-novo">NOVO</span><strong>Recuperação entre combates.</strong> A Carga de Dados se restaura por completo ao fim de cada combate (com um breve descanso) ou imediatamente com o uso de uma carta de Digivice de recuperação. Dentro do mesmo combate, ela não regenera — por isso vale planejar quando gastar os poderes mais caros, em vez de disparar tudo no primeiro turno.
+      </div>
+
+      <div class="info-box">💡 <strong>Por que isso importa na hora de montar o Digimon:</strong> dois poderes de 6 pts custam o mesmo que um poder único de 12 pts em Carga total, mas o de 12 pts entrega tudo de uma vez (ótimo para nocautear um alvo específico) enquanto os dois de 6 pts dão flexibilidade ao longo do combate. Pensar nesse trade-off é parte do equilíbrio estratégico do sistema.</div>
+    </section>
+
+  </main>
+</div>
+
+<footer>DIGIRIDER RPG · MANUAL DE COMBATE · USO INTERNO DE MESA</footer>
+
+
+<script>
+const backTop = document.getElementById('back-top');
+window.addEventListener('scroll', () => {
+  backTop.classList.toggle('visible', window.scrollY > 400);
+});
+</script>
+
+</body>
+</html>
