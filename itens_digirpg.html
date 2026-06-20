@@ -1,0 +1,2649 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Itens — DigiRider RPG</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
+
+  :root {
+    --bg: #0a0c10;
+    --panel: #0f1218;
+    --panel2: #121820;
+    --border: #1e2530;
+    --text: #d8dde6;
+    --text-dim: #6b7585;
+    --gold: #c9a84c;
+
+    --cat-digivice:   #3ecfcf;
+    --cat-upgrade:    #5b9ef5;
+    --cat-evolucao:   #4ecb71;
+    --cat-combate:    #e05555;
+    --cat-armadura:   #c97de8;
+    --cat-recuperacao:#f5c842;
+    --cat-especial:   #e8934a;
+    --cat-minerio:    #b87c3e;
+    --cat-fruta:      #7ecb4e;
+    --cat-acessorio:  #e86a9a;
+    --cat-lendario:   #f0c040;
+    --cat-contrabando:#b5384f;
+
+    --legal-padrao:   #4ecb71;
+    --legal-restrito: #f5c842;
+    --legal-militar:  #5b9ef5;
+    --legal-ilegal:   #ff4040;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    padding: 32px 20px;
+  }
+
+  h1 {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 26px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    color: var(--text-dim);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  /* CATEGORY NAV */
+  .cat-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 36px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cat-pill {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 4px 12px;
+    border: 1px solid;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .cat-pill.digivice   { color: var(--cat-digivice);    border-color: var(--cat-digivice);    }
+  .cat-pill.upgrade    { color: var(--cat-upgrade);     border-color: var(--cat-upgrade);     }
+  .cat-pill.evolucao   { color: var(--cat-evolucao);    border-color: var(--cat-evolucao);    }
+  .cat-pill.combate    { color: var(--cat-combate);     border-color: var(--cat-combate);     }
+  .cat-pill.armadura   { color: var(--cat-armadura);    border-color: var(--cat-armadura);    }
+  .cat-pill.recuperacao{ color: var(--cat-recuperacao); border-color: var(--cat-recuperacao); }
+  .cat-pill.especial   { color: var(--cat-especial);    border-color: var(--cat-especial);    }
+  .cat-pill.minerio    { color: var(--cat-minerio);     border-color: var(--cat-minerio);     }
+  .cat-pill.fruta      { color: var(--cat-fruta);       border-color: var(--cat-fruta);       }
+  .cat-pill.acessorio  { color: var(--cat-acessorio);   border-color: var(--cat-acessorio);   }
+  .cat-pill.lendario   { color: var(--cat-lendario);    border-color: var(--cat-lendario);    }
+  .cat-pill.contrabando{ color: var(--cat-contrabando); border-color: var(--cat-contrabando); }
+
+  .cat-pill.active, .cat-pill:hover { color: #000 !important; }
+  .cat-pill.digivice.active,   .cat-pill.digivice:hover   { background: var(--cat-digivice);    }
+  .cat-pill.upgrade.active,    .cat-pill.upgrade:hover    { background: var(--cat-upgrade);     }
+  .cat-pill.evolucao.active,   .cat-pill.evolucao:hover   { background: var(--cat-evolucao);    }
+  .cat-pill.combate.active,    .cat-pill.combate:hover    { background: var(--cat-combate);     }
+  .cat-pill.armadura.active,   .cat-pill.armadura:hover   { background: var(--cat-armadura);    }
+  .cat-pill.recuperacao.active,.cat-pill.recuperacao:hover{ background: var(--cat-recuperacao); }
+  .cat-pill.especial.active,   .cat-pill.especial:hover   { background: var(--cat-especial);    }
+  .cat-pill.minerio.active,    .cat-pill.minerio:hover    { background: var(--cat-minerio);     }
+  .cat-pill.fruta.active,      .cat-pill.fruta:hover      { background: var(--cat-fruta);       }
+  .cat-pill.acessorio.active,  .cat-pill.acessorio:hover  { background: var(--cat-acessorio);   }
+  .cat-pill.lendario.active,   .cat-pill.lendario:hover   { background: var(--cat-lendario);    }
+  .cat-pill.contrabando.active,.cat-pill.contrabando:hover{ background: var(--cat-contrabando); }
+
+  /* SECTION */
+  .section { margin-bottom: 48px; }
+  .section.hidden { display: none; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 5px 16px;
+    border: 1px solid;
+    border-radius: 2px;
+  }
+  .section-title.digivice   { color: var(--cat-digivice);    border-color: var(--cat-digivice);    }
+  .section-title.upgrade    { color: var(--cat-upgrade);     border-color: var(--cat-upgrade);     }
+  .section-title.evolucao   { color: var(--cat-evolucao);    border-color: var(--cat-evolucao);    }
+  .section-title.combate    { color: var(--cat-combate);     border-color: var(--cat-combate);     }
+  .section-title.armadura   { color: var(--cat-armadura);    border-color: var(--cat-armadura);    }
+  .section-title.recuperacao{ color: var(--cat-recuperacao); border-color: var(--cat-recuperacao); }
+  .section-title.especial   { color: var(--cat-especial);    border-color: var(--cat-especial);    }
+  .section-title.minerio    { color: var(--cat-minerio);     border-color: var(--cat-minerio);     }
+  .section-title.fruta      { color: var(--cat-fruta);       border-color: var(--cat-fruta);       }
+  .section-title.acessorio  { color: var(--cat-acessorio);   border-color: var(--cat-acessorio);   }
+  .section-title.lendario   { color: var(--cat-lendario);    border-color: var(--cat-lendario);    }
+  .section-title.contrabando{ color: var(--cat-contrabando); border-color: var(--cat-contrabando); }
+
+  .section-count {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  /* ITEM GRID */
+  .item-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+    gap: 12px;
+  }
+
+  @media (max-width: 520px) {
+    .item-grid { grid-template-columns: 1fr; }
+  }
+
+  .item-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-left: 3px solid;
+    padding: 14px 16px;
+    position: relative;
+  }
+  .item-card.digivice   { border-left-color: var(--cat-digivice);    }
+  .item-card.upgrade    { border-left-color: var(--cat-upgrade);     }
+  .item-card.evolucao   { border-left-color: var(--cat-evolucao);    }
+  .item-card.combate    { border-left-color: var(--cat-combate);     }
+  .item-card.armadura   { border-left-color: var(--cat-armadura);    }
+  .item-card.recuperacao{ border-left-color: var(--cat-recuperacao); }
+  .item-card.especial   { border-left-color: var(--cat-especial);    }
+  .item-card.minerio    { border-left-color: var(--cat-minerio);     }
+  .item-card.fruta      { border-left-color: var(--cat-fruta);       }
+  .item-card.acessorio  { border-left-color: var(--cat-acessorio);   }
+  .item-card.lendario   { border-left-color: var(--cat-lendario);    }
+  .item-card.contrabando{ border-left-color: var(--cat-contrabando); }
+
+  .item-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+  }
+
+  .item-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+
+  .item-name {
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    flex: 1;
+  }
+  .item-card.digivice    .item-name { color: var(--cat-digivice);    }
+  .item-card.upgrade     .item-name { color: var(--cat-upgrade);     }
+  .item-card.evolucao    .item-name { color: var(--cat-evolucao);    }
+  .item-card.combate     .item-name { color: var(--cat-combate);     }
+  .item-card.armadura    .item-name { color: var(--cat-armadura);    }
+  .item-card.recuperacao .item-name { color: var(--cat-recuperacao); }
+  .item-card.especial    .item-name { color: var(--cat-especial);    }
+  .item-card.minerio     .item-name { color: var(--cat-minerio);     }
+  .item-card.fruta       .item-name { color: var(--cat-fruta);       }
+  .item-card.acessorio   .item-name { color: var(--cat-acessorio);   }
+  .item-card.lendario    .item-name { color: var(--cat-lendario);    }
+  .item-card.contrabando .item-name { color: var(--cat-contrabando); }
+
+  .item-uses {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 2px;
+    border: 1px solid;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .item-card.digivice    .item-uses { color: var(--cat-digivice);    border-color: var(--cat-digivice);    background: #051a1a; }
+  .item-card.upgrade     .item-uses { color: var(--cat-upgrade);     border-color: var(--cat-upgrade);     background: #05101a; }
+  .item-card.evolucao    .item-uses { color: var(--cat-evolucao);    border-color: var(--cat-evolucao);    background: #051a08; }
+  .item-card.combate     .item-uses { color: var(--cat-combate);     border-color: var(--cat-combate);     background: #1a0505; }
+  .item-card.armadura    .item-uses { color: var(--cat-armadura);    border-color: var(--cat-armadura);    background: #120518; }
+  .item-card.recuperacao .item-uses { color: var(--cat-recuperacao); border-color: var(--cat-recuperacao); background: #1a1500; }
+  .item-card.especial    .item-uses { color: var(--cat-especial);    border-color: var(--cat-especial);    background: #1a0c00; }
+  .item-card.minerio     .item-uses { color: var(--cat-minerio);     border-color: var(--cat-minerio);     background: #180e00; }
+  .item-card.fruta       .item-uses { color: var(--cat-fruta);       border-color: var(--cat-fruta);       background: #051a02; }
+  .item-card.acessorio   .item-uses { color: var(--cat-acessorio);   border-color: var(--cat-acessorio);   background: #18010b; }
+  .item-card.lendario    .item-uses { color: var(--cat-lendario);    border-color: var(--cat-lendario);    background: #1a1200; }
+  .item-card.contrabando .item-uses { color: var(--cat-contrabando); border-color: var(--cat-contrabando); background: #1a0610; }
+
+  /* METAINFO ROW: raridade + preço */
+  .item-meta {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+
+  .rarity-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    padding: 2px 7px;
+    border-radius: 2px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .rarity-comum    { background: #1e2530; color: #a0aab8; border: 1px solid #2e3a4a; }
+  .rarity-incomum  { background: #062010; color: #4ecb71; border: 1px solid #4ecb71; }
+  .rarity-raro     { background: #060a25; color: #5b9ef5; border: 1px solid #5b9ef5; }
+  .rarity-epico    { background: #180a22; color: #c97de8; border: 1px solid #c97de8; }
+  .rarity-lendario { background: #1a1200; color: #f0c040; border: 1px solid #f0c040; }
+  .rarity-unico    { background: #1a0000; color: #ff4040; border: 1px solid #ff4040; }
+
+  /* STATUS LEGAL — selo de burocracia/licenciamento */
+  .legal-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    padding: 2px 7px;
+    border-radius: 2px;
+    font-weight: 700;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .legal-badge::before { content: '●'; font-size: 7px; }
+  .legal-padrao   { background: #062010; color: var(--legal-padrao);   border: 1px solid var(--legal-padrao); }
+  .legal-restrito { background: #1a1500; color: var(--legal-restrito); border: 1px solid var(--legal-restrito); }
+  .legal-militar  { background: #05101a; color: var(--legal-militar);  border: 1px solid var(--legal-militar); }
+  .legal-ilegal   { background: #1a0000; color: var(--legal-ilegal);   border: 1px solid var(--legal-ilegal); }
+
+  .item-license {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+  .item-license::before { content: '🛂 '; }
+  .item-license.lic-restrito { color: var(--legal-restrito); }
+  .item-license.lic-militar  { color: var(--legal-militar); }
+  .item-license.lic-ilegal   { color: var(--legal-ilegal); }
+
+  /* LEGENDA DE STATUS LEGAL */
+  .legal-legend {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--cat-contrabando);
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+  }
+  .legal-legend-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--cat-contrabando);
+    margin-bottom: 8px;
+  }
+  .legal-legend-text {
+    font-size: 13px;
+    color: #a0aab8;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+  .legal-legend-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .legal-legend-item {
+    font-size: 12.5px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .legal-legend-item .legal-badge { margin-right: 6px; vertical-align: middle; }
+  .legal-legend-note {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+  }
+  .legal-legend-note::before { content: '◈ MESTRE: '; color: var(--gold); }
+
+  .item-price {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 1px;
+  }
+  .item-price::before { content: '◈ '; color: var(--text-dim); }
+
+  .item-craft {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--cat-minerio);
+    letter-spacing: 1px;
+  }
+  .item-craft::before { content: '⚒ '; }
+
+  .item-desc {
+    font-size: 13px;
+    color: #a0aab8;
+    line-height: 1.55;
+    margin-bottom: 6px;
+  }
+
+  .item-effect {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 4px;
+  }
+  .item-effect strong { color: var(--gold); }
+
+  .item-tag {
+    display: inline-block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    margin-top: 5px;
+    margin-right: 4px;
+    border-radius: 1px;
+  }
+
+  /* ── BACK TO TOP ── */
+  #back-top {
+    position: fixed;
+    bottom: 28px; right: 28px;
+    width: 44px; height: 44px;
+    background: #11151c;
+    border: 1px solid #3ecfcf;
+    color: #3ecfcf;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 3px;
+    opacity: 0; pointer-events: none;
+    transition: opacity .25s, transform .25s, background .15s;
+    z-index: 999;
+    font-family: 'Share Tech Mono', monospace;
+  }
+  #back-top.visible { opacity: 1; pointer-events: all; }
+  #back-top:hover { background: #3ecfcf; color: #000; transform: translateY(-3px); }
+
+  /* search bar */
+  .search-bar {
+    width: 100%;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    padding: 9px 14px;
+    margin-bottom: 20px;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .search-bar:focus { border-color: var(--gold); }
+  .search-bar::placeholder { color: var(--text-dim); }
+</style>
+</head>
+<body>
+<button id="back-top" title="Voltar ao topo" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<a href="index.html" style="display:inline-flex;align-items:center;gap:8px;margin:16px 20px;padding:8px 16px;background:#0f1218;border:1px solid #1e2530;border-radius:4px;color:#5b9ef5;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:2px;text-decoration:none;text-transform:uppercase;">&#8592; Página Inicial</a>
+
+<h1>◈ Itens — DigiRider RPG</h1>
+<p class="subtitle">// 125+ ITENS · 12 CATEGORIAS · COM PREÇOS, RARIDADES E STATUS LEGAL</p>
+
+<input class="search-bar" id="searchInput" placeholder="// buscar item por nome, tag ou status legal..." oninput="filterItems()" />
+
+<div class="legal-legend">
+  <div class="legal-legend-title">◈ Status Legal dos Itens — Burocracia de Nexopolis</div>
+  <p class="legal-legend-text">Desde o Acordo de Regulação de Datahaven, a Corporação opera escâneres de identificação nas vias de entrada de Nexopolis e em outras cidades grandes. Todo item de equipamento carrega um selo de status legal — relevante sempre que o grupo cruza um checkpoint, é parado pela CyberPol ou tenta vender algo "esquisito" demais.</p>
+  <div class="legal-legend-grid">
+    <div class="legal-legend-item"><span class="legal-badge legal-padrao">Padrão</span>Venda livre em qualquer loja. Porte permitido em toda a Cyberede sem questionamento.</div>
+    <div class="legal-legend-item"><span class="legal-badge legal-restrito">Restrito</span>Exige licença registrada na Corporação (profissão elegível ou teste de Burocracia/Lábia). Porte sem licença = multa e confisco no ato.</div>
+    <div class="legal-legend-item"><span class="legal-badge legal-militar">Militar</span>Uso exclusivo de unidades autorizadas (CyberPol, Sentinelas do Horizonte, Guardiões de Rede em serviço). Civil flagrado é detido imediatamente.</div>
+    <div class="legal-legend-item"><span class="legal-badge legal-ilegal">Ilegal / Banido</span>Proibido em todo o território. Só circula no mercado negro — posse já é crime e pode disparar busca ativa da CyberPol, principalmente dentro de Nexopolis.</div>
+  </div>
+  <p class="legal-legend-note">checkpoints de Nexopolis pedem teste de Furtividade ou Lábia para passar com item Restrito sem licença; um item Ilegal/Banido detectado pode virar perseguição ou combate na hora.</p>
+</div>
+
+<div class="cat-nav" id="catNav">
+  <span class="cat-pill digivice"   data-cat="digivice">◈ Digivices</span>
+  <span class="cat-pill upgrade"    data-cat="upgrade">⚙ Upgrades</span>
+  <span class="cat-pill evolucao"   data-cat="evolucao">▲ Evolução</span>
+  <span class="cat-pill combate"    data-cat="combate">⚔ Combate</span>
+  <span class="cat-pill armadura"   data-cat="armadura">◆ Armaduras</span>
+  <span class="cat-pill recuperacao"data-cat="recuperacao">♥ Recuperação</span>
+  <span class="cat-pill acessorio"  data-cat="acessorio">✦ Acessórios Digimon</span>
+  <span class="cat-pill minerio"    data-cat="minerio">⬡ Minérios</span>
+  <span class="cat-pill fruta"      data-cat="fruta">🌿 Frutas Digitais</span>
+  <span class="cat-pill especial"   data-cat="especial">◎ Itens Especiais</span>
+  <span class="cat-pill lendario"   data-cat="lendario">★ Lendários &amp; Relíquias</span>
+  <span class="cat-pill contrabando"data-cat="contrabando">☠ Mercado Negro</span>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--                   DIGIVICES                     -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" data-section="digivice">
+  <div class="section-header">
+    <span class="section-title digivice">◈ Digivices</span>
+    <span class="section-count">itens 1 – 6</span>
+  </div>
+  <div class="item-grid">
+
+    <div class="item-card digivice">
+      <div class="item-top">
+        <span class="item-num">#001</span>
+        <span class="item-name">Digivice Padrão</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-comum">Comum</span>
+        <span class="item-price">500 Bits</span>
+      </div>
+      <p class="item-desc">O modelo básico de Digivice distribuído pela Corporação Datahaven a novos DigiRiders. Robusto, confiável e acessível — mas sem módulos adicionais.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Permite comunicação com Digimon parceiro, exibe HP e status básicos. Capacidade de fusão: <strong>60 de Energia de Fusão</strong>. Suporta até 2 módulos de upgrade.</div>
+      <span class="item-tag">EQUIPAMENTO BASE</span>
+    </div>
+
+    <div class="item-card digivice">
+      <div class="item-top">
+        <span class="item-num">#002</span>
+        <span class="item-name">Digivice Avançado — Modelo X</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">4.000 Bits</span>
+      </div>
+      <p class="item-desc">Versão aprimorada do Padrão com carcaça de dado cristalizado. Suporta mais módulos e tem energia de fusão expandida. Muito disputado entre DigiRiders de elite.</p>
+      <div class="item-effect"><strong>Efeito:</strong> <strong>100 de Energia de Fusão</strong>. Suporta até 4 módulos de upgrade. +1 dado em testes de Vínculo durante fusão.</div>
+      <span class="item-tag">DIGIVICE AVANÇADO</span>
+    </div>
+
+    <div class="item-card digivice">
+      <div class="item-top">
+        <span class="item-num">#003</span>
+        <span class="item-name">Digivice Crono — Modelo T</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">12.000 Bits</span>
+      </div>
+      <p class="item-desc">Digivice com capacidade de manipulação temporal local — atrasa ou adianta turnos dentro de um espaço de combate digitalizado. Pesquisadores da Datahaven estudam seu mecanismo há anos.</p>
+      <div class="item-effect"><strong>Efeito:</strong> 1×/sessão pode <strong>repetir um teste</strong> de qualquer tipo antes de ver o resultado. Energia de Fusão: 120. Suporta até 5 módulos.</div>
+      <span class="item-tag">DIGIVICE ESPECIAL</span>
+    </div>
+
+    <div class="item-card digivice">
+      <div class="item-top">
+        <span class="item-num">#004</span>
+        <span class="item-name">Digivice Óptico — Modelo V</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">6.500 Bits</span>
+      </div>
+      <p class="item-desc">Equipado com lentes de dado refratadas que ampliam a percepção do usuário além da visão normal. Muito usado por Exploradores e Arqueólogos digitais.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Identifica automaticamente tipo, nível e fraquezas de Digimon escaneados. +2 dados em testes de Percepção. Energia de Fusão: 80.</div>
+      <span class="item-tag">DIGIVICE SCANNER</span>
+    </div>
+
+    <div class="item-card digivice">
+      <div class="item-top">
+        <span class="item-num">#005</span>
+        <span class="item-name">Digivice Fusão — Modelo F</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">18.000 Bits</span>
+      </div>
+      <p class="item-desc">Desenvolvido especificamente para DigiRiders que dominaram a arte da fusão. Amplifica o vínculo entre humano e Digimon a níveis além do padrão.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Energia de Fusão máxima: <strong>160</strong>. A forma fundida ganha <strong>+3 HP máximo</strong> e <strong>+1 dado em todos os ataques</strong>. Suporta até 6 módulos.</div>
+      <span class="item-tag">DIGIVICE DE FUSÃO</span>
+    </div>
+
+    <div class="item-card digivice">
+      <div class="item-top">
+        <span class="item-num">#006</span>
+        <span class="item-name">Digivice Lendário — Modelo Ω</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-lendario">Lendário</span>
+        <span class="item-price">Não comercializado</span>
+      </div>
+      <p class="item-desc">Apenas três unidades conhecidas existem na Cyberede. Sua origem é desconhecida — não há registro de fabricação nos arquivos da Corporação. Os que o portam afirmam ouvir uma voz dentro da estrutura de dados.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Energia de Fusão máxima: <strong>200</strong>. 1×/arco, a fusão pode ser ativada <strong>sem gastar energia</strong>. Suporta todos os módulos de upgrade existentes sem limite. Revela habilidades ocultas do Digimon parceiro ao atingir vínculos máximos.</div>
+      <span class="item-tag">LENDÁRIO · ÚNICO</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--             UPGRADES DE DIGIVICE               -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" data-section="upgrade">
+  <div class="section-header">
+    <span class="section-title upgrade">⚙ Upgrades de Digivice</span>
+    <span class="section-count">itens 7 – 17</span>
+  </div>
+  <div class="item-grid">
+
+    <div class="item-card upgrade">
+      <div class="item-top">
+        <span class="item-num">#007</span>
+        <span class="item-name">Módulo de Expansão de Energia</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="item-price">1.200 Bits</span>
+        <span class="item-craft">Requer: Cristal de Ferro Digital ×2</span>
+      </div>
+      <p class="item-desc">Um módulo de bateria extra que aumenta a reserva de energia do Digivice. Essencial para DigiRiders que entram em batalhas longas com fusões frequentes.</p>
+      <div class="item-effect"><strong>Efeito:</strong> +<strong>20 de Energia de Fusão</strong> máxima. Empilhável até 3 vezes.</div>
+      <span class="item-tag">MÓDULO</span>
+    </div>
+
+    <div class="item-card upgrade">
+      <div class="item-top">
+        <span class="item-num">#008</span>
+        <span class="item-name">Cânhão de Laser Digivice</span>
+        <span class="item-uses">3× por sessão</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">3.800 Bits</span>
+        <span class="item-craft">Requer: Fragmento de Chrome Digizoid ×1</span>
+      </div>
+      <p class="item-desc">Um canhão miniaturizado instalado no compartimento lateral do Digivice. Dispara pulsos de energia compactada de dado — precisos e devastadores no curto alcance.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Disparo que causa <strong>2d6 de dano de dado</strong> a um alvo. Alcance médio. Usa ação padrão.</div>
+      <span class="item-tag">MÓDULO · OFENSIVO</span>
+    </div>
+
+    <div class="item-card upgrade">
+      <div class="item-top">
+        <span class="item-num">#009</span>
+        <span class="item-name">Lâmina de Dados</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="item-price">2.200 Bits</span>
+        <span class="item-craft">Requer: Pepita de Adamantite ×1</span>
+      </div>
+      <p class="item-desc">Uma lâmina holográfica que se projeta do Digivice — suficientemente sólida para cortar estruturas de dado e causar dano a Digimon de níveis baixos.</p>
+      <div class="item-effect"><strong>Efeito:</strong> O usuário pode atacar no corpo-a-corpo causando <strong>1d8 + Força</strong> de dano. Conta como ataque normal para fins de combate.</div>
+      <span class="item-tag">MÓDULO · MELEE</span>
+    </div>
+
+    <div class="item-card upgrade">
+      <div class="item-top">
+        <span class="item-num">#010</span>
+        <span class="item-name">Escudo de Barreira Holográfica</span>
+        <span class="item-uses">3× por sessão</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">4.500 Bits</span>
+        <span class="item-craft">Requer: Pó de Orichalcum ×2</span>
+      </div>
+      <p class="item-desc">Uma cúpula de dado sólido que bloqueia ataques. Cada uso gera uma barreira temporária que absorve dano.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Reação — ao receber ataque, ative para <strong>absorver até 15 de dano</strong>. A barreira dura até o início do próximo turno.</div>
+      <span class="item-tag">MÓDULO · DEFENSIVO</span>
+    </div>
+
+    <div class="item-card upgrade">
+      <div class="item-top">
+        <span class="item-num">#011</span>
+        <span class="item-name">Módulo de Pulso EMP Digital</span>
+        <span class="item-uses">2× por sessão</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">5.000 Bits</span>
+      </div>
+      <p class="item-desc">Gera um pulso eletromagnético digital que interfere nos sistemas de Digimon próximos, atrasando seus processos internos por alguns momentos preciosos.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Todos os Digimon inimigos a curto alcance <strong>perdem 1 ação no próximo turno</strong> (resistência: teste de Vitalidade contra dificuldade 14).</div>
+      <span class="item-tag">MÓDULO · CONTROLE</span>
+    </div>
+
+    <div class="item-card upgrade">
+      <div class="item-top">
+        <span class="item-num">#012</span>
+        <span class="item-name">Módulo de Teletransporte Curto</span>
+        <span class="item-uses">1× por combate</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">9.000 Bits</span>
+        <span class="item-craft">Requer: Cristal de Luz Solar ×1 + Fragmento de Chrome Digizoid ×2</span>
+      </div>
+      <p class="item-desc">Permite reposicionamento instantâneo dentro do campo de batalha digital. Muito usado por Espadachins e Ladrões que precisam de mobilidade extrema.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Ação de movimento — teleporta o usuário para qualquer ponto visível dentro de alcance médio. Pode ser usado como reação para evitar dano (esquiva automática 1×).</div>
+      <span class="item-tag">MÓDULO · MOBILIDADE</span>
+    </div>
+
+    <div class="item-card upgrade">
+      <div class="item-top">
+        <span class="item-num">#013</span>
+        <span class="item-name">Amplificador de Fusão</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">11.000 Bits</span>
+        <span class="item-craft">Requer: Núcleo de Harmonita ×1 + Cristal de Ferro Digital ×3</span>
+      </div>
+      <p class="item-desc">Amplifica o vínculo de fusão entre DigiRider e Digimon, aumentando o poder da forma fundida sem custo adicional de energia.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Enquanto fundido, todos os ataques ganham <strong>+2 de dano fixo</strong> e +1 dado em testes de resistência.</div>
+      <span class="item-tag">MÓDULO · FUSÃO</span>
+    </div>
+
+    <div class="item-card upgrade">
+      <div class="item-top">
+        <span class="item-num">#014</span>
+        <span class="item-name">Módulo de Scanner Avançado</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="item-price">1.800 Bits</span>
+      </div>
+      <p class="item-desc">Adiciona capacidades de análise profunda ao Digivice — lê estruturas de dado, detecta armadilhas digitais e identifica pontos fracos arquitetônicos.</p>
+      <div class="item-effect"><strong>Efeito:</strong> +2 dados em testes de Percepção e Inteligência. Detecta automaticamente armadilhas e passagens ocultas a curto alcance.</div>
+      <span class="item-tag">MÓDULO · UTILITÁRIO</span>
+    </div>
+
+    <div class="item-card upgrade">
+      <div class="item-top">
+        <span class="item-num">#015</span>
+        <span class="item-name">Módulo de Escudo Anti-Hack</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">6.000 Bits</span>
+        <span class="item-craft">Requer: Cristal de Sombra ×1</span>
+      </div>
+      <p class="item-desc">Firewall pessoal integrado ao Digivice que repele tentativas de intrusão e manipulação de dado externas.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Imune a efeitos de Hacking hostil. +3 dados em resistência contra efeitos de corrupção digital. Digimon parceiro também é beneficiado enquanto estiver próximo.</div>
+      <span class="item-tag">MÓDULO · PROTEÇÃO</span>
+    </div>
+
+    <div class="item-card upgrade">
+      <div class="item-top">
+        <span class="item-num">#016</span>
+        <span class="item-name">Canhão de Rajada de Dados</span>
+        <span class="item-uses">2× por sessão</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">8.500 Bits</span>
+        <span class="item-craft">Requer: Fragmento de Chrome Digizoid ×2 + Pepita de Adamantite ×1</span>
+      </div>
+      <p class="item-desc">Versão pesada do Cânhão de Laser — dispara uma rajada em cone que atinge múltiplos alvos simultaneamente.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Disparo em cone curto — <strong>3d6 de dano</strong> a todos os alvos na área (resistência reduz à metade). Usa ação padrão.</div>
+      <span class="item-tag">MÓDULO · AOE</span>
+    </div>
+
+    <div class="item-card upgrade">
+      <div class="item-top">
+        <span class="item-num">#017</span>
+        <span class="item-name">Módulo de Invisibilidade Digital</span>
+        <span class="item-uses">3× por sessão (5 turnos cada)</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">13.000 Bits</span>
+        <span class="item-craft">Requer: Cristal de Sombra ×2 + Pó de Orichalcum ×1</span>
+      </div>
+      <p class="item-desc">Envolve o usuário em um manto de dados refratados que o torna indetectável por sensores digitais e olhos comuns.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Usuário fica invisível por <strong>5 turnos</strong>. Ataques feitos enquanto invisível têm <strong>vantagem (rolagem dobrada, pega maior)</strong>. A invisibilidade termina ao atacar.</div>
+      <span class="item-tag">MÓDULO · FURTIVIDADE</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--                ITENS DE EVOLUÇÃO               -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" data-section="evolucao">
+  <div class="section-header">
+    <span class="section-title evolucao">▲ Itens de Evolução</span>
+    <span class="section-count">itens 18 – 30</span>
+  </div>
+  <div class="item-grid">
+
+    <div class="item-card evolucao">
+      <div class="item-top">
+        <span class="item-num">#018</span>
+        <span class="item-name">Cápsula de Energia Digital</span>
+        <span class="item-uses">1× consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-comum">Comum</span>
+        <span class="item-price">300 Bits</span>
+      </div>
+      <p class="item-desc">A cápsula mais básica para induzir digievolução. Carregada com dados de evolução brutos que estimulam o processo natural do Digimon parceiro.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Permite ao Digimon parceiro <strong>Digievolucionar para o próximo estágio</strong> imediatamente, sem custo de dados. Dura até o fim do combate ou 1 hora.</div>
+      <span class="item-tag">CONSUMÍVEL · EVOLUÇÃO BÁSICA</span>
+    </div>
+
+    <div class="item-card evolucao">
+      <div class="item-top">
+        <span class="item-num">#019</span>
+        <span class="item-name">Cápsula de Energia Avançada</span>
+        <span class="item-uses">1× consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="item-price">1.500 Bits</span>
+        <span class="item-craft">Requer: Fruta Digi-Banana + Cristal de Ferro Digital ×1</span>
+      </div>
+      <p class="item-desc">Uma versão mais concentrada que permite saltar dois estágios evolutivos de uma vez. Muito procurada por DigiRiders em situações de emergência.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Permite ao Digimon parceiro <strong>Digievolucionar dois estágios</strong> de uma vez. Ao final, o Digimon retorna ao estágio normal com <strong>–5 HP</strong> por carga de desgaste.</div>
+      <span class="item-tag">CONSUMÍVEL · EVOLUÇÃO DUPLA</span>
+    </div>
+
+    <div class="item-card evolucao">
+      <div class="item-top">
+        <span class="item-num">#020</span>
+        <span class="item-name">Cristal de Digievolução</span>
+        <span class="item-uses">1× consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">4.000 Bits</span>
+        <span class="item-craft">Requer: Cristal de Luz Solar ×1 + Fragmento de DigiCore</span>
+      </div>
+      <p class="item-desc">Um cristal puro formado por dados estabilizados que contém a "impressão digital" de uma forma evolutiva específica. Ao ser quebrado, emite a sequência de evolução comprimida.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Digimon evolui para uma <strong>forma específica previamente registrada no cristal</strong>, independente do nível atual. A forma dura toda a sessão.</div>
+      <span class="item-tag">CONSUMÍVEL · EVOLUÇÃO DIRIGIDA</span>
+    </div>
+
+    <div class="item-card evolucao">
+      <div class="item-top">
+        <span class="item-num">#021</span>
+        <span class="item-name">Semente de Fusão</span>
+        <span class="item-uses">1× consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">5.500 Bits</span>
+      </div>
+      <p class="item-desc">Permite a fusão temporária de dois Digimon parceiros em uma única entidade poderosa. Exige vínculo estabelecido entre os dois Digimon envolvidos.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Fusiona dois Digimon parceiros por <strong>3 turnos</strong>. A forma resultante tem HP somado, todos os atributos do maior deles +2, e pode usar habilidades dos dois.</div>
+      <span class="item-tag">CONSUMÍVEL · FUSÃO DIGIMON</span>
+    </div>
+
+    <div class="item-card evolucao">
+      <div class="item-top">
+        <span class="item-num">#022</span>
+        <span class="item-name">Núcleo de Fusão</span>
+        <span class="item-uses">∞ Permanente (equipável)</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">15.000 Bits</span>
+        <span class="item-craft">Requer: Núcleo de Harmonita ×2 + Cristal de Luz Solar ×2</span>
+      </div>
+      <p class="item-desc">Um núcleo de fusão permanente que, uma vez instalado no Digivice, reduz permanentemente o custo de energia para fusões DigiRider.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Reduz o custo de manutenção da fusão DigiRider em <strong>–10 de Energia por turno</strong>. Cumulativo com outros módulos.</div>
+      <span class="item-tag">EQUIPÁVEL · FUSÃO PERMANENTE</span>
+    </div>
+
+    <div class="item-card evolucao">
+      <div class="item-top">
+        <span class="item-num">#023</span>
+        <span class="item-name">Catalisador de Evolução</span>
+        <span class="item-uses">1× por sessão</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="item-price">2.800 Bits</span>
+      </div>
+      <p class="item-desc">Uma substância volátil de dado que acelera drasticamente o processo metabólico evolutivo. Usado como suplemento antes de batalhas difíceis.</p>
+      <div class="item-effect"><strong>Efeito:</strong> O Digimon parceiro pode Digievolucionar como <strong>ação livre</strong> (sem gastar ação de turno) uma vez nessa sessão.</div>
+      <span class="item-tag">CONSUMÍVEL · ACELERADOR</span>
+    </div>
+
+    <div class="item-card evolucao">
+      <div class="item-top">
+        <span class="item-num">#024</span>
+        <span class="item-name">Fragmento de Dado Antigo</span>
+        <span class="item-uses">1× consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">22.000 Bits</span>
+      </div>
+      <p class="item-desc">Restos de dados dos primeiros Digimon que habitaram a Cyberede — antes de qualquer intervenção humana. Contém caminhos evolutivos considerados "extintos".</p>
+      <div class="item-effect"><strong>Efeito:</strong> Desbloqueia uma <strong>forma evolutiva alternativa secreta</strong> do Digimon parceiro (o Mestre define qual). Permanente — o caminho fica disponível daquele ponto em diante.</div>
+      <span class="item-tag">CONSUMÍVEL · DESBLOQUEIO PERMANENTE</span>
+    </div>
+
+    <div class="item-card evolucao">
+      <div class="item-top">
+        <span class="item-num">#025</span>
+        <span class="item-name">Ampulheta de Chronomon</span>
+        <span class="item-uses">1× consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">35.000 Bits</span>
+      </div>
+      <p class="item-desc">Uma ampulheta cujo interior contém tempo comprimido extraído de regiões temporais da Cyberede. Ao ser virada, congela o estado evolutivo do Digimon indefinidamente.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Mantém o Digimon em seu estágio evolutivo máximo ativo por <strong>toda a sessão</strong>, sem custo de energia ou tempo. Só pode ser usado uma vez por Digimon por campanha.</div>
+      <span class="item-tag">CONSUMÍVEL · SESSÃO COMPLETA</span>
+    </div>
+
+    <div class="item-card evolucao">
+      <div class="item-top">
+        <span class="item-num">#026</span>
+        <span class="item-name">Chave de Spatiamon</span>
+        <span class="item-uses">1× consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-lendario">Lendário</span>
+        <span class="item-price">Não comercializado</span>
+      </div>
+      <p class="item-desc">Artefato dimensional vinculado ao lendário Spatiamon. Sua função exata é desconhecida, mas registros indicam que ela "abre espaço dentro do dado" — um conceito sem paralelo na teoria digital moderna.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Permite ao Digimon parceiro acessar uma <strong>forma além do Mega</strong> por 1 turno. Durante esse turno, todos os atributos dobram e ele não pode ser derrotado. No turno seguinte, retorna ao estágio Bebê com HP crítico.</div>
+      <span class="item-tag">CONSUMÍVEL · ULTRA · PERIGOSO</span>
+    </div>
+
+    <div class="item-card evolucao">
+      <div class="item-top">
+        <span class="item-num">#027</span>
+        <span class="item-name">Ovo de Digimon Selvagem</span>
+        <span class="item-uses">Item especial</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">Dropeável / não comercializado</span>
+      </div>
+      <p class="item-desc">Ovos encontrados em áreas selvagens da Cyberede. Cada um contém um Digimon diferente — o tipo depende da região onde foi encontrado. Chocar um ovo leva 1d4 sessões.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Ao ser chocado, nasce um Digimon aleatório de estágio Bebê vinculado à área de origem. Pode se tornar parceiro secundário ou ser treinado como montaria. O Mestre determina a espécie.</div>
+      <span class="item-tag">ESPECIAL · CHOCÁVEL</span>
+    </div>
+
+    <div class="item-card evolucao">
+      <div class="item-top">
+        <span class="item-num">#028</span>
+        <span class="item-name">Ovo Digi-Cromático</span>
+        <span class="item-uses">Item especial</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">Extremamente raro</span>
+      </div>
+      <p class="item-desc">Um ovo com casca iridescente que muda de cor conforme a luz incide. Registros indicam que o Digimon dentro passou por alguma mutação cromática — o que isso significa ainda é debatido.</p>
+      <div class="item-effect"><strong>Efeito:</strong> O Digimon que nasce possui uma <strong>habilidade especial exclusiva</strong> não encontrada na espécie base (definida pelo Mestre). Seu vínculo com o DigiRider se forma imediatamente — sem necessidade de treinamento.</div>
+      <span class="item-tag">ESPECIAL · MUTAÇÃO · ÉPICO</span>
+    </div>
+
+    <div class="item-card evolucao">
+      <div class="item-top">
+        <span class="item-num">#029</span>
+        <span class="item-name">Brasão da Coragem</span>
+        <span class="item-uses">∞ Equipável</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-lendario">Lendário</span>
+        <span class="item-price">Não comercializado — encontrado em dungeons</span>
+      </div>
+      <p class="item-desc">Um dos brasões ancestrais da Cyberede, ligado à virtude da Coragem. Quando o DigiRider portador age com bravura genuína, o brasão reage e amplifica o vínculo com o Digimon.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Quando o DigiRider age em defesa de aliados ou enfrenta um inimigo muito mais forte sem recuar, o Digimon parceiro ganha <strong>+1 estágio de evolução temporário</strong> gratuitamente por aquele combate. Brasão não pode ser vendido ou transferido.</div>
+      <span class="item-tag">BRASÃO · LENDÁRIO · VÍNCULO</span>
+    </div>
+
+    <div class="item-card evolucao">
+      <div class="item-top">
+        <span class="item-num">#030</span>
+        <span class="item-name">Brasão da Amizade</span>
+        <span class="item-uses">∞ Equipável</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-lendario">Lendário</span>
+        <span class="item-price">Não comercializado — encontrado em dungeons</span>
+      </div>
+      <p class="item-desc">Brasão ancestral ligado à Amizade. Reage ao grau de vínculo entre o DigiRider e seu parceiro — e entre o DigiRider e seus companheiros humanos.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Enquanto pelo menos um aliado humano estiver no campo, o Digimon parceiro do portador ganha <strong>+2 em todos os atributos</strong>. Se o portador estiver ao lado de todos os seus aliados, o bônus aumenta para <strong>+4</strong>.</div>
+      <span class="item-tag">BRASÃO · LENDÁRIO · SINERGIA</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--           ACESSÓRIOS DO DIGIMON                -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" data-section="acessorio">
+  <div class="section-header">
+    <span class="section-title acessorio">✦ Acessórios para Digimon</span>
+    <span class="section-count">itens 31 – 45</span>
+  </div>
+  <div class="item-grid">
+
+    <div class="item-card acessorio">
+      <div class="item-top">
+        <span class="item-num">#031</span>
+        <span class="item-name">Holy Ring</span>
+        <span class="item-uses">∞ Equipável no Digimon</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">18.000 Bits</span>
+        <span class="item-craft">Requer: Pó de Orichalcum ×3 + Cristal de Luz Solar ×2</span>
+      </div>
+      <p class="item-desc">O anel sagrado que muitos Digimon do tipo Anjo carregam naturalmente. Forjado com dados de luz pura, confere proteção divina e amplifica poderes sagrados. Digimon sombrios que o equipam sofrem efeitos colaterais imprevisíveis.</p>
+      <div class="item-effect"><strong>Efeito:</strong> <strong>+3 em Resistência</strong> do Digimon. Ataques do tipo Luz causam <strong>+2 de dano bônus</strong>. Imune a efeitos de corrupção leve. Digimon do tipo Trevas equipando este item sofrem <strong>–1 dado em todos os testes</strong> em vez de receber os bônus.</div>
+      <span class="item-tag">ACESSÓRIO DIGIMON · SAGRADO</span>
+    </div>
+
+    <div class="item-card acessorio">
+      <div class="item-top">
+        <span class="item-num">#032</span>
+        <span class="item-name">Colete de Chrome Digizoid</span>
+        <span class="item-uses">∞ Equipável no Digimon</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-lendario">Lendário</span>
+        <span class="item-price">Crafteável — não encontrado em lojas</span>
+        <span class="item-craft">Requer: Chrome Digizoid ×4 + Núcleo de Harmonita ×1</span>
+      </div>
+      <p class="item-desc">Uma armadura forjada com o lendário Chrome Digizoid — o metal mais duro da Cyberede. Digimon equipados com ela se tornam visivelmente mais resistentes e intimidadores.</p>
+      <div class="item-effect"><strong>Efeito:</strong> <strong>RD 10 permanente</strong> contra todos os tipos de dano. O Digimon ganha <strong>+5 HP máximo</strong> e seus ataques físicos causam <strong>+3 de dano fixo</strong> (a pressão da armadura amplifica o impacto).</div>
+      <span class="item-tag">ARMADURA DIGIMON · CHROME DIGIZOID · LENDÁRIO</span>
+    </div>
+
+    <div class="item-card acessorio">
+      <div class="item-top">
+        <span class="item-num">#033</span>
+        <span class="item-name">Capacete de Chrome Digizoid</span>
+        <span class="item-uses">∞ Equipável no Digimon</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-lendario">Lendário</span>
+        <span class="item-price">Crafteável</span>
+        <span class="item-craft">Requer: Chrome Digizoid ×2 + Pepita de Adamantite ×2</span>
+      </div>
+      <p class="item-desc">Proteção craniana de Chrome Digizoid que cobre a cabeça do Digimon. Além da proteção, amplifica os processos cognitivos digitais do Digimon, aumentando sua inteligência de combate.</p>
+      <div class="item-effect"><strong>Efeito:</strong> <strong>RD 6</strong> e <strong>+2 dados em testes de Inteligência</strong> do Digimon. 1×/combate pode <strong>prever o ataque</strong> de um inimigo — o próximo ataque contra este Digimon automaticamente erra.</div>
+      <span class="item-tag">ARMADURA DIGIMON · CHROME DIGIZOID</span>
+    </div>
+
+    <div class="item-card acessorio">
+      <div class="item-top">
+        <span class="item-num">#034</span>
+        <span class="item-name">Amuleto de Dado Dourado</span>
+        <span class="item-uses">∞ Equipável no Digimon</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">8.000 Bits</span>
+        <span class="item-craft">Requer: Pepita de Adamantite ×1 + Fruta Digi-Manga ×1</span>
+      </div>
+      <p class="item-desc">Um amuleto forjado com dado dourado que aumenta a vitalidade e a regeneração natural do Digimon entre combates.</p>
+      <div class="item-effect"><strong>Efeito:</strong> <strong>+5 HP máximo</strong> do Digimon. Ao fim de cada combate, recupera <strong>+3 HP automaticamente</strong>. Não acumula com outros amuletos.</div>
+      <span class="item-tag">ACESSÓRIO DIGIMON · VITALIDADE</span>
+    </div>
+
+    <div class="item-card acessorio">
+      <div class="item-top">
+        <span class="item-num">#035</span>
+        <span class="item-name">Garra de Adamantite</span>
+        <span class="item-uses">∞ Equipável no Digimon</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">Crafteável</span>
+        <span class="item-craft">Requer: Pepita de Adamantite ×3 + Cristal de Fogo ×1</span>
+      </div>
+      <p class="item-desc">Garras reforçadas de Adamantite instaladas nas patas do Digimon. Aumentam dramaticamente o poder de ataques físicos corpo-a-corpo.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Ataques físicos do Digimon ganham <strong>+1 dado de dano</strong> e <strong>+2 de dano fixo</strong>. Ataques que acertam com margem de 5+ causam <strong>sangramento digital</strong> (–1 HP/turno por 3 turnos).</div>
+      <span class="item-tag">ARMA DIGIMON · FÍSICO</span>
+    </div>
+
+    <div class="item-card acessorio">
+      <div class="item-top">
+        <span class="item-num">#036</span>
+        <span class="item-name">Cristal de Amplificação Elemental</span>
+        <span class="item-uses">∞ Equipável no Digimon</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">7.500 Bits</span>
+        <span class="item-craft">Requer: Cristal do elemento correspondente ×2</span>
+      </div>
+      <p class="item-desc">Um cristal sintônico ao elemento natural do Digimon que amplifica seus ataques elementais. Existe uma versão para cada elemento: Fogo, Gelo, Relâmpago, Vento, Terra, Luz e Trevas.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Todos os ataques do elemento correspondente causam <strong>+3 de dano fixo</strong>. Habilidades especiais do mesmo elemento custam <strong>–1 ação</strong> para ativar.</div>
+      <span class="item-tag">ACESSÓRIO DIGIMON · ELEMENTAL</span>
+    </div>
+
+    <div class="item-card acessorio">
+      <div class="item-top">
+        <span class="item-num">#037</span>
+        <span class="item-name">Manto de Sombra Digital</span>
+        <span class="item-uses">∞ Equipável no Digimon</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">14.000 Bits</span>
+        <span class="item-craft">Requer: Cristal de Sombra ×3 + Pó de Orichalcum ×1</span>
+      </div>
+      <p class="item-desc">Um manto tecido com sombras digitalizadas que envolve o Digimon e o torna difícil de rastrear. Especialmente útil para Digimon de tipos Furtivo e Ilusório.</p>
+      <div class="item-effect"><strong>Efeito:</strong> O Digimon ganha <strong>+2 dados em esquiva</strong>. Inimigos com ataques à distância sofrem <strong>–1 dado</strong> ao mirar neste Digimon. 1×/combate pode se tornar completamente invisível por 1 turno.</div>
+      <span class="item-tag">ACESSÓRIO DIGIMON · EVASÃO</span>
+    </div>
+
+    <div class="item-card acessorio">
+      <div class="item-top">
+        <span class="item-num">#038</span>
+        <span class="item-name">Coroa de Dados — Versão Menor</span>
+        <span class="item-uses">∞ Equipável no Digimon</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">10.000 Bits</span>
+      </div>
+      <p class="item-desc">Uma coroa de dados comprimidos que se encaixa na cabeça do Digimon. Amplifica os poderes mentais e habilidades especiais do portador. Parece uma versão menor de algo muito mais grandioso.</p>
+      <div class="item-effect"><strong>Efeito:</strong> <strong>+1 dado em todos os testes de habilidades especiais</strong> do Digimon. Cada habilidade especial usada em combate gera <strong>+1 de dano fixo</strong> nos usos subsequentes naquela sessão (acumula até +5).</div>
+      <span class="item-tag">ACESSÓRIO DIGIMON · HABILIDADES</span>
+    </div>
+
+    <div class="item-card acessorio">
+      <div class="item-top">
+        <span class="item-num">#039</span>
+        <span class="item-name">Colar de Osso Digital</span>
+        <span class="item-uses">∞ Equipável no Digimon</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="item-price">2.500 Bits</span>
+        <span class="item-craft">Requer: Osso de Digimon Antigo ×2</span>
+      </div>
+      <p class="item-desc">Colares feitos com ossos digitais de Digimon antigos. Carregam a memória residual dos dados desses Digimon extintos — às vezes revelando fragmentos de combate da era primária.</p>
+      <div class="item-effect"><strong>Efeito:</strong> <strong>+2 HP máximo</strong> do Digimon e <strong>+1 em Força ou Resistência</strong> (escolha ao equipar). 1×/sessão o Digimon pode "lembrar" uma técnica ancestral desconhecida — o Mestre escolhe o efeito.</div>
+      <span class="item-tag">ACESSÓRIO DIGIMON · ANCESTRAL</span>
+    </div>
+
+    <div class="item-card acessorio">
+      <div class="item-top">
+        <span class="item-num">#040</span>
+        <span class="item-name">Anéis de Controle Removidos</span>
+        <span class="item-uses">∞ Equipável no Digimon</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">Não comercializado — dropeado de inimigos</span>
+      </div>
+      <p class="item-desc">Restos dos Anéis de Controle usados para escravizar Digimon. Uma vez removidos e deprogramados, tornam-se um acessório que simboliza libertação — e fortalece a vontade do portador.</p>
+      <div class="item-effect"><strong>Efeito:</strong> O Digimon fica <strong>imune a efeitos de controle mental e charme</strong>. Quando tenta resistir a qualquer efeito de status, rola com <strong>vantagem</strong>. O DigiRider parceiro ganha <strong>+1 dado em testes de Vínculo</strong>.</div>
+      <span class="item-tag">ACESSÓRIO DIGIMON · ANTI-CONTROLE</span>
+    </div>
+
+    <div class="item-card acessorio">
+      <div class="item-top">
+        <span class="item-num">#041</span>
+        <span class="item-name">Núcleo de Poder Oculto</span>
+        <span class="item-uses">1× por arco</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">25.000 Bits</span>
+        <span class="item-craft">Requer: Fragmento de DigiCore ×1 + Cristal de Luz Solar ×1 + Cristal de Sombra ×1</span>
+      </div>
+      <p class="item-desc">Um núcleo de poder comprimido que, ao ser ativado, libera uma descarga de energia concentrada que desperta habilidades latentes no Digimon portador.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Ao ativar, o Digimon <strong>desbloqueia uma habilidade secreta permanentemente</strong> (definida pelo Mestre com base na espécie). Após a ativação, o Núcleo se desintegra mas o desbloqueio permanece.</div>
+      <span class="item-tag">CONSUMÍVEL ÚNICO · DESBLOQUEIO HABILIDADE</span>
+    </div>
+
+    <div class="item-card acessorio">
+      <div class="item-top">
+        <span class="item-num">#042</span>
+        <span class="item-name">Tag de Brasão</span>
+        <span class="item-uses">∞ Equipável no Digimon</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">6.000 Bits</span>
+      </div>
+      <p class="item-desc">Uma Tag especial que amplifica o brasão do DigiRider parceiro quando equipada no Digimon. O par Tag + Brasão é mais poderoso do que cada um separado.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Se o DigiRider portador possuir um Brasão, todos os bônus do brasão aumentam em <strong>+1</strong>. O Digimon equipado ganha <strong>+1 dado em ataques de sua habilidade signature</strong>.</div>
+      <span class="item-tag">ACESSÓRIO DIGIMON · TAG</span>
+    </div>
+
+    <div class="item-card acessorio">
+      <div class="item-top">
+        <span class="item-num">#043</span>
+        <span class="item-name">Escamas de Dragão Digital</span>
+        <span class="item-uses">∞ Equipável no Digimon</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">9.000 Bits</span>
+        <span class="item-craft">Requer: Escama de Dramon ×5</span>
+      </div>
+      <p class="item-desc">Placas feitas de escamas extraídas de Dramons abatidos. Coladas sobre a estrutura do Digimon, fornecem uma camada extra de proteção com aparência feroz.</p>
+      <div class="item-effect"><strong>Efeito:</strong> <strong>RD 4</strong> permanente. Ataques do tipo Dragão causados contra este Digimon têm sua eficiência reduzida em <strong>–2 de dano</strong>. O Digimon fica com aparência mais intimidadora — <strong>+1 dado em testes de Intimidação</strong>.</div>
+      <span class="item-tag">ARMADURA DIGIMON · ANTI-DRAGÃO</span>
+    </div>
+
+    <div class="item-card acessorio">
+      <div class="item-top">
+        <span class="item-num">#044</span>
+        <span class="item-name">Bússola de Dado Primordial</span>
+        <span class="item-uses">∞ Equipável no Digimon</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="item-price">3.000 Bits</span>
+      </div>
+      <p class="item-desc">Uma pequena bússola de dado que aponta para a fonte de energia de dado mais próxima. Extremamente útil para Digimon treinados para explorar dungeons e regiões desconhecidas.</p>
+      <div class="item-effect"><strong>Efeito:</strong> O Digimon portador nunca se perde em áreas digitais. <strong>+1 dado em testes de Sobrevivência e Exploração</strong>. Detecta automaticamente itens de dado enterrados ou ocultos em um raio de 10 metros digitais.</div>
+      <span class="item-tag">ACESSÓRIO DIGIMON · EXPLORAÇÃO</span>
+    </div>
+
+    <div class="item-card acessorio">
+      <div class="item-top">
+        <span class="item-num">#045</span>
+        <span class="item-name">Marca da Evolução — Tatuagem Digital</span>
+        <span class="item-uses">∞ Permanente (fusão com o corpo)</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">Requer ritual especial</span>
+        <span class="item-craft">Requer: Fragmento de Dado Antigo ×1 + Cristal do elemento do Digimon ×2</span>
+      </div>
+      <p class="item-desc">Uma tatuagem de dado gravada diretamente na estrutura digital do Digimon durante um ritual especial. Não pode ser removida — é parte permanente do Digimon daquele ponto em diante.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Escolha um atributo ao gravar. Esse atributo ganha <strong>+2 permanente</strong>. Além disso, o custo de energia para evoluir para a próxima forma é <strong>reduzido em 15</strong>. Só pode ser feita uma vez por Digimon.</div>
+      <span class="item-tag">PERMANENTE · RITUAL · ÚNICO POR DIGIMON</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--                ITENS DE COMBATE                -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" data-section="combate">
+  <div class="section-header">
+    <span class="section-title combate">⚔ Itens de Combate Humano</span>
+    <span class="section-count">itens 46 – 54</span>
+  </div>
+  <div class="item-grid">
+
+    <div class="item-card combate">
+      <div class="item-top">
+        <span class="item-num">#046</span>
+        <span class="item-name">Granada de Dados</span>
+        <span class="item-uses">1× consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-comum">Comum</span>
+        <span class="legal-badge legal-restrito">Restrito</span>
+        <span class="item-price">400 Bits</span>
+      </div>
+      <p class="item-license lic-restrito">Requer registro de explosivo na Corporação ou profissão Caçador de Anomalias/Sentinela do Horizonte</p>
+      <p class="item-desc">Uma cápsula explosiva de dado comprimido. Ao impactar, libera uma explosão de energia em área que danifica tudo dentro do raio.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Explosão em raio curto — <strong>2d8 de dano de dado</strong> a todos os alvos (resistência reduz à metade). Alcance: médio ao arremessar.</div>
+      <span class="item-tag">CONSUMÍVEL · AOE</span>
+    </div>
+
+    <div class="item-card combate">
+      <div class="item-top">
+        <span class="item-num">#047</span>
+        <span class="item-name">Armadilha de Rede Digital</span>
+        <span class="item-uses">1× consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="legal-badge legal-padrao">Padrão</span>
+        <span class="item-price">800 Bits</span>
+      </div>
+      <p class="item-desc">Uma rede de dados projetada que captura o alvo em uma malha de fios digitais. Bastante eficaz contra Digimon de pequeno e médio porte.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Alvo fica <strong>paralisado por 2 turnos</strong> (resistência de Força desfaz com sucesso). Digimon do estágio Perfeito+ são imunes.</div>
+      <span class="item-tag">CONSUMÍVEL · CONTROLE</span>
+    </div>
+
+    <div class="item-card combate">
+      <div class="item-top">
+        <span class="item-num">#048</span>
+        <span class="item-name">Bomba de Corrupção</span>
+        <span class="item-uses">1× consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="legal-badge legal-ilegal">Banido</span>
+        <span class="item-price">3.000 Bits</span>
+      </div>
+      <p class="item-license lic-ilegal">Fabricação e posse proibidas pela Corporação — circula apenas no mercado negro</p>
+      <p class="item-desc">Uma bomba carregada com dados corrompidos extraídos de regiões instáveis. Ao explodir, contamina os dados dos Digimon atingidos.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Todos os Digimon em raio curto sofrem <strong>–2 dados em todos os testes</strong> por <strong>3 turnos</strong>. Resistência de Vitalidade anula o efeito.</div>
+      <span class="item-tag">CONSUMÍVEL · DEBUFF · AOE</span>
+    </div>
+
+    <div class="item-card combate">
+      <div class="item-top">
+        <span class="item-num">#049</span>
+        <span class="item-name">Bastão Elétrico de Dados</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="legal-badge legal-padrao">Padrão</span>
+        <span class="item-price">2.000 Bits</span>
+        <span class="item-craft">Requer: Cristal de Relâmpago ×1 + Pepita de Adamantite ×1</span>
+      </div>
+      <p class="item-desc">Um bastão condutor revestido de cristais de relâmpago que descarga energia elétrica de dado ao contato. Eficaz contra Digimon de tipo Máquina.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Ataque melee — <strong>1d6 + Força</strong> de dano elétrico. Digimon do tipo Máquina sofrem <strong>dano dobrado</strong>. 20% de chance de atordoar por 1 turno.</div>
+      <span class="item-tag">ARMA · ELÉTRICO</span>
+    </div>
+
+    <div class="item-card combate">
+      <div class="item-top">
+        <span class="item-num">#050</span>
+        <span class="item-name">Mina de Dados</span>
+        <span class="item-uses">1× consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="legal-badge legal-militar">Militar</span>
+        <span class="item-price">900 Bits</span>
+      </div>
+      <p class="item-license lic-militar">Munição de área de uso exclusivo de CyberPol/Sentinelas do Horizonte — civis flagrados com mina ativa são detidos</p>
+      <p class="item-desc">Uma mina de pressão que explode quando um Digimon passa sobre ela. Deve ser instalada antes do combate ou em ação de bônus durante ele.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Ao ser ativada, causa <strong>3d6 de dano</strong> ao Digimon que a acionar. O posicionamento é estratégico — o Mestre controla onde é instalada.</div>
+      <span class="item-tag">CONSUMÍVEL · ARMADILHA</span>
+    </div>
+
+    <div class="item-card combate">
+      <div class="item-top">
+        <span class="item-num">#051</span>
+        <span class="item-name">Escudo de Mão Digital</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-comum">Comum</span>
+        <span class="legal-badge legal-padrao">Padrão</span>
+        <span class="item-price">1.500 Bits</span>
+      </div>
+      <p class="item-desc">Um escudo portátil de dado sólido que o usuário carrega na mão não dominante. Leve o suficiente para não atrapalhar o movimento.</p>
+      <div class="item-effect"><strong>Efeito:</strong> <strong>RD 4</strong> permanente. Ao usar a ação de Defesa, o usuário pode rolar com <strong>+1 dado extra</strong>.</div>
+      <span class="item-tag">EQUIPAMENTO · DEFESA</span>
+    </div>
+
+    <div class="item-card combate">
+      <div class="item-top">
+        <span class="item-num">#052</span>
+        <span class="item-name">Sinalizador de Auxílio DigiRider</span>
+        <span class="item-uses">1× por sessão</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="legal-badge legal-padrao">Padrão</span>
+        <span class="item-price">1.200 Bits</span>
+      </div>
+      <p class="item-desc">Um sinalizador de socorro da rede DigiRider. Ao ativar, envia um sinal que pode atrair outros DigiRiders aliados nas proximidades ou ativar um recurso de emergência da Corporação.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Narrative — pode atrair aliados NPC ou acionar protocolo de emergência. Em combate, pode ser usado para <strong>fugir automaticamente</strong> de qualquer batalha uma vez.</div>
+      <span class="item-tag">CONSUMÍVEL · NARRATIVO</span>
+    </div>
+
+    <div class="item-card combate">
+      <div class="item-top">
+        <span class="item-num">#053</span>
+        <span class="item-name">Sinalizador de Ameaça</span>
+        <span class="item-uses">1× consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-comum">Comum</span>
+        <span class="legal-badge legal-padrao">Padrão</span>
+        <span class="item-price">500 Bits</span>
+      </div>
+      <p class="item-desc">Emite um pulso de dado que marca um Digimon inimigo com uma assinatura rastejável. Útil para rastreamento pós-combate ou para coordenar ataques focados.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Marca um Digimon. Todos os aliados ganham <strong>+1 dado nos ataques</strong> contra o alvo marcado. A marca dura 3 turnos.</div>
+      <span class="item-tag">CONSUMÍVEL · MARCAÇÃO</span>
+    </div>
+
+    <div class="item-card combate">
+      <div class="item-top">
+        <span class="item-num">#054</span>
+        <span class="item-name">Pulso de Sobrecarga</span>
+        <span class="item-uses">2× por sessão</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="legal-badge legal-restrito">Restrito</span>
+        <span class="item-price">4.200 Bits</span>
+        <span class="item-craft">Requer: Cristal de Relâmpago ×2</span>
+      </div>
+      <p class="item-license lic-restrito">Requer licença de equipamento anti-máquina — profissão Engenheiro de Digivices ou registro corporativo</p>
+      <p class="item-desc">Um pulso de energia sobrecarregada que interfere diretamente nos circuitos de Digimon cibernéticos e maquinários da Cyberede.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Alvo único — causa <strong>2d10 de dano</strong> a Digimon do tipo Máquina/Cibernético. Contra outros tipos, causa apenas 1d6. Alcance médio.</div>
+      <span class="item-tag">CONSUMÍVEL · ANTI-MÁQUINA</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--              ARMADURAS & PROTEÇÃO              -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" data-section="armadura">
+  <div class="section-header">
+    <span class="section-title armadura">◆ Armaduras &amp; Proteção</span>
+    <span class="section-count">itens 55 – 62</span>
+  </div>
+  <div class="item-grid">
+
+    <div class="item-card armadura">
+      <div class="item-top">
+        <span class="item-num">#055</span>
+        <span class="item-name">Colete Invisível Mk.I</span>
+        <span class="item-uses">10× usos de absorção</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="item-price">1.800 Bits</span>
+      </div>
+      <p class="item-desc">Colete de fibra de dado que permanece completamente invisível ao olhar comum. Proteção básica sem comprometer a mobilidade.</p>
+      <div class="item-effect"><strong>Efeito:</strong> <strong>RD 5</strong> contra ataques físicos. Cada absorção gasta 1 uso. Ao atingir 0 usos, dissolve-se.</div>
+      <span class="item-tag">ARMADURA LEVE · INVISÍVEL</span>
+    </div>
+
+    <div class="item-card armadura">
+      <div class="item-top">
+        <span class="item-num">#056</span>
+        <span class="item-name">Colete Invisível Mk.II</span>
+        <span class="item-uses">8× usos de absorção</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">4.000 Bits</span>
+        <span class="item-craft">Requer: Cristal de Ferro Digital ×2 + Mk.I para upgrade</span>
+      </div>
+      <p class="item-desc">Versão aprimorada do Mk.I com fibras de dado de segunda geração. Maior proteção, menor durabilidade.</p>
+      <div class="item-effect"><strong>Efeito:</strong> <strong>RD 10</strong> contra ataques físicos e digitais. Ao atingir 0 usos, dissolve-se.</div>
+      <span class="item-tag">ARMADURA MÉDIA · INVISÍVEL</span>
+    </div>
+
+    <div class="item-card armadura">
+      <div class="item-top">
+        <span class="item-num">#057</span>
+        <span class="item-name">Armadura Exo-Digital Leve</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">7.000 Bits</span>
+        <span class="item-craft">Requer: Cristal de Ferro Digital ×3 + Pepita de Adamantite ×1</span>
+      </div>
+      <p class="item-desc">Armadura externa de placas de dado cristalizado. Visível, volumosa, mas extremamente resistente.</p>
+      <div class="item-effect"><strong>Efeito:</strong> <strong>RD 8</strong> permanente. Penalidade: <strong>–1 dado em Movimento</strong>. Não combina com Colete Invisível.</div>
+      <span class="item-tag">ARMADURA PESADA · VISÍVEL</span>
+    </div>
+
+    <div class="item-card armadura">
+      <div class="item-top">
+        <span class="item-num">#058</span>
+        <span class="item-name">Armadura Exo-Digital Pesada</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="legal-badge legal-militar">Militar</span>
+        <span class="item-price">15.000 Bits</span>
+        <span class="item-craft">Requer: Pepita de Adamantite ×3 + Fragmento de Chrome Digizoid ×1</span>
+      </div>
+      <p class="item-license lic-militar">Equipamento de combate pesado — porte civil em Nexopolis exige autorização da CyberPol ou vínculo com unidade militar</p>
+      <p class="item-desc">Versão completa da Exo-Digital — cobre cabeça, mãos e pés. Usada em zonas corrompidas e confrontos com Megas.</p>
+      <div class="item-effect"><strong>Efeito:</strong> <strong>RD 15</strong> permanente. Penalidade: <strong>–2 dados em Movimento, –1 dado em Habilidade</strong>. Imune a corrupção leve.</div>
+      <span class="item-tag">ARMADURA MUITO PESADA · VISÍVEL</span>
+    </div>
+
+    <div class="item-card armadura">
+      <div class="item-top">
+        <span class="item-num">#059</span>
+        <span class="item-name">Manto de Espelho de Dados</span>
+        <span class="item-uses">5× usos de reflexão</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">20.000 Bits</span>
+        <span class="item-craft">Requer: Pó de Orichalcum ×3 + Cristal de Luz Solar ×1</span>
+      </div>
+      <p class="item-desc">Manto de partículas de dado espelhadas que refletem ataques de energia digital. Extremamente raro.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Ao receber ataque de energia: role Habilidade. Sucesso = ataque refletido com metade do dano ao atacante. 1 uso por reflexão.</div>
+      <span class="item-tag">ARMADURA ESPECIAL · REFLEXO</span>
+    </div>
+
+    <div class="item-card armadura">
+      <div class="item-top">
+        <span class="item-num">#060</span>
+        <span class="item-name">Botas de Movimento Digital</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">5.500 Bits</span>
+      </div>
+      <p class="item-desc">Calçados com amortecimento de dados que permitem movimentos mais rápidos e aderência a qualquer superfície digital.</p>
+      <div class="item-effect"><strong>Efeito:</strong> <strong>+1 dado em Movimento</strong>. Permite escalar superfícies digitais sem teste. 1×/sessão, executa movimento impossível narrativamente.</div>
+      <span class="item-tag">ACESSÓRIO · MOBILIDADE</span>
+    </div>
+
+    <div class="item-card armadura">
+      <div class="item-top">
+        <span class="item-num">#061</span>
+        <span class="item-name">Luvas de Interface Neural</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">6.000 Bits</span>
+      </div>
+      <p class="item-desc">Luvas com sensores de dado que amplificam a conexão com interfaces digitais. Essenciais para Hackers e Engenheiros.</p>
+      <div class="item-effect"><strong>Efeito:</strong> <strong>+1 dado em Habilidade e Inteligência</strong> com sistemas digitais. Hackear custa 1 ação a menos. Ao tocar estruturas de dado, revela informações básicas automaticamente.</div>
+      <span class="item-tag">ACESSÓRIO · TÉCNICO</span>
+    </div>
+
+    <div class="item-card armadura">
+      <div class="item-top">
+        <span class="item-num">#062</span>
+        <span class="item-name">Armadura de Chrome Digizoid — Humana</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-lendario">Lendário</span>
+        <span class="legal-badge legal-restrito">Restrito</span>
+        <span class="item-price">Crafteável apenas</span>
+        <span class="item-craft">Requer: Chrome Digizoid ×6 + Núcleo de Harmonita ×2 + Pó de Orichalcum ×2</span>
+      </div>
+      <p class="item-license lic-restrito">Posse declarada obrigatória à Corporação — armadura de valor lendário, sujeita a fiscalização e impostos especiais em Nexopolis</p>
+      <p class="item-desc">O pináculo da proteção humana dentro da Cyberede. Uma armadura completa forjada com Chrome Digizoid que torna o portador quase invulnerável a ataques comuns. Poucas existem — cada uma é uma obra de arte artesanal.</p>
+      <div class="item-effect"><strong>Efeito:</strong> <strong>RD 20</strong> permanente contra todos os danos. O portador não pode ser removido do campo de batalha por efeitos de empurrão ou controle. <strong>–3 dados em Movimento e Furtividade</strong> — a armadura é imponente demais para ser discreta.</div>
+      <span class="item-tag">ARMADURA SUPREMA · CHROME DIGIZOID · LENDÁRIO</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--                  RECUPERAÇÃO                   -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" data-section="recuperacao">
+  <div class="section-header">
+    <span class="section-title recuperacao">♥ Recuperação</span>
+    <span class="section-count">itens 63 – 70</span>
+  </div>
+  <div class="item-grid">
+
+    <div class="item-card recuperacao">
+      <div class="item-top">
+        <span class="item-num">#063</span>
+        <span class="item-name">Injetor de Dado Vital</span>
+        <span class="item-uses">1× consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-comum">Comum</span>
+        <span class="item-price">200 Bits</span>
+      </div>
+      <p class="item-desc">Seringa digital que injeta energia vital diretamente na estrutura de consciência do usuário. Efeito imediato.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Restaura <strong>+10 HP</strong>. Pode ser usado em combate gastando 1 ação.</div>
+      <span class="item-tag">CONSUMÍVEL · CURA</span>
+    </div>
+
+    <div class="item-card recuperacao">
+      <div class="item-top">
+        <span class="item-num">#064</span>
+        <span class="item-name">Kit de Regeneração Digital</span>
+        <span class="item-uses">1× consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="item-price">800 Bits</span>
+      </div>
+      <p class="item-desc">Kit médico adaptado para a Cyberede com componentes de restauração de dado. Cura completa mas exige tempo.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Restaura <strong>HP completo</strong> do usuário ou aliado tocado. Requer 1 ação completa. Não pode ser usado em combate.</div>
+      <span class="item-tag">CONSUMÍVEL · CURA TOTAL</span>
+    </div>
+
+    <div class="item-card recuperacao">
+      <div class="item-top">
+        <span class="item-num">#065</span>
+        <span class="item-name">Pastilha de Estabilização</span>
+        <span class="item-uses">1× consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-comum">Comum</span>
+        <span class="item-price">350 Bits</span>
+      </div>
+      <p class="item-desc">Comprimido de dado que estabiliza alguém em 0 HP, evitando a desconexão forçada da Cyberede.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Usado em alguém com 0 HP — alvo volta com <strong>1 HP</strong> e fica estável. Pode ser autoaplicado.</div>
+      <span class="item-tag">CONSUMÍVEL · ESTABILIZAÇÃO</span>
+    </div>
+
+    <div class="item-card recuperacao">
+      <div class="item-top">
+        <span class="item-num">#066</span>
+        <span class="item-name">Bandagem de Dado</span>
+        <span class="item-uses">3× consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-comum">Comum</span>
+        <span class="item-price">150 Bits</span>
+      </div>
+      <p class="item-desc">Tiras de energia de dado solidificada. O item básico de qualquer mochila de aventureiro.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Restaura <strong>+5 HP</strong>. Ação livre 1×/turno em combate. Ocupa apenas 1 espaço.</div>
+      <span class="item-tag">CONSUMÍVEL · BARATO</span>
+    </div>
+
+    <div class="item-card recuperacao">
+      <div class="item-top">
+        <span class="item-num">#067</span>
+        <span class="item-name">Antídoto de Dado</span>
+        <span class="item-uses">1× consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-comum">Comum</span>
+        <span class="item-price">400 Bits</span>
+      </div>
+      <p class="item-desc">Solução que neutraliza efeitos negativos de dado. Remove venenos, paralisias e corrupções leves.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Remove todos os <strong>efeitos negativos ativos</strong> (veneno, paralisia, confusão, corrupção leve). Não remove corrupção pesada da Zona Null.</div>
+      <span class="item-tag">CONSUMÍVEL · CURA DE STATUS</span>
+    </div>
+
+    <div class="item-card recuperacao">
+      <div class="item-top">
+        <span class="item-num">#068</span>
+        <span class="item-name">Cápsula de Recuperação Digimon</span>
+        <span class="item-uses">1× consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="item-price">600 Bits</span>
+      </div>
+      <p class="item-desc">Uma cápsula de dados reconstituintes formulada especificamente para a estrutura de Digimon. O equivalente digital de uma bebida energética para seres de dado.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Restaura <strong>+15 HP ao Digimon parceiro</strong>. Pode ser usada em combate como ação. Não funciona em humanos.</div>
+      <span class="item-tag">CONSUMÍVEL · CURA DIGIMON</span>
+    </div>
+
+    <div class="item-card recuperacao">
+      <div class="item-top">
+        <span class="item-num">#069</span>
+        <span class="item-name">Kit Médico Completo</span>
+        <span class="item-uses">1× consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">2.500 Bits</span>
+      </div>
+      <p class="item-desc">Um kit médico completo que cura tanto o DigiRider quanto o Digimon parceiro simultaneamente. Caro e volumoso, mas insubstituível em longas expedições.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Restaura <strong>HP completo do DigiRider E do Digimon parceiro</strong>. Remove todos os efeitos negativos de ambos. Requer ação completa fora de combate.</div>
+      <span class="item-tag">CONSUMÍVEL · CURA TOTAL DUPLA</span>
+    </div>
+
+    <div class="item-card recuperacao">
+      <div class="item-top">
+        <span class="item-num">#070</span>
+        <span class="item-name">Elixir de Dado Puro</span>
+        <span class="item-uses">1× consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">8.000 Bits</span>
+        <span class="item-craft">Requer: Fruta Digi-Melão ×1 + Cristal de Luz Solar ×1 + Pó de Orichalcum ×1</span>
+      </div>
+      <p class="item-desc">Uma poção de dado puro destilado que não apenas cura, mas fortalece temporariamente a estrutura de dado do bebedor, aumentando todos os seus atributos por um período.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Restaura <strong>HP completo</strong>. Por <strong>2 turnos após o uso</strong>, todos os atributos do usuário ganham <strong>+2</strong>. Remove qualquer efeito negativo ativo.</div>
+      <span class="item-tag">CONSUMÍVEL · CURA + BUFF</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--                   MINÉRIOS                     -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" data-section="minerio">
+  <div class="section-header">
+    <span class="section-title minerio">⬡ Minérios Digitais</span>
+    <span class="section-count">itens 71 – 84</span>
+  </div>
+  <div class="item-grid">
+
+    <div class="item-card minerio">
+      <div class="item-top">
+        <span class="item-num">#071</span>
+        <span class="item-name">Cristal de Ferro Digital</span>
+        <span class="item-uses">Matéria-prima</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-comum">Comum</span>
+        <span class="item-price">150 Bits/unidade</span>
+      </div>
+      <p class="item-desc">O minério mais básico da Cyberede — forma-se naturalmente em regiões de baixa densidade de dado. Encontrado em Datahaven nas zonas industriais e cavernas rasas.</p>
+      <div class="item-effect"><strong>Uso em craft:</strong> Ingrediente base para módulos de Digivice, armaduras leves e upgrades simples. Pode ser fundido com outros cristais para criar ligas mais resistentes. Vende bem em lojas de equipamentos.</div>
+      <span class="item-tag">MINÉRIO BÁSICO · DROP COMUM</span>
+    </div>
+
+    <div class="item-card minerio">
+      <div class="item-top">
+        <span class="item-num">#072</span>
+        <span class="item-name">Pepita de Adamantite</span>
+        <span class="item-uses">Matéria-prima</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="item-price">500 Bits/unidade</span>
+      </div>
+      <p class="item-desc">Minério comprimido sob alta pressão de dado nas camadas mais profundas das minas digitais. Mais duro que o Ferro Digital, usado para craft de equipamentos intermediários.</p>
+      <div class="item-effect"><strong>Uso em craft:</strong> Necessário para garras, lâminas, armaduras de nível médio e módulos ofensivos de Digivice. Ao ser combinado com Cristal de Ferro, cria Adamantite Refinada (valor ×3).</div>
+      <span class="item-tag">MINÉRIO MÉDIO · DROP INCOMUM</span>
+    </div>
+
+    <div class="item-card minerio">
+      <div class="item-top">
+        <span class="item-num">#073</span>
+        <span class="item-name">Chrome Digizoid</span>
+        <span class="item-uses">Matéria-prima</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-lendario">Lendário</span>
+        <span class="item-price">8.000 Bits/unidade</span>
+      </div>
+      <p class="item-desc">O metal mais lendário da Cyberede. Formado apenas em regiões onde fluxos de dado de polaridades opostas colidem por milênios. Extremamente raro — alguns mineradores passam a vida inteira sem encontrá-lo. Brilha com uma luz prateada incomum.</p>
+      <div class="item-effect"><strong>Uso em craft:</strong> Ingrediente obrigatório para qualquer equipamento de nível Lendário. Também pode ser usado como material de troca — vale uma fortuna em qualquer mercado de Datahaven. 4 unidades fazem uma armadura completa de Digimon.</div>
+      <span class="item-tag">MINÉRIO LENDÁRIO · EXTREMAMENTE RARO</span>
+    </div>
+
+    <div class="item-card minerio">
+      <div class="item-top">
+        <span class="item-num">#074</span>
+        <span class="item-name">Pó de Orichalcum</span>
+        <span class="item-uses">Matéria-prima</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">2.500 Bits/unidade</span>
+      </div>
+      <p class="item-desc">Pó dourado extraído de veios de Orichalcum — o minério dos deuses digitais, segundo o folclore da Cyberede. Encontrado apenas em regiões sagradas ou próximo a Digimon do tipo Celestial.</p>
+      <div class="item-effect"><strong>Uso em craft:</strong> Essencial para equipamentos de proteção de alto nível, módulos de reflexo e itens sagrados. Também usado em rituais de forja que requerem "pureza de dado". Pode purificar outros minérios removendo contaminações.</div>
+      <span class="item-tag">MINÉRIO RARO · SAGRADO</span>
+    </div>
+
+    <div class="item-card minerio">
+      <div class="item-top">
+        <span class="item-num">#075</span>
+        <span class="item-name">Cristal de Luz Solar</span>
+        <span class="item-uses">Matéria-prima</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">1.500 Bits/unidade</span>
+      </div>
+      <p class="item-desc">Cristais formados em regiões da Cyberede expostas a fluxos constantes de dado de luz. Brilham na escuridão e são usados em equipamentos do tipo Luz e em itens de cura avançada.</p>
+      <div class="item-effect"><strong>Uso em craft:</strong> Necessário para equipamentos do tipo Luz, Holy Ring, itens de cura avançados e módulos que envolvem teleporte ou teletransporte. Pode ser polido para aumentar eficiência em +15%.</div>
+      <span class="item-tag">MINÉRIO ELEMENTAL · LUZ</span>
+    </div>
+
+    <div class="item-card minerio">
+      <div class="item-top">
+        <span class="item-num">#076</span>
+        <span class="item-name">Cristal de Sombra</span>
+        <span class="item-uses">Matéria-prima</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">1.500 Bits/unidade</span>
+      </div>
+      <p class="item-desc">Cristais formados em regiões onde a luz de dado nunca chega — abismos, cavernas sem saída e zonas mortas. Absorvem luz ao redor e têm uma textura estranhamente macia ao toque.</p>
+      <div class="item-effect"><strong>Uso em craft:</strong> Necessário para mantos de furtividade, módulos de invisibilidade, itens de Trevas e equipamentos anti-escaneamento. Ao combinar Cristal de Sombra + Cristal de Luz Solar, cria Cristal do Crepúsculo (novo minério épico).</div>
+      <span class="item-tag">MINÉRIO ELEMENTAL · TREVAS</span>
+    </div>
+
+    <div class="item-card minerio">
+      <div class="item-top">
+        <span class="item-num">#077</span>
+        <span class="item-name">Cristal de Relâmpago</span>
+        <span class="item-uses">Matéria-prima</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="item-price">700 Bits/unidade</span>
+      </div>
+      <p class="item-desc">Cristais carregados com eletricidade de dado, encontrados em zonas de tempestade digital e próximos a Digimon do tipo Trovão. Faíscam ao ser tocados com metal.</p>
+      <div class="item-effect"><strong>Uso em craft:</strong> Bastão Elétrico, Pulso de Sobrecarga, módulos de ataque elétrico e armadilhas de choque. Ao processar 3 unidades, pode gerar uma descarga livre que causa 1d6 de dano elétrico a um alvo.</div>
+      <span class="item-tag">MINÉRIO ELEMENTAL · RELÂMPAGO</span>
+    </div>
+
+    <div class="item-card minerio">
+      <div class="item-top">
+        <span class="item-num">#078</span>
+        <span class="item-name">Cristal de Fogo</span>
+        <span class="item-uses">Matéria-prima</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="item-price">700 Bits/unidade</span>
+      </div>
+      <p class="item-desc">Cristais em brasa encontrados em regiões vulcânicas digitais. Nunca esfria completamente — é quente ao toque mesmo a distância. Usa luvas ao manusear.</p>
+      <div class="item-effect"><strong>Uso em craft:</strong> Garras de fogo para Digimon, módulos de dano por queimadura, armamentos de fogo. 2 unidades criam um Núcleo de Chama — material intermediário para itens de Fogo de alto nível.</div>
+      <span class="item-tag">MINÉRIO ELEMENTAL · FOGO</span>
+    </div>
+
+    <div class="item-card minerio">
+      <div class="item-top">
+        <span class="item-num">#079</span>
+        <span class="item-name">Núcleo de Harmonita</span>
+        <span class="item-uses">Matéria-prima</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">3.500 Bits/unidade</span>
+      </div>
+      <p class="item-desc">Um mineral rarissímo que vibra em harmonia com fluxos de dado estáveis. Encontrado apenas em regiões onde o dado permanece em equilíbrio perfeito — locais quase impossíveis de encontrar na Cyberede atual.</p>
+      <div class="item-effect"><strong>Uso em craft:</strong> Necessário para equipamentos de Fusão de alto nível, Núcleo de Fusão e a Armadura de Chrome Digizoid humana. Ao ser aquecido, emite uma frequência que estabiliza processos de fusão instáveis.</div>
+      <span class="item-tag">MINÉRIO ÉPICO · FUSÃO</span>
+    </div>
+
+    <div class="item-card minerio">
+      <div class="item-top">
+        <span class="item-num">#080</span>
+        <span class="item-name">Fragmento de DigiCore</span>
+        <span class="item-uses">Matéria-prima</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">5.000 Bits/unidade</span>
+      </div>
+      <p class="item-desc">Fragmentos do núcleo central de Digimon poderosos derrotados. Carregam traços da consciência e poder do Digimon de origem. Extremamente sensível — pode reagir a Digimon vivos próximos.</p>
+      <div class="item-effect"><strong>Uso em craft:</strong> Ingrediente essencial para Núcleo de Poder Oculto, Fragmento de Dado Antigo e itens de desbloqueio de habilidades. Ao usar 3 fragmentos do mesmo tipo de Digimon, pode invocar uma visão da memória desse Digimon (informação narrativa).</div>
+      <span class="item-tag">MINÉRIO ÉPICO · DROP DE BOSS</span>
+    </div>
+
+    <div class="item-card minerio">
+      <div class="item-top">
+        <span class="item-num">#081</span>
+        <span class="item-name">Escama de Dramon</span>
+        <span class="item-uses">Matéria-prima</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="item-price">400 Bits/unidade</span>
+      </div>
+      <p class="item-desc">Escamas coletadas de Dramon abatidos ou encontradas em áreas de muda de pele desses Digimon. Extremamente resistentes e com propriedades anti-dracônicas naturais.</p>
+      <div class="item-effect"><strong>Uso em craft:</strong> Escamas de Dramon ×5 = uma peça de proteção leve anti-dragão. Também usadas em colares, escudos decorativos e itens com resistência elemental específica a ataques de Dramon.</div>
+      <span class="item-tag">MATERIAL ORGÂNICO · DROP DE DRAMON</span>
+    </div>
+
+    <div class="item-card minerio">
+      <div class="item-top">
+        <span class="item-num">#082</span>
+        <span class="item-name">Osso de Digimon Antigo</span>
+        <span class="item-uses">Matéria-prima</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">1.200 Bits/unidade</span>
+      </div>
+      <p class="item-desc">Ossos fossilizados de Digimon de eras anteriores, encontrados em camadas profundas da Cyberede ou em dungeons ancestrais. Mais densos que qualquer material moderno.</p>
+      <div class="item-effect"><strong>Uso em craft:</strong> Colares ancestrais, armaduras primitivas de alta resistência e itens que invocam memórias de Digimon extintos. 2 ossos + 1 Fragmento de DigiCore = Amuleto de Ancestral.</div>
+      <span class="item-tag">MATERIAL ORGÂNICO · FÓSSIL</span>
+    </div>
+
+    <div class="item-card minerio">
+      <div class="item-top">
+        <span class="item-num">#083</span>
+        <span class="item-name">Cristal do Crepúsculo</span>
+        <span class="item-uses">Matéria-prima</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">4.000 Bits/unidade</span>
+        <span class="item-craft">Criado combinando: Cristal de Sombra ×1 + Cristal de Luz Solar ×1 (forja especial)</span>
+      </div>
+      <p class="item-desc">Um cristal híbrido que nasce da fusão perfeita entre dado de Luz e dado de Trevas. Alternante em polaridade — brilha e escurece em ciclos. Extremamente instável em mãos inexperientes.</p>
+      <div class="item-effect"><strong>Uso em craft:</strong> Material único para itens que equilibram Luz e Trevas — armas que afetam ambos os tipos, equipamentos neutros a todas as divindades digitais, e o lendário Brasão do Crepúsculo (ainda não encontrado).</div>
+      <span class="item-tag">MINÉRIO SINTÉTICO · LIGHT/DARK</span>
+    </div>
+
+    <div class="item-card minerio">
+      <div class="item-top">
+        <span class="item-num">#084</span>
+        <span class="item-name">Pó de Dado Corrompido</span>
+        <span class="item-uses">Matéria-prima</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="item-price">300 Bits/unidade — Uso cuidadoso</span>
+      </div>
+      <p class="item-desc">Resíduos de zonas corrompidas da Cyberede. Instável, perigoso e valioso — para quem sabe o que fazer com ele. Pesquisadores da Corporação pagam bem por amostras intactas.</p>
+      <div class="item-effect"><strong>Uso em craft:</strong> Bomba de Corrupção, Núcleo Vazio e itens que causam debuffs por contaminação. Ao manusear sem luvas de proteção adequadas, o usuário sofre –1 HP por dado manuseado.</div>
+      <span class="item-tag">MINÉRIO CORROMPIDO · ZONA NULL</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--                FRUTAS DIGITAIS                 -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" data-section="fruta">
+  <div class="section-header">
+    <span class="section-title fruta">🌿 Frutas Digitais</span>
+    <span class="section-count">itens 85 – 96</span>
+  </div>
+  <div class="item-grid">
+
+    <div class="item-card fruta">
+      <div class="item-top">
+        <span class="item-num">#085</span>
+        <span class="item-name">Digi-Banana</span>
+        <span class="item-uses">Consumível / Ingrediente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-comum">Comum</span>
+        <span class="item-price">80 Bits/unidade</span>
+      </div>
+      <p class="item-desc">A fruta mais básica da Cyberede — cresce em praticamente qualquer região de dado fértil. Amarela, levemente crocante e com sabor de dado processado. Favorita de Digimon do tipo Animal.</p>
+      <div class="item-effect"><strong>Se comida pelo Digimon:</strong> Recupera <strong>+5 HP</strong>. <strong>Se usada em craft:</strong> Ingrediente base para Cápsulas de Energia e itens de cura simples. Pode ser fermentada (3 dias) para criar Digi-Banana Madura, ingrediente para poções avançadas.</div>
+      <span class="item-tag">FRUTA · COMUM · POLIVALENTE</span>
+    </div>
+
+    <div class="item-card fruta">
+      <div class="item-top">
+        <span class="item-num">#086</span>
+        <span class="item-name">Digi-Manga</span>
+        <span class="item-uses">Consumível / Ingrediente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="item-price">250 Bits/unidade</span>
+      </div>
+      <p class="item-desc">Uma fruta tropical de dado que cresce em regiões quentes da Cyberede. Suculenta, de polpa laranja-dourada. Muito apreciada por Digimon de Fogo por sua temperatura interna elevada.</p>
+      <div class="item-effect"><strong>Se comida pelo Digimon:</strong> Recupera <strong>+8 HP</strong> e concede <strong>+1 dado no próximo ataque de Fogo</strong> (dura 1 turno). <strong>Craft:</strong> Ingrediente para amuletos de dado dourado e itens de vitalidade de Digimon.</div>
+      <span class="item-tag">FRUTA · FOGO · BOOST</span>
+    </div>
+
+    <div class="item-card fruta">
+      <div class="item-top">
+        <span class="item-num">#087</span>
+        <span class="item-name">Digi-Melão</span>
+        <span class="item-uses">Consumível / Ingrediente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="item-price">300 Bits/unidade</span>
+      </div>
+      <p class="item-desc">Uma fruta refrescante com casca verde-azulada e polpa translúcida. Cresce próxima a fontes de dado aquático. A polpa tem propriedades levemente purificadoras quando ingerida.</p>
+      <div class="item-effect"><strong>Se comida pelo Digimon:</strong> Recupera <strong>+10 HP</strong> e remove 1 efeito negativo. <strong>Craft:</strong> Ingrediente essencial no Elixir de Dado Puro e poções de cura avançadas.</div>
+      <span class="item-tag">FRUTA · ÁGUA · PURIFICADORA</span>
+    </div>
+
+    <div class="item-card fruta">
+      <div class="item-top">
+        <span class="item-num">#088</span>
+        <span class="item-name">Digi-Maçã da Evolução</span>
+        <span class="item-uses">Consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">2.000 Bits/unidade</span>
+      </div>
+      <p class="item-desc">Uma maçã vermelha com um brilho pulsante que parece respirar. Encontrada apenas em regiões onde processos de evolução de Digimon ocorrem naturalmente. Contém dados evolutivos concentrados.</p>
+      <div class="item-effect"><strong>Se comida pelo Digimon:</strong> Reduz o <strong>tempo necessário para a próxima evolução natural em 50%</strong> (em termos de XP ou sessões). Também concede <strong>+1 HP máximo permanente</strong>. Pode ser usada apenas 3 vezes por Digimon por campanha.</div>
+      <span class="item-tag">FRUTA · EVOLUÇÃO · PERMANENTE</span>
+    </div>
+
+    <div class="item-card fruta">
+      <div class="item-top">
+        <span class="item-num">#089</span>
+        <span class="item-name">Digi-Uva do Poder</span>
+        <span class="item-uses">Consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="item-price">500 Bits/cacho (8 uvas)</span>
+      </div>
+      <p class="item-desc">Cachos de uvas roxo-escuras que crescem em vinhas de dado denso. Cada uva contém uma pequena dose de energia de dado concentrada. Muito populares entre treinadores que precisam de boosts rápidos.</p>
+      <div class="item-effect"><strong>Se comida pelo Digimon (1 cacho):</strong> <strong>+3 HP</strong> por uva consumida (máx 8). <strong>+1 de dano</strong> nos próximos 3 ataques. <strong>Craft:</strong> 2 cachos + processamento = Suco de Uva Concentrado, ingrediente para itens de buff temporário.</div>
+      <span class="item-tag">FRUTA · BURST DE ENERGIA</span>
+    </div>
+
+    <div class="item-card fruta">
+      <div class="item-top">
+        <span class="item-num">#090</span>
+        <span class="item-name">Digi-Morango da Velocidade</span>
+        <span class="item-uses">Consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="item-price">400 Bits/unidade</span>
+      </div>
+      <p class="item-desc">Pequenos morangos vermelhos com veios de dado de ar. Crescem em regiões de vento digital forte. São levíssimos e seem flutuar levemente quando jogados no ar.</p>
+      <div class="item-effect"><strong>Se comida pelo Digimon:</strong> Por <strong>3 turnos</strong>, o Digimon ganha <strong>+1 dado em esquiva e Movimento</strong>. Pode agir primeiro na rodada independente de iniciativa uma vez.</div>
+      <span class="item-tag">FRUTA · VELOCIDADE · BUFF TEMPORÁRIO</span>
+    </div>
+
+    <div class="item-card fruta">
+      <div class="item-top">
+        <span class="item-num">#091</span>
+        <span class="item-name">Digi-Limão Amargo</span>
+        <span class="item-uses">Consumível / Ingrediente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-comum">Comum</span>
+        <span class="item-price">120 Bits/unidade</span>
+      </div>
+      <p class="item-desc">Um limão de dado com casca amarela-elétrica e polpa extremamente ácida. Por si só, de sabor desagradável para a maioria dos Digimon — mas suas propriedades ácidas têm usos específicos em craft.</p>
+      <div class="item-effect"><strong>Se comida pelo Digimon:</strong> Remove 1 efeito negativo mas causa <strong>–2 HP</strong> pela acidez. <strong>Craft:</strong> 2 unidades = Ácido Digital, ingrediente para armadilhas corrosivas e itens que penetram defesas.</div>
+      <span class="item-tag">FRUTA · ÁCIDA · CRAFT</span>
+    </div>
+
+    <div class="item-card fruta">
+      <div class="item-top">
+        <span class="item-num">#092</span>
+        <span class="item-name">Fruta Celeste do Vínculo</span>
+        <span class="item-uses">Consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">3.500 Bits/unidade</span>
+      </div>
+      <p class="item-desc">Uma fruta azul-celeste que cresce apenas em regiões de Luz elevada, sempre próxima a Digimon Angélicos. Contém dados de vínculo puro — reforça a conexão entre Digimon e DigiRider.</p>
+      <div class="item-effect"><strong>Se comida pelo Digimon:</strong> Aumenta permanentemente o <strong>Vínculo entre Digimon e DigiRider em +1 nível</strong>. Também concede <strong>+1 dado em habilidades de suporte e cura</strong> pelo resto da sessão.</div>
+      <span class="item-tag">FRUTA · VÍNCULO · PERMANENTE</span>
+    </div>
+
+    <div class="item-card fruta">
+      <div class="item-top">
+        <span class="item-num">#093</span>
+        <span class="item-name">Fruta Sombria do Poder</span>
+        <span class="item-uses">Consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">3.500 Bits/unidade</span>
+      </div>
+      <p class="item-desc">Uma fruta negra com brilho roxo que cresce em cavernas escuras e próxima a Digimon das Trevas. Seu consumo aumenta drasticamente o poder ofensivo mas tem um custo.</p>
+      <div class="item-effect"><strong>Se comida pelo Digimon:</strong> <strong>+3 de dano fixo</strong> em todos os ataques pelos próximos <strong>3 combates</strong>. Porém, o Digimon sofre <strong>–1 HP máximo permanente</strong> por uso (máx 3 usos por campanha).</div>
+      <span class="item-tag">FRUTA · TREVAS · RISCO/RECOMPENSA</span>
+    </div>
+
+    <div class="item-card fruta">
+      <div class="item-top">
+        <span class="item-num">#094</span>
+        <span class="item-name">Digi-Abacate da Resistência</span>
+        <span class="item-uses">Consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="item-price">600 Bits/unidade</span>
+      </div>
+      <p class="item-desc">Um abacate verde-escuro de polpa densa encontrado em regiões estáveis e bem protegidas da Cyberede. É nutritivo mesmo para padrões digitais — Digimon que o consomem regularmente ficam visivelmente mais resistentes.</p>
+      <div class="item-effect"><strong>Se comida pelo Digimon:</strong> Aumenta <strong>Resistência em +1 permanentemente</strong> (máx +3 por campanha por este item). Efeito só funciona se o Digimon consumiu pelo menos 2 sessões de descanso recentemente.</div>
+      <span class="item-tag">FRUTA · RESISTÊNCIA · PERMANENTE</span>
+    </div>
+
+    <div class="item-card fruta">
+      <div class="item-top">
+        <span class="item-num">#095</span>
+        <span class="item-name">Fruta da Memória Digital</span>
+        <span class="item-uses">Consumível</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">6.000 Bits/unidade</span>
+      </div>
+      <p class="item-desc">Uma fruta cristalina que parece conter memórias — às vezes, ao segurá-la, o DigiRider experimenta flashes de visões de outros lugares. Encontrada apenas em regiões de arquivo da Cyberede.</p>
+      <div class="item-effect"><strong>Se comida pelo Digimon:</strong> O Digimon "lembra" de uma habilidade que não possui naturalmente. O Mestre escolhe uma habilidade compatível com a espécie — o Digimon pode usá-la por <strong>2 sessões</strong> antes de esquecê-la.</div>
+      <span class="item-tag">FRUTA · HABILIDADE TEMPORÁRIA · RARO</span>
+    </div>
+
+    <div class="item-card fruta">
+      <div class="item-top">
+        <span class="item-num">#096</span>
+        <span class="item-name">Fruta Proibida da Zona Null</span>
+        <span class="item-uses">Consumível — Uso extremamente perigoso</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-lendario">Lendário</span>
+        <span class="item-price">Não comercializado</span>
+      </div>
+      <p class="item-desc">Uma fruta roxa-escura com listras negras encontrada nas bordas da Zona Null. Nenhum Digimon da Cyberede normal a produziria — sua origem é desconhecida. Pesquisadores advertem fortemente contra o consumo. Algumas lendas dizem que altera permanentemente a natureza do Digimon.</p>
+      <div class="item-effect"><strong>Se comida pelo Digimon:</strong> <strong>+5 HP máximo permanente</strong> e <strong>+2 de dano fixo em todos os ataques</strong>. Porém, o Digimon desenvolve uma <strong>afinidade com a Zona Null</strong> — a cada sessão, tem 20% de chance de agir de forma imprevisível em momentos de estresse (o Mestre decide o comportamento). Irreversível.</div>
+      <span class="item-tag">FRUTA CORROMPIDA · LENDÁRIO · IRREVERSÍVEL</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--                ITENS ESPECIAIS                 -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" data-section="especial">
+  <div class="section-header">
+    <span class="section-title especial">◎ Itens Especiais</span>
+    <span class="section-count">itens 97 – 104</span>
+  </div>
+  <div class="item-grid">
+
+    <div class="item-card especial">
+      <div class="item-top">
+        <span class="item-num">#097</span>
+        <span class="item-name">Mapa Fantasma de Datahaven</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">Inestimável — encontrado em exploração</span>
+      </div>
+      <p class="item-desc">Mapa holográfico que registra locais que não deveriam existir — ruínas sem cadastro, rotas não oficiais e entradas para regiões seladas. Ninguém sabe quem o criou.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Revela locais ocultos, rotas secretas e entradas proibidas conforme o grupo as visita. O Mestre revela passagens ocultas sempre que o grupo se aproximar.</div>
+      <span class="item-tag">UTILITÁRIO · EXPLORAÇÃO</span>
+    </div>
+
+    <div class="item-card especial">
+      <div class="item-top">
+        <span class="item-num">#098</span>
+        <span class="item-name">Diário de Fusão</span>
+        <span class="item-uses">∞ Progressivo</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">5.000 Bits</span>
+      </div>
+      <p class="item-desc">Caderno digital que documenta automaticamente cada fusão realizada. Com o tempo, começa a sugerir melhorias — como se alguém o tivesse programado para evoluir junto com o usuário.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Após cada fusão DigiRider, ganha <strong>+5 de Energia de Fusão bônus</strong> permanente (acumula até +30). Registra fraquezas de inimigos derrotados em forma fundida.</div>
+      <span class="item-tag">PROGRESSIVO · FUSÃO</span>
+    </div>
+
+    <div class="item-card especial">
+      <div class="item-top">
+        <span class="item-num">#099</span>
+        <span class="item-name">Núcleo Vazio — Fragmento da Zona Null</span>
+        <span class="item-uses">1× por arco · Perigoso</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-lendario">Lendário</span>
+        <span class="item-price">Dropeado / não comercializado</span>
+      </div>
+      <p class="item-desc">Fragmento de dado corrompido das fronteiras da Zona Null. Sua presença interfere nos sensores ao redor. Pesquisadores da Corporação pagam fortunas por amostras.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Libera onda de corrupção em área. Todos os Digimon sofrem <strong>–2 dados por 3 turnos</strong> e não podem usar Poderes Especiais no próximo turno. Portador humano sofre <strong>–5 HP</strong> por uso.</div>
+      <span class="item-tag">PERIGOSO · CORRUPÇÃO · LENDÁRIO</span>
+    </div>
+
+    <div class="item-card especial">
+      <div class="item-top">
+        <span class="item-num">#100</span>
+        <span class="item-name">Catálogo de Espécies Extintas</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="item-price">12.000 Bits</span>
+      </div>
+      <p class="item-desc">Um volume digital catalogando Digimon considerados extintos na Cyberede moderna. Comprado ou encontrado em dungeons de arqueologia. Arqueólogos digitais dariam qualquer coisa por uma cópia.</p>
+      <div class="item-effect"><strong>Efeito:</strong> O portador pode identificar qualquer Digimon — incluindo espécies raras e extintas — automaticamente. Ao encontrar um Digimon catalogado como extinto, rola com <strong>vantagem em negociação e comunicação</strong> com ele.</div>
+      <span class="item-tag">UTILITÁRIO · CONHECIMENTO</span>
+    </div>
+
+    <div class="item-card especial">
+      <div class="item-top">
+        <span class="item-num">#101</span>
+        <span class="item-name">Credencial Corporativa Falsificada</span>
+        <span class="item-uses">∞ — Situacional</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">8.000 Bits (mercado negro)</span>
+      </div>
+      <p class="item-desc">Uma credencial falsa que imita perfeitamente os crachás de acesso da Corporação Datahaven. Feita com tal precisão que os próprios seguranças raramente questionam. Ilegal, naturalmente.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Permite acesso a áreas restritas da Corporação sem necessidade de teste na maioria das situações. <strong>+3 dados em blefe</strong> quando usar a credencial. Descoberto = consequências graves narrativas.</div>
+      <span class="item-tag">UTILITÁRIO · FURTIVIDADE · ILEGAL</span>
+    </div>
+
+    <div class="item-card especial">
+      <div class="item-top">
+        <span class="item-num">#102</span>
+        <span class="item-name">Tamera de Recobrança</span>
+        <span class="item-uses">3× por campanha</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-lendario">Lendário</span>
+        <span class="item-price">Não comercializado — prêmio de arco</span>
+      </div>
+      <p class="item-desc">Um dispositivo de recobrança de dados capaz de restaurar um Digimon derrotado da derrota total. Funciona capturando os dados dispersos do Digimon antes que se dissipem completamente.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Se um Digimon parceiro for derrotado permanentemente (não apenas em combate), ative imediatamente: o Digimon <strong>retorna ao estágio Bebê</strong> mas está vivo. Pode evoluir normalmente dali em diante. Emocional e narrativamente poderoso.</div>
+      <span class="item-tag">ITEM NARRATIVO · SALVAMENTO · LENDÁRIO</span>
+    </div>
+
+    <div class="item-card especial">
+      <div class="item-top">
+        <span class="item-num">#103</span>
+        <span class="item-name">Sinal de Paz Digital</span>
+        <span class="item-uses">1× por sessão</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="item-price">4.000 Bits</span>
+      </div>
+      <p class="item-desc">Um símbolo universal de paz na linguagem de dado — reconhecido por Digimon de todas as origens. Emite uma frequência de harmonia que pode deter ataques em curso.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Ao ativar, encerra automaticamente um combate em andamento se os inimigos não forem boss ou sob controle. Os Digimon inimigos recuam ou aguardam negociação. Não funciona em Digimon corrompidos pela Zona Null.</div>
+      <span class="item-tag">UTILITÁRIO · NEGOCIAÇÃO · NARRATIVO</span>
+    </div>
+
+    <div class="item-card especial">
+      <div class="item-top">
+        <span class="item-num">#104</span>
+        <span class="item-name">Chip de Memória de Caçador</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="item-price">2.000 Bits</span>
+      </div>
+      <p class="item-desc">Um chip instalado no Digivice que registra dados de batalha de cada Digimon inimigo encontrado. Com o tempo, o banco de dados se torna uma arma estratégica por si só.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Após derrotar um tipo de Digimon pela primeira vez, todos os ataques contra aquela espécie ganham <strong>+1 de dano permanente</strong>. Acumula conforme novos Digimon são catalogados.</div>
+      <span class="item-tag">PROGRESSIVO · CAÇADOR</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--            LENDÁRIOS & RELÍQUIAS               -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" data-section="lendario">
+  <div class="section-header">
+    <span class="section-title lendario">★ Lendários &amp; Relíquias</span>
+    <span class="section-count">itens 105 – 115</span>
+  </div>
+  <div class="item-grid">
+
+    <div class="item-card lendario">
+      <div class="item-top">
+        <span class="item-num">#105</span>
+        <span class="item-name">Code Crown</span>
+        <span class="item-uses">∞ Equipável — Efeito passivo</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-unico">Único</span>
+        <span class="item-price">Não comercializado — encontrado em dungeons de nível máximo</span>
+      </div>
+      <p class="item-desc">Uma das coroas de código que controlam regiões inteiras da Cyberede. Cada Code Crown foi fragmentada em pedaços e espalhada pela Cyberede em tempos antigos. Reunir fragmentos o suficiente garante ao portador uma autoridade narrativa real sobre uma região de Datahaven. Poucos viram uma completa. Seu brilho dourado é inconfundível.</p>
+      <div class="item-effect"><strong>Efeito:</strong> O portador de uma Code Crown completa recebe <strong>autoridade sobre a região correspondente</strong> — seus habitantes (humanos e Digimon) reconhecem sua liderança instintivamente. Todos os testes sociais naquela região são automaticamente bem-sucedidos. O Digimon parceiro ganha <strong>+3 em todos os atributos</strong> enquanto estiver nessa região. Fragmentos (¼ da coroa) conferem <strong>+2 dados em testes sociais</strong> apenas.</div>
+      <span class="item-tag">RELÍQUIA · ÚNICO · GOVERNANÇA</span>
+    </div>
+
+    <div class="item-card lendario">
+      <div class="item-top">
+        <span class="item-num">#106</span>
+        <span class="item-name">Ovo do Digimon Primordial</span>
+        <span class="item-uses">Item especial único</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-unico">Único</span>
+        <span class="item-price">Não comercializado — arco inteiro de busca</span>
+      </div>
+      <p class="item-desc">Um ovo de aparência diferente de todos os outros — maior, com padrões que parecem mudar sozinhos, e emanando uma energia que faz Digimon próximos pararem e olharem. Seu conteúdo é debatido há gerações. Alguns arqueólogos acreditam que seja o ovo de um Digimon anterior ao próprio Nexus-0.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Ao ser chocado (requer condições especiais definidas pelo Mestre), nasce um Digimon de espécie desconhecida com atributos significativamente superiores ao normal para o estágio Bebê. Seu caminho evolutivo é único — nunca será igual a qualquer Digimon catalogado. Só pode existir um na campanha inteira.</div>
+      <span class="item-tag">ÚNICO · OVO PRIMORDIAL · ARCO</span>
+    </div>
+
+    <div class="item-card lendario">
+      <div class="item-top">
+        <span class="item-num">#107</span>
+        <span class="item-name">Brasão do Crepúsculo</span>
+        <span class="item-uses">∞ Equipável</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-lendario">Lendário</span>
+        <span class="item-price">Não comercializado — desafio especial de campanha</span>
+      </div>
+      <p class="item-desc">O brasão mais raro de todos — ligado não a uma virtude específica, mas ao equilíbrio entre opostos. Só é obtido pelo DigiRider que equilibrou com maestria tanto o poder da Luz quanto das Trevas em sua jornada.</p>
+      <div class="item-effect"><strong>Efeito:</strong> O Digimon parceiro não possui fraquezas elementais enquanto o brasão estiver equipado. Ataques de Luz e Trevas causam <strong>+3 de dano bônus</strong>. 1×/arco, o Digimon pode usar uma habilidade de qualquer espécie de Digimon que o portador já encontrou — o custo é narrado pelo Mestre.</div>
+      <span class="item-tag">BRASÃO ÚNICO · EQUILÍBRIO · LENDÁRIO</span>
+    </div>
+
+    <div class="item-card lendario">
+      <div class="item-top">
+        <span class="item-num">#108</span>
+        <span class="item-name">Espada de Omegamon</span>
+        <span class="item-uses">∞ Equipável no Digimon</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-lendario">Lendário</span>
+        <span class="item-price">Não comercializado — drop lendário único</span>
+      </div>
+      <p class="item-desc">Uma réplica não-funcional da Grey Sword de Omegamon foi encontrada em uma dungeon profunda. Ao entrar em contato com um Digimon de Luz de estágio Mega, a espada se reativa — como se estivesse esperando por seu portador.</p>
+      <div class="item-effect"><strong>Efeito (Digimon Mega de Luz apenas):</strong> Ataques físicos causam <strong>+5 de dano</strong> e penetram <strong>RD 10</strong> de qualquer fonte. 1×/sessão pode executar o ataque especial "Grey Sword Slash" — causa <strong>3d12 de dano de Luz</strong> a um alvo. Inimigos de Trevas sofrem dano dobrado.</div>
+      <span class="item-tag">ARMA LENDÁRIA · EXCLUSIVO MEGA LUZ</span>
+    </div>
+
+    <div class="item-card lendario">
+      <div class="item-top">
+        <span class="item-num">#109</span>
+        <span class="item-name">Canhão de Wargreymon</span>
+        <span class="item-uses">∞ Equipável no Digimon</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-lendario">Lendário</span>
+        <span class="item-price">Não comercializado — drop lendário único</span>
+      </div>
+      <p class="item-desc">Garras lendárias de Chrome Digizoid modeladas após as Dramon Killers de WarGreymon. Encontradas em um cofre profundo guardado por Digimon Dragão de estágio Mega.</p>
+      <div class="item-effect"><strong>Efeito (Digimon Dragão apenas):</strong> Ataques físicos causam <strong>+4 de dano</strong>. Contra Digimon do tipo Dramon, o dano é <strong>triplicado</strong>. 1×/sessão pode usar "Terra Force" — concentra energia em esfera que causa <strong>dano igual ao HP máximo do Digimon</strong> a um alvo único.</div>
+      <span class="item-tag">ARMA LENDÁRIA · EXCLUSIVO DRAGÃO · ANTI-DRAMON</span>
+    </div>
+
+    <div class="item-card lendario">
+      <div class="item-top">
+        <span class="item-num">#110</span>
+        <span class="item-name">Bandana da Determinação</span>
+        <span class="item-uses">∞ Equipável</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-lendario">Lendário</span>
+        <span class="item-price">Não comercializado — presente de NPC lendário</span>
+      </div>
+      <p class="item-desc">Uma simples bandana de tecido digital que passou por centenas de batalhas. Não tem nenhuma propriedade de dado óbvia — mas quem a usa no calor da batalha sente algo diferente. Como se a vontade do portador anterior estivesse ali também.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Quando o DigiRider ou o Digimon parceiro chega a <strong>25% do HP máximo</strong>, todos os seus danos aumentam em <strong>+50%</strong> até o fim do combate. 1×/campanha, ao ser derrotado que causaria morte permanente, o DigiRider <strong>permanece de pé com 1 HP</strong> — acontece uma vez e apenas uma.</div>
+      <span class="item-tag">EQUIPAMENTO · DETERMINAÇÃO · LENDÁRIO</span>
+    </div>
+
+    <div class="item-card lendario">
+      <div class="item-top">
+        <span class="item-num">#111</span>
+        <span class="item-name">Orbe de Yggdrasil — Fragmento</span>
+        <span class="item-uses">3× por campanha</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-unico">Único</span>
+        <span class="item-price">Não comercializado — segredo de campanha</span>
+      </div>
+      <p class="item-desc">Um fragmento de cristal que alguns acreditam ser um pedaço do núcleo da entidade que governa a Cyberede: Yggdrasil. Sua existência é contestada pela Corporação Datahaven. O fragmento emite uma frequência que outros Digimon reverenciam involuntariamente.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Ao usar, o portador pode <strong>ordenar um Digimon selvagem a parar de atacar</strong> — independente de seu nível ou fúria. Essa ordem é absoluta. Também pode 1×/campanha <strong>reescrever o resultado de qualquer teste</strong>, fazendo-o ser automaticamente bem-sucedido.</div>
+      <span class="item-tag">RELÍQUIA · ÚNICO · NARRATIVO PESADO</span>
+    </div>
+
+    <div class="item-card lendario">
+      <div class="item-top">
+        <span class="item-num">#112</span>
+        <span class="item-name">Escudo do Guardião Antigo</span>
+        <span class="item-uses">∞ Equipável no Digimon</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-lendario">Lendário</span>
+        <span class="item-price">Crafteável — Recipe do Mestre da Forja Lendária</span>
+        <span class="item-craft">Requer: Chrome Digizoid ×3 + Pó de Orichalcum ×3 + Osso de Digimon Antigo ×2 + Fragmento de DigiCore ×1</span>
+      </div>
+      <p class="item-desc">Um escudo massivo que combina o metal mais resistente da Cyberede com a sabedoria ancestral de Digimon extintos. Seu peso é considerável, mas a proteção que oferece é incomparável.</p>
+      <div class="item-effect"><strong>Efeito:</strong> <strong>RD 15</strong> para o Digimon. 1×/turno como reação, pode absorver um ataque completamente (sem dano). 1×/combate pode criar uma barreira que protege todos os aliados adjacentes de um único ataque.</div>
+      <span class="item-tag">ESCUDO LENDÁRIO · PROTEÇÃO SUPREMA</span>
+    </div>
+
+    <div class="item-card lendario">
+      <div class="item-top">
+        <span class="item-num">#113</span>
+        <span class="item-name">Anel de Júpiter — Dado Divino</span>
+        <span class="item-uses">∞ Equipável no Digimon</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-lendario">Lendário</span>
+        <span class="item-price">Não comercializado — masmorras de Digimon Celestial</span>
+      </div>
+      <p class="item-desc">Um anel de ouro-digital que se ajusta ao membro de qualquer Digimon. Diz-se que foi usado pelo próprio Jupitermon como anel de autoridade. Emana uma aura de poder e liderança que outros Digimon reconhecem instintivamente.</p>
+      <div class="item-effect"><strong>Efeito:</strong> <strong>+3 em todos os atributos</strong> do Digimon. Todos os Digimon do tipo Celestial dentro de alcance reconhecem o portador como autoridade e não atacarão sem provocação. 1×/arco pode invocar um raio divino — <strong>4d8 de dano de Luz</strong> a todos os inimigos em campo.</div>
+      <span class="item-tag">ACESSÓRIO DIVINO · LENDÁRIO</span>
+    </div>
+
+    <div class="item-card lendario">
+      <div class="item-top">
+        <span class="item-num">#114</span>
+        <span class="item-name">Manto de Fanglongmon</span>
+        <span class="item-uses">∞ Equipável no Digimon</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-unico">Único</span>
+        <span class="item-price">Não comercializado — segredo de campanha</span>
+      </div>
+      <p class="item-desc">Um manto tecido com as escamas de Fanglongmon — o Digimon que mantém o equilíbrio da Cyberede. Suas escamas nunca foram vistas antes pela geração atual. A simples existência deste manto sugere algo perturbador sobre o estado atual de Fanglongmon.</p>
+      <div class="item-effect"><strong>Efeito:</strong> O Digimon fica <strong>imune a todos os efeitos eleitorais negativos</strong> de qualquer tipo. Todos os ataques elementais causam <strong>+2 de dano</strong>. O Digimon pode usar habilidades dos <strong>cinco tipos elementais</strong> independente de sua natureza. Uma vez por sessão pode anular completamente qualquer ataque ou habilidade.</div>
+      <span class="item-tag">MANTO ÚNICO · EQUILÍBRIO TOTAL</span>
+    </div>
+
+    <div class="item-card lendario">
+      <div class="item-top">
+        <span class="item-num">#115</span>
+        <span class="item-name">Chave da Cyberede — Chave-Mestra</span>
+        <span class="item-uses">3× por campanha</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-unico">Único</span>
+        <span class="item-price">Não comercializado — fim de arco principal</span>
+      </div>
+      <p class="item-desc">Uma chave de dado com forma estranha que não combina com nenhuma fechadura conhecida — mas abre qualquer coisa. Não há registro de sua origem nos arquivos da Corporação ou da Cyberede antiga. Quem a criou e com que propósito são perguntas em aberto.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Abre qualquer porta, cofre, área selada ou trava digital sem necessidade de teste. Pode acessar regiões bloqueadas da Cyberede que normalmente requerem autorizações especiais. 1×/campanha pode <strong>destravar uma habilidade bloqueada de qualquer Digimon</strong> permanentemente. Seu terceiro uso é determinado pelo Mestre em segredo.</div>
+      <span class="item-tag">RELÍQUIA ÚNICA · CHAVE-MESTRA · NARRATIVO</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--          MERCADO NEGRO & ITENS RESTRITOS        -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" data-section="contrabando">
+  <div class="section-header">
+    <span class="section-title contrabando">☠ Mercado Negro &amp; Itens Restritos</span>
+    <span class="section-count">itens 116 – 127</span>
+  </div>
+  <div class="item-grid">
+
+    <div class="item-card contrabando">
+      <div class="item-top">
+        <span class="item-num">#116</span>
+        <span class="item-name">Moto Digital "Wanderer"</span>
+        <span class="item-uses">∞ Permanente (Veículo)</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-comum">Comum</span>
+        <span class="legal-badge legal-padrao">Padrão</span>
+        <span class="item-price">3.200 Bits</span>
+      </div>
+      <p class="item-desc">O modelo civil mais vendido nas estradas de dado do Datahaven. Robusta, barulhenta e com placa registrada — exatamente o tipo de veículo que não chama atenção em nenhum checkpoint.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Dobra a velocidade de deslocamento terrestre. Comporta DigiRider + Digimon parceiro em estágio Iniciante/Rookie. Totalmente legal e registrada na Corporação.</div>
+      <span class="item-tag">VEÍCULO · REGISTRADO</span>
+    </div>
+
+    <div class="item-card contrabando">
+      <div class="item-top">
+        <span class="item-num">#117</span>
+        <span class="item-name">Moto Digital Modificada "Fantasma"</span>
+        <span class="item-uses">∞ Permanente (Veículo)</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="legal-badge legal-ilegal">Banido</span>
+        <span class="item-price">Não vendida — apenas mercado negro / roubo</span>
+      </div>
+      <p class="item-license lic-ilegal">Número de série raspado e regravado — qualquer scanner de Nexopolis identifica a adulteração na hora</p>
+      <p class="item-desc">A clássica "moto de fuga". Chassi desbloqueado, número de série regravado, compartimento oculto sob o banco e motor de dado forçado além dos limites de fábrica. Toda gangue de Datahaven tem pelo menos uma — e seu Digimon sempre vai garupa, pronto pra cobrir a retirada.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Velocidade <strong>triplicada</strong> em deslocamento terrestre. Compartimento oculto: <strong>+1 item Ilegal/Restrito</strong> passa por scanners sem teste. 1×/sessão, "queima" o motor para um pico de velocidade que ignora terreno difícil por 2 turnos — depois disso, exige reparo.</div>
+      <span class="item-tag">VEÍCULO ROUBADO · CONTRABANDO · FUGA</span>
+    </div>
+
+    <div class="item-card contrabando">
+      <div class="item-top">
+        <span class="item-num">#118</span>
+        <span class="item-name">Pistola de Dados Compacta "Sentinela-9"</span>
+        <span class="item-uses">∞ Permanente (Arma)</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="legal-badge legal-restrito">Restrito</span>
+        <span class="item-price">2.600 Bits</span>
+      </div>
+      <p class="item-license lic-restrito">Requer Licença de Autodefesa da Corporação — teste de Burocracia ou profissão Mediador de Conflitos/Caçador de Anomalias</p>
+      <p class="item-desc">Arma compacta de autodefesa vendida sob registro em armeiros licenciados de Nexopolis. Comum entre Exploradores que cruzam regiões instáveis.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Ataque à distância — <strong>1d8 de dano</strong> de dado. Alcance médio. Sem penalidade de Furtividade ao portar (é compacta o bastante para esconder na roupa, ainda que isso não a torne legalmente discreta).</div>
+      <span class="item-tag">ARMA · AUTODEFESA · LICENCIADA</span>
+    </div>
+
+    <div class="item-card contrabando">
+      <div class="item-top">
+        <span class="item-num">#119</span>
+        <span class="item-name">Submetralhadora de Pulso "Vendaval"</span>
+        <span class="item-uses">∞ Permanente (Arma)</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="legal-badge legal-militar">Militar</span>
+        <span class="item-price">Não vendida ao público — emitida por unidade</span>
+      </div>
+      <p class="item-license lic-militar">Uso exclusivo de CyberPol, Guardiões de Rede em serviço ou Sentinelas do Horizonte — civil flagrado é detido e a arma confiscada</p>
+      <p class="item-desc">Arma automática padrão das forças de ordem do Datahaven. Rajadas de dado comprimido capazes de derrubar Digimon de porte médio com facilidade alarmante.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Rajada — <strong>3 ataques de 1d6</strong> por turno, todos contra o mesmo alvo ou distribuídos entre até 3 alvos próximos. Gasta munição: 6 disparos por carregador.</div>
+      <span class="item-tag">ARMA AUTOMÁTICA · MILITAR</span>
+    </div>
+
+    <div class="item-card contrabando">
+      <div class="item-top">
+        <span class="item-num">#120</span>
+        <span class="item-name">Lança-Foguetes Portátil "Brecha"</span>
+        <span class="item-uses">3× cargas</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="legal-badge legal-ilegal">Banido</span>
+        <span class="item-price">Não comercializado legalmente — preço de mercado negro: 25.000+ Bits</span>
+      </div>
+      <p class="item-license lic-ilegal">Posse é crime grave em todo o Datahaven — nenhuma licença civil ou corporativa cobre este equipamento</p>
+      <p class="item-desc">Armamento de guerra desviado de um depósito da CyberPol há anos, hoje circulando entre os grupos mais perigosos das estradas digitais. Sua simples existência em uma cena de crime já é motivo de investigação prioritária.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Explosão de impacto direto — <strong>5d8 de dano</strong> em área média. Resistência de Vitalidade reduz à metade. Estruturas e veículos sofrem dano dobrado.</div>
+      <span class="item-tag">ARMAMENTO DE GUERRA · BANIDO · MERCADO NEGRO</span>
+    </div>
+
+    <div class="item-card contrabando">
+      <div class="item-top">
+        <span class="item-num">#121</span>
+        <span class="item-name">Inibidor de Sinal "Apagão"</span>
+        <span class="item-uses">5× usos</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="legal-badge legal-ilegal">Ilegal</span>
+        <span class="item-price">Não comercializado legalmente — fixers cobram entre 6.000 e 10.000 Bits</span>
+      </div>
+      <p class="item-license lic-ilegal">Cega scanners e câmeras da CyberPol — sua fabricação e venda são crime federal dentro da Cyberede</p>
+      <p class="item-desc">Pequeno dispositivo que satura a área com ruído de dado, cegando temporariamente sistemas de vigilância. Adorado por contrabandistas, odiado pela Corporação.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Ao ativar, todos os scanners, câmeras e Digivices de rastreio em raio médio falham por <strong>2 turnos</strong>. Não afeta visão direta de NPCs ou Digimon. 1 uso = 1 ativação.</div>
+      <span class="item-tag">TECNOLOGIA ILEGAL · ANTI-VIGILÂNCIA</span>
+    </div>
+
+    <div class="item-card contrabando">
+      <div class="item-top">
+        <span class="item-num">#122</span>
+        <span class="item-name">Digivice Clonado "Sombra"</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-epico">Épico</span>
+        <span class="legal-badge legal-ilegal">Ilegal</span>
+        <span class="item-price">Não comercializado legalmente — encomendado a falsificadores por 15.000+ Bits</span>
+      </div>
+      <p class="item-license lic-ilegal">Falsificação de identidade corporativa — uso e posse são crime, mesmo que o portador não tenha cometido outro delito</p>
+      <p class="item-desc">Um Digivice com número de série clonado de outro DigiRider (geralmente morto, desaparecido ou que nunca existiu). Permite atravessar checkpoints sem disparar alertas — até que alguém cruze com o "original".</p>
+      <div class="item-effect"><strong>Efeito:</strong> Passa por scanners de identidade sem teste, exibindo um registro falso à escolha do jogador (em acordo com o Mestre). Se a identidade clonada for exposta em campo, o portador é marcado como fugitivo.</div>
+      <span class="item-tag">IDENTIDADE FALSA · ILEGAL · NARRATIVO</span>
+    </div>
+
+    <div class="item-card contrabando">
+      <div class="item-top">
+        <span class="item-num">#123</span>
+        <span class="item-name">Coldre Furtivo Anti-Scanner</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-incomum">Incomum</span>
+        <span class="legal-badge legal-restrito">Restrito</span>
+        <span class="item-price">Não vendido em loja comum — encontrado com fixers, ~3.500 Bits</span>
+      </div>
+      <p class="item-license lic-restrito">Venda regulada — só armeiros com licença de "equipamento sensível" podem comercializá-lo, e mesmo assim exigem teste de Lábia</p>
+      <p class="item-desc">Forro de dado que distorce a assinatura de um item escondido nele, driblando scanners básicos. Não é ilegal possuir — mas comprá-lo sem fazer perguntas levanta sobrancelhas.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Esconde <strong>1 item Restrito ou Ilegal</strong> de scanners passivos. Contra inspeção manual ou scanner avançado da CyberPol, role Furtividade.</div>
+      <span class="item-tag">ACESSÓRIO · OCULTAÇÃO · MERCADO CINZA</span>
+    </div>
+
+    <div class="item-card contrabando">
+      <div class="item-top">
+        <span class="item-num">#124</span>
+        <span class="item-name">Distintivo Falsificado de CyberPol</span>
+        <span class="item-uses">∞ Permanente</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="legal-badge legal-ilegal">Banido</span>
+        <span class="item-price">Não comercializado legalmente — falsificadores cobram 8.000+ Bits</span>
+      </div>
+      <p class="item-license lic-ilegal">Impersonificação de autoridade é crime grave — se descoberto em uso, o personagem responde por isso independentemente de outras acusações</p>
+      <p class="item-desc">Réplica convincente do distintivo oficial da CyberPol, com selo holográfico quase indistinguível do original. Abre portas (literalmente) que nenhum outro documento abriria — até alguém pedir o código de verificação.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Permite se passar por agente da CyberPol em interações rápidas (NPCs comuns aceitam sem teste; NPCs suspeitos ou outros agentes exigem teste de Lábia em desvantagem). Se exposto, gera acusação formal de impersonificação de autoridade.</div>
+      <span class="item-tag">FALSIFICAÇÃO · BANIDO · NARRATIVO PESADO</span>
+    </div>
+
+    <div class="item-card contrabando">
+      <div class="item-top">
+        <span class="item-num">#125</span>
+        <span class="item-name">Munição Perfurante "Núcleo-Rompedora"</span>
+        <span class="item-uses">10× disparos por caixa</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-raro">Raro</span>
+        <span class="legal-badge legal-militar">Militar</span>
+        <span class="item-price">Não vendida ao público — suprimento de unidade</span>
+      </div>
+      <p class="item-license lic-militar">Munição capaz de atingir o digicore diretamente — uso civil é crime equiparado a posse de armamento de guerra</p>
+      <p class="item-desc">Munição especial projetada para perfurar blindagens e atingir o núcleo de dados de um Digimon diretamente. Seu uso fora de operações autorizadas é considerado crime grave pela Corporação.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Ignora completamente <strong>RD baseada em armadura</strong> do alvo. Compatível apenas com armas de fogo de dado (não com armas de energia ou melee).</div>
+      <span class="item-tag">MUNIÇÃO ESPECIAL · MILITAR · ANTI-RD</span>
+    </div>
+
+    <div class="item-card contrabando">
+      <div class="item-top">
+        <span class="item-num">#126</span>
+        <span class="item-name">Jaqueta "Vanguarda Rodante"</span>
+        <span class="item-uses">∞ Equipável</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-comum">Comum</span>
+        <span class="legal-badge legal-padrao">Padrão</span>
+        <span class="item-price">1.100 Bits</span>
+      </div>
+      <p class="item-desc">Jaqueta de couro sintético reforçado, remendada com patches de gangues de motociclistas digitais de toda a Cyberede. Totalmente legal de se usar — só não espere ser bem recebido em uma reunião corporativa.</p>
+      <div class="item-effect"><strong>Efeito:</strong> <strong>+1 dado em Intimidação</strong> em ambientes de rua, garagens e estradas. <strong>RD 2</strong> contra dano de abrasão (quedas de moto, deslizamentos). Sem efeito em ambientes corporativos formais — pode até gerar desvantagem em testes sociais ali.</div>
+      <span class="item-tag">VESTUÁRIO · CULTURA DE ESTRADA</span>
+    </div>
+
+    <div class="item-card contrabando">
+      <div class="item-top">
+        <span class="item-num">#127</span>
+        <span class="item-name">Cofre-Negro Roubado da Datahaven</span>
+        <span class="item-uses">Conteúdo definido pelo Mestre</span>
+      </div>
+      <div class="item-meta">
+        <span class="rarity-badge rarity-unico">Único</span>
+        <span class="legal-badge legal-ilegal">Banido</span>
+        <span class="item-price">Não comercializado — segredo de campanha</span>
+      </div>
+      <p class="item-license lic-ilegal">Propriedade confidencial da Corporação Datahaven — qualquer posse não autorizada é tratada como roubo de dados classificados</p>
+      <p class="item-desc">Um cofre de dado lacrado, removido de um arquivo restrito da Corporação durante um assalto que ninguém assume a autoria. Ninguém sabe exatamente o que tem dentro — só que a Datahaven está disposta a pagar (ou matar) para recuperá-lo.</p>
+      <div class="item-effect"><strong>Efeito:</strong> Não pode ser aberto sem uma <strong>Chave da Cyberede</strong> ou um teste de Hacking de dificuldade altíssima. Seu conteúdo é definido pelo Mestre — informação, item lendário ou prova que incrimina alguém poderoso. Carregá-lo atrai atenção indesejada de agentes da Corporação.</div>
+      <span class="item-tag">RELÍQUIA ÚNICA · ROUBADO · GANCHO DE ENREDO</span>
+    </div>
+
+  </div>
+</div>
+
+
+<script>
+const backTop = document.getElementById('back-top');
+window.addEventListener('scroll', () => {
+  backTop.classList.toggle('visible', window.scrollY > 400);
+});
+
+// Category filter
+const pills = document.querySelectorAll('.cat-pill');
+const sections = document.querySelectorAll('.section[data-section]');
+
+pills.forEach(pill => {
+  pill.addEventListener('click', () => {
+    const cat = pill.dataset.cat;
+    const isActive = pill.classList.contains('active');
+
+    // Toggle off = show all
+    if (isActive) {
+      pill.classList.remove('active');
+      sections.forEach(s => s.classList.remove('hidden'));
+      return;
+    }
+
+    pills.forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    sections.forEach(s => {
+      s.classList.toggle('hidden', s.dataset.section !== cat);
+    });
+  });
+});
+
+// Search filter
+function filterItems() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+
+  // Clear category filter if searching
+  if (q) {
+    pills.forEach(p => p.classList.remove('active'));
+    sections.forEach(s => s.classList.remove('hidden'));
+  }
+
+  sections.forEach(section => {
+    const cards = section.querySelectorAll('.item-card');
+    let sectionVisible = false;
+    cards.forEach(card => {
+      const text = card.innerText.toLowerCase();
+      const match = !q || text.includes(q);
+      card.style.display = match ? '' : 'none';
+      if (match) sectionVisible = true;
+    });
+    section.style.display = (q && !sectionVisible) ? 'none' : '';
+  });
+}
+</script>
+
+</body>
+</html>
