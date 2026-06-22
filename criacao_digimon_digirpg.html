@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Criação de Digimon — DigiRider RPG</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
+
+  :root {
+    --bg: #0a0c10;
+    --panel: #0f1218;
+    --panel2: #121820;
+    --border: #1e2530;
+    --text: #d8dde6;
+    --text-dim: #6b7585;
+    --gold: #c9a84c;
+
+    --atributo:  #3ecfcf;
+    --elemento:  #4ecb71;
+    --especie:   #c97de8;
+    --traco:     #f5c842;
+    --poder:     #e05555;
+    --status:    #5b9ef5;
+    --custo:     #e8934a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    padding: 32px 20px;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 26px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    color: var(--text-dim);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    margin-bottom: 40px;
+  }
+
+  /* NAV */
+  .cat-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 48px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .cat-pill {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 4px 12px;
+    border: 1px solid;
+    border-radius: 2px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .cat-pill.atributo { color: var(--atributo); border-color: var(--atributo); }
+  .cat-pill.elemento { color: var(--elemento); border-color: var(--elemento); }
+  .cat-pill.especie  { color: var(--especie);  border-color: var(--especie);  }
+  .cat-pill.traco    { color: var(--traco);    border-color: var(--traco);    }
+  .cat-pill.poder    { color: var(--poder);    border-color: var(--poder);    }
+  .cat-pill.status   { color: var(--status);   border-color: var(--status);   }
+
+  /* SECTION HEADERS */
+  .section-block { margin-bottom: 64px; }
+
+  .section-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border: 1px solid;
+    border-radius: 2px;
+    display: inline-block;
+    margin-bottom: 20px;
+  }
+  .section-title.atributo { color: var(--atributo); border-color: var(--atributo); }
+  .section-title.elemento { color: var(--elemento); border-color: var(--elemento); }
+  .section-title.especie  { color: var(--especie);  border-color: var(--especie);  }
+  .section-title.traco    { color: var(--traco);    border-color: var(--traco);    }
+  .section-title.poder    { color: var(--poder);    border-color: var(--poder);    }
+  .section-title.status   { color: var(--status);   border-color: var(--status);   }
+
+  .section-intro {
+    font-size: 14px;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+    max-width: 900px;
+    line-height: 1.6;
+    border-left: 2px solid var(--border);
+    padding-left: 14px;
+  }
+
+  /* CARDS GRID */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 16px;
+  }
+  .card-grid.wide {
+    grid-template-columns: repeat(auto-fill, minmax(560px, 1fr));
+  }
+  .card-grid.full {
+    grid-template-columns: 1fr;
+  }
+
+  .entry-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-left: 3px solid;
+    padding: 18px 20px;
+  }
+  .entry-card.atributo { border-left-color: var(--atributo); }
+  .entry-card.elemento { border-left-color: var(--elemento); }
+  .entry-card.especie  { border-left-color: var(--especie);  }
+  .entry-card.traco    { border-left-color: var(--traco);    }
+  .entry-card.poder    { border-left-color: var(--poder);    }
+  .entry-card.status   { border-left-color: var(--status);   }
+
+  .entry-name {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .atributo .entry-name { color: var(--atributo); }
+  .elemento .entry-name { color: var(--elemento); }
+  .especie  .entry-name { color: var(--especie);  }
+  .traco    .entry-name { color: var(--traco);    }
+  .poder    .entry-name { color: var(--poder);    }
+  .status   .entry-name { color: var(--status);   }
+
+  .entry-sub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+
+  .entry-desc {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.55;
+    margin-bottom: 10px;
+  }
+
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    letter-spacing: 1px;
+  }
+  .tag.vantagem { color: #4ecb71; border-color: #1a4028; background: #0b1f10; }
+  .tag.fraqueza { color: #e05555; border-color: #3a1010; background: #1a0808; }
+  .tag.neutro   { color: var(--text-dim); }
+
+  .divider-row {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 10px 0;
+  }
+
+  /* PERSONALITY BLOCK */
+  .personality-block {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+  .personality-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--gold);
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+  .personality-text {
+    font-size: 13px;
+    color: var(--text);
+    font-style: italic;
+  }
+
+  /* PODER ESPECIAL */
+  .poder-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 4px;
+  }
+  .poder-table th {
+    text-align: left;
+    padding: 6px 10px;
+    background: #0c1015;
+    color: var(--text-dim);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border);
+  }
+  .poder-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--text);
+  }
+  .poder-table tr:last-child td { border-bottom: none; }
+  .poder-table tr:hover td { background: #0d1318; }
+
+  .custo-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 2px;
+    background: #1a0f00;
+    border: 1px solid #3a2500;
+    color: var(--custo);
+    white-space: nowrap;
+  }
+
+  .cat-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .cat-badge.fisico    { color: #e05555; border-color: #3a1010; background: #120505; }
+  .cat-badge.habilidade{ color: #3ecfcf; border-color: #0a3030; background: #051515; }
+  .cat-badge.movimento { color: #4ecb71; border-color: #0f3020; background: #051508; }
+  .cat-badge.sentidos  { color: #f5c842; border-color: #3a2c00; background: #151000; }
+  .cat-badge.inteligencia { color: #c97de8; border-color: #2e1040; background: #100818; }
+  .cat-badge.especial  { color: #e8934a; border-color: #3a1f00; background: #150a00; }
+
+  .rank-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .rank-badge.r1 { color: #aaa; background: #181818; border: 1px solid #333; }
+  .rank-badge.r2 { color: #4ecb71; background: #0b1f10; border: 1px solid #1a4028; }
+  .rank-badge.r3 { color: #5b9ef5; background: #08101e; border: 1px solid #0f2040; }
+  .rank-badge.r4 { color: #c97de8; background: #100818; border: 1px solid #2e1040; }
+  .rank-badge.r5 { color: #e8934a; background: #150a00; border: 1px solid #3a1f00; }
+
+  /* STATUS SECTION */
+  .status-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+  .status-table th {
+    text-align: center;
+    padding: 8px 12px;
+    background: #0c1015;
+    color: var(--status);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+  }
+  .status-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    text-align: center;
+    color: var(--text);
+  }
+  .status-table td:first-child { text-align: left; font-weight: 700; color: var(--gold); }
+  .status-table tr:last-child td { border-bottom: none; }
+
+  .dice-cell {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--status);
+  }
+
+  .ponto-box {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--status);
+    padding: 16px 20px;
+    margin-bottom: 16px;
+  }
+  .ponto-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--status);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .dado-grid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+    align-items: center;
+  }
+  .dado-chip {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    color: var(--gold);
+    background: #0c0e00;
+    border-color: #2a2800;
+  }
+  .dado-arrow {
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+
+  /* FASE PODER PONTOS */
+  .fase-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+  .fase-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-top: 2px solid;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .fase-card.bebe   { border-top-color: #aaa; }
+  .fase-card.crianca{ border-top-color: #4ecb71; }
+  .fase-card.adulto { border-top-color: #5b9ef5; }
+  .fase-card.perfeito{border-top-color: #c97de8; }
+  .fase-card.final  { border-top-color: #e8934a; }
+  .fase-name {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+  .fase-card.bebe    .fase-name { color: #aaa; }
+  .fase-card.crianca .fase-name { color: #4ecb71; }
+  .fase-card.adulto  .fase-name { color: #5b9ef5; }
+  .fase-card.perfeito .fase-name{ color: #c97de8; }
+  .fase-card.final   .fase-name { color: #e8934a; }
+  .fase-pts {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--gold);
+    font-family: 'Share Tech Mono', monospace;
+  }
+  .fase-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+  .fase-habilidades {
+    font-size: 12px;
+    color: var(--text);
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* INFO BOX */
+  .info-box {
+    background: #0c1018;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .info-box strong {
+    color: var(--gold);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  /* STEP INDICATOR */
+  .step-list {
+    counter-reset: steps;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .step-item {
+    counter-increment: steps;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 12px 16px;
+  }
+  .step-item::before {
+    content: "0" counter(steps);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 18px;
+    color: var(--gold);
+    min-width: 30px;
+  }
+  .step-text { font-size: 14px; color: var(--text); }
+  .step-text strong { color: var(--gold); }
+
+/* ── BACK TO TOP ─────────────────────────────────── */
+#back-top {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  width: 44px; height: 44px;
+  background: #11151c;
+  border: 1px solid #3ecfcf;
+  color: #3ecfcf;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 3px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s, transform .25s, background .15s;
+  z-index: 999;
+  font-family: 'Share Tech Mono', monospace;
+}
+#back-top.visible { opacity: 1; pointer-events: all; }
+#back-top:hover { background: #3ecfcf; color: #000; transform: translateY(-3px); }
+</style>
+</head>
+<body>
+<button id="back-top" title="Voltar ao topo" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<a href="index.html" style="display:inline-flex;align-items:center;gap:8px;margin:16px 20px;padding:8px 16px;background:#0f1218;border:1px solid #1e2530;border-radius:4px;color:#5b9ef5;font-family:Share Tech Mono,monospace;font-size:12px;letter-spacing:2px;text-decoration:none;text-transform:uppercase;" onmouseover="this.style.borderColor='+'#5b9ef5'+'" onmouseout="this.style.borderColor='+'#1e2530'+'">&#8592; P&aacute;gina Inicial</a>
+
+<h1>◈ Criação de Digimon — DigiRider RPG</h1>
+<p class="subtitle">// GUIA COMPLETO · ATRIBUTOS · ELEMENTOS · ESPÉCIES · TRAÇOS · STATUS · PODERES ESPECIAIS</p>
+
+<nav class="cat-nav">
+  <a href="#atributos" class="cat-pill atributo">⚡ Atributos</a>
+  <a href="#elementos" class="cat-pill elemento">🌿 Elementos</a>
+  <a href="#especies"  class="cat-pill especie">◈ Espécies</a>
+  <a href="#tracos"    class="cat-pill traco">◆ Traços</a>
+  <a href="#status"    class="cat-pill status">🎲 Status & Dados</a>
+  <a href="#poderes"   class="cat-pill poder">✦ Poderes Especiais</a>
+</nav>
+
+<!-- ══════════ COMO CRIAR ══════════ -->
+<div class="section-block">
+  <div class="section-title status">◈ Como Criar um Digimon</div>
+  <p class="section-intro">A criação do seu Digimon parceiro é feita em etapas simples. Cada escolha define quem ele é, como age, e como vai evoluir ao longo da campanha.</p>
+  <div class="step-list">
+    <div class="step-item"><div class="step-text"><strong>Escolha o Atributo</strong> — Define a natureza digital do Digimon: Vacina, Vírus, Dados ou Livre. Determina vantagens e fraquezas em combate.</div></div>
+    <div class="step-item"><div class="step-text"><strong>Escolha o Elemento</strong> — O tipo de energia que o Digimon manifesta: Fogo, Gelo, Vento, Trovão, etc. Define os Poderes Especiais disponíveis e interações com o ambiente.</div></div>
+    <div class="step-item"><div class="step-text"><strong>Escolha a Espécie</strong> — A categoria biológica/digital do Digimon: Dragão, Animal, Inseto, Fantasma, etc. Garante bônus passivos únicos.</div></div>
+    <div class="step-item"><div class="step-text"><strong>Escolha o Traço</strong> — A personalidade do Digimon. Define como ele age com o parceiro e com outros Digimon, e oferece uma habilidade de traço única.</div></div>
+    <div class="step-item"><div class="step-text"><strong>Distribua os Status</strong> — Você começa com <strong>8 pontos livres</strong> para distribuir entre os 5 atributos: Físico, Habilidade, Movimento, Sentidos e Inteligência.</div></div>
+    <div class="step-item"><div class="step-text"><strong>Monte os Poderes Especiais</strong> — Cada fase do Digimon tem uma quantidade de pontos para gastar em efeitos. Monte poderes combinando efeitos da lista.</div></div>
+    <div class="step-item"><div class="step-text"><strong>Defina os 5 Estágios Evolutivos</strong> — Do Bebê (E1) ao Final (E5), cada estágio pode ter Atributo e Elemento diferentes, refletindo a evolução do Digimon.</div></div>
+  </div>
+</div>
+
+<!-- ══════════ ATRIBUTOS ══════════ -->
+<div class="section-block" id="atributos">
+  <div class="section-title atributo">⚡ Atributos</div>
+  <p class="section-intro">O Atributo determina vantagens e fraquezas em combate, seguindo um triângulo simples: Vacina > Vírus > Dados > Vacina. Tipo Livre é neutro contra tudo.</p>
+
+  <div class="card-grid">
+
+    <div class="entry-card atributo">
+      <div class="entry-name">Vacina</div>
+      <div class="entry-sub">VACCINE</div>
+      <div class="entry-desc">Guardiões naturais. Resistentes e protetores. Moldados pelo instinto de proteger.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ Super Efetivo contra Vírus (+2 dados)</span>
+        <span class="tag fraqueza">▼ Fraco contra Dados (-1 dado)</span>
+      </div>
+    </div>
+
+    <div class="entry-card atributo">
+      <div class="entry-name">Vírus</div>
+      <div class="entry-sub">VIRUS</div>
+      <div class="entry-desc">Forças do caos. Impredizíveis e desestabilizadores. Energia instável e penetrante.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ Super Efetivo contra Dados (+2 dados)</span>
+        <span class="tag fraqueza">▼ Fraco contra Vacina (-1 dado)</span>
+      </div>
+    </div>
+
+    <div class="entry-card atributo">
+      <div class="entry-name">Dados</div>
+      <div class="entry-sub">DATA</div>
+      <div class="entry-desc">Equilibrados e adaptativos. Versáteis e pragmáticos. O tipo mais comum.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ Super Efetivo contra Vacina (+2 dados)</span>
+        <span class="tag fraqueza">▼ Fraco contra Vírus (-1 dado)</span>
+      </div>
+    </div>
+
+    <div class="entry-card atributo">
+      <div class="entry-name">Livre</div>
+      <div class="entry-sub">FREE</div>
+      <div class="entry-desc">Selvagens e imprevisíveis. Existem fora do triângulo natural. Muitos são lendários.</div>
+      <div class="tag-row">
+        <span class="tag neutro">◆ Neutro contra todos (sem vantagens ou fraquezas)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="info-box" style="margin-top:16px">
+    <strong>// COMO FUNCIONA:</strong><br>
+    Se seu Digimon é <strong>Vacina</strong> atacando um <strong>Vírus</strong>, o ataque causa <strong>+2 dados</strong> de dano extra.<br>
+    Se seu Digimon é <strong>Vacina</strong> atacando um <strong>Dados</strong>, o ataque causa <strong>-1 dado</strong> de dano (você tira 1 dado de seus dados de dano nesse ataque).<br>
+    Se seu Digimon é <strong>Livre</strong>, essas vantagens/fraquezas não se aplicam — você sempre rola o dano normal.
+  </div>
+</div>
+
+<!-- ══════════ ELEMENTOS ══════════ -->
+<div class="section-block" id="elementos">
+  <div class="section-title elemento">🌿 Elementos</div>
+  <p class="section-intro">O Elemento define o tipo de energia que o Digimon manifesta em seus Poderes Especiais e como ele interage com o ambiente digital. Também define as afinidades elementais em combate.</p>
+
+  <div class="rules-box" style="background:rgba(91,158,245,.06);border:1px solid rgba(91,158,245,.25);border-radius:2px;padding:16px 20px;margin:0 0 20px;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;color:#5b9ef5;margin-bottom:10px;">◈ COMO AS AFINIDADES ELEMENTAIS FUNCIONAM</div>
+    <p style="font-size:14px;color:#c8d4e8;line-height:1.7;margin-bottom:10px;">
+      <strong style="color:#e05555;">Elemento Oposto (fraqueza):</strong> quando um Poder Especial elemental acerta um Digimon cujo elemento é fraco contra ele, o ataque causa <strong style="color:#e05555;">+5 de dano bônus</strong>. A lista de fraquezas está descrita em cada elemento abaixo. Exemplo: um ataque de Fogo contra um Digimon de Planta causa +5 de dano automaticamente.
+    </p>
+    <p style="font-size:14px;color:#c8d4e8;line-height:1.7;margin-bottom:10px;">
+      <strong style="color:#4ecb71;">Elemento Similar (resistência):</strong> quando um Digimon recebe dano elemental do <em>mesmo</em> elemento que o seu, ele <strong style="color:#4ecb71;">reduz esse dano em 5</strong> (mínimo 0). Exemplo: um Digimon de Fogo atingido por um ataque de Fogo reduz 5 do dano recebido.
+    </p>
+    <p style="font-size:14px;color:#6b7585;line-height:1.7;">
+      <em>Essas regras se aplicam apenas a Poderes Especiais com componente elemental — ataques físicos sem elemento não ativam fraquezas ou resistências.</em>
+    </p>
+  </div>
+
+  <div class="rules-box" style="background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.25);border-radius:2px;padding:16px 20px;margin:0 0 20px;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;color:#c9a84c;margin-bottom:10px;">◈ EFEITOS SECUNDÁRIOS DE ELEMENTO — REGRA DE ATIVAÇÃO</div>
+    <p style="font-size:14px;color:#c8d4e8;line-height:1.7;margin-bottom:10px;">
+      Cada elemento possui um efeito secundário listado entre suas vantagens (como Queima, Congelamento, Atordoamento). Esses efeitos <strong style="color:#c9a84c;">não são automáticos</strong> — eles precisam ser incorporados a um Poder Especial no momento da criação do Digimon, usando os efeitos da lista de poderes correspondentes (ex: "Dano Contínuo", "Imobilizar", "Atordoar"). O elemento apenas determina o <em>tipo</em> do efeito que faz sentido narrativo — a mecânica precisa ser comprada com pontos como qualquer outro efeito.
+    </p>
+    <p style="font-size:14px;color:#c8d4e8;line-height:1.7;">
+      <strong style="color:#c9a84c;">Exceções — efeitos sempre ativos:</strong> alguns elementos possuem bônus passivos que funcionam independentemente de Poderes Especiais, identificados nas tags abaixo com a palavra <em>"passivo"</em> ou que descrevem um estado permanente (como regeneração de HP por turno ou redução de dano).
+    </p>
+  </div>
+
+  <div class="card-grid">
+
+    <div class="entry-card elemento">
+      <div class="entry-name">Fogo</div>
+      <div class="entry-sub">FIRE · PYRO-TYPE</div>
+      <div class="entry-desc">Energia de combustão digital. Digimon de Fogo são intensos, apaixonados e ofensivos por natureza. Seus ataques incendeiam dados inimigos, aplicando dano contínuo. Prosperam em ambientes quentes como a Ilha Ignis, mas sofrem em zonas de gelo ou água.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ Queima: +2d6 dano contínuo <em style="font-size:11px;color:#6b7585;">[requer poder especial]</em></span>
+        <span class="tag vantagem">▲ Derrete gelo, inflama matéria digital <em style="font-size:11px;color:#6b7585;">[narrativo/passivo]</em></span>
+        <span class="tag fraqueza">▼ Fraco vs Gelo e Água</span>
+        <span class="tag fraqueza">▼ -2 dados em zonas úmidas</span>
+      </div>
+    </div>
+
+    <div class="entry-card elemento">
+      <div class="entry-name">Gelo</div>
+      <div class="entry-sub">ICE · CRYO-TYPE</div>
+      <div class="entry-desc">Energia de congelamento e imobilização digital. Digimon de Gelo são calculistas, pacientes e defensivos. Seus ataques paralisam e reduzem a mobilidade dos inimigos. Dominam a Ilha Glaciar, mas se tornam lentos em biomas vulcânicos.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ Congelar: -2 dados Movimento inimigo <em style="font-size:11px;color:#6b7585;">[requer poder especial]</em></span>
+        <span class="tag vantagem">▲ Cria barreiras de cristal de dados <em style="font-size:11px;color:#6b7585;">[requer poder especial]</em></span>
+        <span class="tag fraqueza">▼ Fraco vs Fogo</span>
+        <span class="tag fraqueza">▼ -2 dados em zonas vulcânicas</span>
+      </div>
+    </div>
+
+    <div class="entry-card elemento">
+      <div class="entry-name">Trovão</div>
+      <div class="entry-sub">THUNDER · VOLT-TYPE</div>
+      <div class="entry-desc">Energia eletromagnética pura. Digimon de Trovão são rápidos, diretos e imprevisíveis como raios. Seus ataques atordoam e interferem em sistemas eletrônicos. São os mais temidos pelos Digimon de tipo Máquina e Cyborg.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ Atordoar: inimigo perde 1 ação <em style="font-size:11px;color:#6b7585;">[requer poder especial; 1× por combate]</em></span>
+        <span class="tag vantagem">▲ Danifica Máquinas/Cyborg +10</span>
+        <span class="tag fraqueza">▼ Fraco vs Terra</span>
+        <span class="tag fraqueza">▼ -2 dados em ambientes isolados</span>
+      </div>
+    </div>
+
+    <div class="entry-card elemento">
+      <div class="entry-name">Vento</div>
+      <div class="entry-sub">WIND · AERO-TYPE</div>
+      <div class="entry-desc">Energia cinética e de pressão de ar digital. Digimon de Vento são ágeis, evasivos e difíceis de acertar. Seus ataques repelem e desequilibram. São especialistas em mobilidade e suporte a aliados em movimento.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ +2 dados em Movimento <em style="font-size:11px;color:#6b7585;">[passivo]</em></span>
+        <span class="tag vantagem">▲ Empurrar inimigos <em style="font-size:11px;color:#6b7585;">[requer poder especial]</em></span>
+        <span class="tag fraqueza">▼ Fraco vs Trovão</span>
+        <span class="tag fraqueza">▼ -2 dano em ataques físicos diretos</span>
+      </div>
+    </div>
+
+    <div class="entry-card elemento">
+      <div class="entry-name">Terra</div>
+      <div class="entry-sub">EARTH · GEO-TYPE</div>
+      <div class="entry-desc">Energia de dados cristalizados e estrutura sólida. Digimon de Terra são robustos, lentos e incrivelmente resistentes. Seus ataques criam obstáculos e fortalecem aliados defensivamente. São os melhores tanques do Nexus-0.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ +10 HP por estágio <em style="font-size:11px;color:#6b7585;">[passivo]</em></span>
+        <span class="tag vantagem">▲ Imune a Derrubar/Empurrar <em style="font-size:11px;color:#6b7585;">[passivo]</em></span>
+        <span class="tag fraqueza">▼ Fraco vs Vento</span>
+        <span class="tag fraqueza">▼ -2 dados em Movimento</span>
+      </div>
+    </div>
+
+    <div class="entry-card elemento">
+      <div class="entry-name">Água</div>
+      <div class="entry-sub">WATER · AQUA-TYPE</div>
+      <div class="entry-desc">Energia de fluxo de dados e adaptação constante. Digimon de Água são fluidos, versáteis e suportativos. Seus ataques curam aliados e drenam inimigos. Dominam rios, lagos e regiões costeiras do Nexus-0.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ Drenagem: cura 10 HP ao acertar <em style="font-size:11px;color:#6b7585;">[requer poder especial; 1× por combate]</em></span>
+        <span class="tag vantagem">▲ +1 dado em ambientes aquáticos <em style="font-size:11px;color:#6b7585;">[passivo]</em></span>
+        <span class="tag fraqueza">▼ Fraco vs Trovão</span>
+        <span class="tag fraqueza">▼ -2 dados em zonas secas</span>
+      </div>
+    </div>
+
+    <div class="entry-card elemento">
+      <div class="entry-name">Luz</div>
+      <div class="entry-sub">LIGHT · HOLY-TYPE</div>
+      <div class="entry-desc">Energia sagrada purificada pelo Nexus-0. Digimon de Luz emanam proteção e purificação. Seus ataques removem corrupções e aplicam dano duplo contra tipos das Trevas. São os aliados mais valiosos contra Digimon corrompidos pela Zona Null.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ +10 dano vs Trevas <em style="font-size:11px;color:#6b7585;">[passivo — em poderes elementais]</em></span>
+        <span class="tag vantagem">▲ Remover 1 efeito negativo por turno <em style="font-size:11px;color:#6b7585;">[requer poder especial]</em></span>
+        <span class="tag fraqueza">▼ Fraco vs Trevas (reciprocidade)</span>
+        <span class="tag fraqueza">▼ -2 dano vs tipos neutros e Vazio</span>
+      </div>
+    </div>
+
+    <div class="entry-card elemento">
+      <div class="entry-name">Trevas</div>
+      <div class="entry-sub">DARK · SHADOW-TYPE</div>
+      <div class="entry-desc">Energia das regiões corrompidas e da Zona Null. Digimon de Trevas manipulam medo, ilusão e corrupção de dados. Seus ataques aplicam efeitos negativos de longa duração. Não são necessariamente malignos — mas carregam o peso de dados instáveis.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ +10 dano vs Luz <em style="font-size:11px;color:#6b7585;">[passivo — em poderes elementais]</em></span>
+        <span class="tag vantagem">▲ Medo: -1 dado em ações inimigas <em style="font-size:11px;color:#6b7585;">[requer poder especial]</em></span>
+        <span class="tag fraqueza">▼ Fraco vs Luz</span>
+        <span class="tag fraqueza">▼ -2 dados em zonas purificadas</span>
+      </div>
+    </div>
+
+    <div class="entry-card elemento">
+      <div class="entry-name">Aço</div>
+      <div class="entry-sub">STEEL · METAL-TYPE</div>
+      <div class="entry-desc">Energia de dados metálicos e armadura digital. Digimon de Aço são os mais resistentes do sistema — verdadeiras fortalezas ambulantes. Seus ataques perfuram qualquer blindagem e sua estrutura metálica absorve dano de todas as fontes. Possuem duas fraquezas elementares (Fogo e Trovão), compensadas por uma defesa superior à dos outros tipos.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ Reduzir todo dano recebido em 5 <em style="font-size:11px;color:#6b7585;">[passivo — físico e habilidade]</em></span>
+        <span class="tag vantagem">▲ Perfurar: Poderes Especiais ignoram 3 de resistência/RD do alvo</span>
+        <span class="tag fraqueza">▼ Fraco vs Fogo e Trovão</span>
+        <span class="tag fraqueza">▼ -1 dado em Movimento <em style="font-size:11px;color:#6b7585;">[estrutura pesada]</em></span>
+      </div>
+    </div>
+
+    <div class="entry-card elemento">
+      <div class="entry-name">Planta</div>
+      <div class="entry-sub">PLANT · NATURE-TYPE</div>
+      <div class="entry-desc">Energia de crescimento de dados e regeneração. Digimon de Planta são pacientes, suportivos e resilientes. Seus ataques envolvem e imobilizam, enquanto suas habilidades passivas regeneram HP ao longo do tempo. Prosperam na Ilha Sylva.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ Regenerar 2 HP por estágio, por turno <em style="font-size:11px;color:#6b7585;">[passivo — ex: E5 = 10 HP/turno]</em></span>
+        <span class="tag vantagem">▲ Imobilizar: raiz de dados <em style="font-size:11px;color:#6b7585;">[requer poder especial; 1× por combate]</em></span>
+        <span class="tag fraqueza">▼ Fraco vs Fogo e Gelo</span>
+        <span class="tag fraqueza">▼ -2 dados em desertos digitais</span>
+      </div>
+    </div>
+
+    <div class="entry-card elemento">
+      <div class="entry-name">Vazio</div>
+      <div class="entry-sub">NULL · VOID-TYPE</div>
+      <div class="entry-desc">Energia da Zona Null e do espaço entre dados. Extremamente raro. Digimon de Vazio existem fora das interações elementais normais — não possuem fraquezas conhecidas, mas também não se beneficiam de bônus elementais. São anomalias vivas. Requerem aprovação especial do Mestre.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ Sem fraqueza elemental</span>
+        <span class="tag vantagem">▲ Ignora resistências elementais</span>
+        <span class="tag fraqueza">▼ Sem bônus elemental</span>
+        <span class="tag fraqueza">▼ Instável: Mestre pode adicionar complicações</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ ESPÉCIES ══════════ -->
+<div class="section-block" id="especies">
+  <div class="section-title especie">◈ Espécies</div>
+  <p class="section-intro">A Espécie define a morfologia e estrutura física/digital do Digimon. Além de influenciar a aparência, cada espécie garante um bônus passivo permanente e sugere comportamentos e capacidades naturais.</p>
+
+  <div class="card-grid">
+
+    <div class="entry-card especie">
+      <div class="entry-name">Dragão</div>
+      <div class="entry-sub">DRAGON SPECIES</div>
+      <div class="entry-desc">Os Digimon mais poderosos do Nexus-0 em termos de força bruta. Corpos escamosos de dados comprimidos, asas que rasgam a rede e garras que destroem qualquer firewall. Carregam enorme quantidade de energia e são naturalmente intimidadores.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ Passivo: +2 HP máximo por estágio</span>
+        <span class="tag vantagem">▲ Ataques físicos causam +1 dano</span>
+      </div>
+    </div>
+
+    <div class="entry-card especie">
+      <div class="entry-name">Animal</div>
+      <div class="entry-sub">BEAST SPECIES</div>
+      <div class="entry-desc">Digimon com formas baseadas em animais terrestres. São rápidos, intuitivos e possuem instintos afiados. Agem por emoção e instinto tanto quanto por raciocínio. São os mais comuns como parceiros humanos pela facilidade de vínculo afetivo.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ Passivo: +1 dado em Sentidos</span>
+        <span class="tag vantagem">▲ Primeiro a agir em combate (iniciativa)</span>
+      </div>
+    </div>
+
+    <div class="entry-card especie">
+      <div class="entry-name">Pássaro</div>
+      <div class="entry-sub">BIRD SPECIES</div>
+      <div class="entry-desc">Digimon alados com velocidade excepcional. São os melhores exploradores aéreos de Datahaven. Seus corpos leves os tornam difíceis de acertar, mas menos resistentes a ataques diretos. Possuem visão aguçada e detectam anomalias com facilidade.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ Passivo: +1 dado em Movimento</span>
+        <span class="tag vantagem">▲ Pode voar, alcançando posições elevadas</span>
+      </div>
+    </div>
+
+    <div class="entry-card especie">
+      <div class="entry-name">Inseto</div>
+      <div class="entry-sub">INSECT SPECIES</div>
+      <div class="entry-desc">Digimon baseados em artrópodes digitais. Possuem exoesqueletos robustos, mobilidade multidirecional e capacidade de escalar qualquer superfície. Muitos possuem venenos de dados que debilitam adversários ao longo do tempo.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ Passivo: Veneno de Dados (1d4/turno)</span>
+        <span class="tag vantagem">▲ Nada com facilidade em qualquer ambiente aquático</span>
+      </div>
+    </div>
+
+    <div class="entry-card especie">
+      <div class="entry-name">Aquático</div>
+      <div class="entry-sub">AQUATIC SPECIES</div>
+      <div class="entry-desc">Digimon adaptados a regiões líquidas do Nexus-0 — rios de dados, mares de energia e lagos de informação cristalizada. São escorregadios e difíceis de segurar em combate. Fora d'água perdem parte de sua mobilidade, mas ganham resistência adicional.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ Passivo: Imune a imobilização</span>
+        <span class="tag vantagem">▲ +2 dados em ambientes aquáticos</span>
+      </div>
+    </div>
+
+    <div class="entry-card especie">
+      <div class="entry-name">Fantasma</div>
+      <div class="entry-sub">GHOST SPECIES</div>
+      <div class="entry-desc">Digimon compostos por dados etéreos e fragmentados. Podem atravessar objetos sólidos digitais, tornando ataques físicos menos eficazes contra eles. São os mais difíceis de detectar pelos sistemas da CybeRede e habitam naturalmente as Ruínas de Null.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ Passivo: Ataques físicos têm -1 dano contra ele</span>
+        <span class="tag vantagem">▲ 1×/cena: tornar-se intangível por 1 turno</span>
+      </div>
+    </div>
+
+    <div class="entry-card especie">
+      <div class="entry-name">Planta</div>
+      <div class="entry-sub">PLANT SPECIES</div>
+      <div class="entry-desc">Digimon com estrutura vegetal digital. Crescem e evoluem lentamente, mas de forma extremamente estável. Possuem raízes de dados que se conectam ao ambiente, permitindo sentir o que acontece ao redor. São os melhores aliados em batalhas de longa duração.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ Passivo: Regenera 1 HP no início de cada turno</span>
+        <span class="tag vantagem">▲ Detecta inimigos escondidos no alcance</span>
+      </div>
+    </div>
+
+    <div class="entry-card especie">
+      <div class="entry-name">Mítico</div>
+      <div class="entry-sub">MYTHICAL SPECIES</div>
+      <div class="entry-desc">Digimon inspirados em criaturas lendárias de mitologias humanas absorvidas pelo Nexus-0: dragões orientais, fênix, unicórnios e outras criaturas de lenda que ganharam vida digital. Carregam poderes únicos que outros tipos não conseguem imitar.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ Passivo: +1 ponto extra de Poder Especial por estágio</span>
+        <span class="tag vantagem">▲ 1 poder especial ignora resistências</span>
+      </div>
+    </div>
+
+    <div class="entry-card especie">
+      <div class="entry-name">Máquina</div>
+      <div class="entry-sub">MACHINE SPECIES</div>
+      <div class="entry-desc">Digimon de estrutura totalmente mecânica. Não possuem biologia orgânica — são construídos por dados hardwarizados. Altamente resistentes a dano, mas também menos adaptáveis emocionalmente. Raramente se tornam parceiros espontâneos; costumam ser recrutados.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ Passivo: Reduzir dano recebido em 1</span>
+        <span class="tag vantagem">▲ Imune a efeitos de Veneno e Medo</span>
+      </div>
+    </div>
+
+    <div class="entry-card especie">
+      <div class="entry-name">Cyborg</div>
+      <div class="entry-sub">CYBORG SPECIES</div>
+      <div class="entry-desc">Fusão entre Digimon orgânicos e componentes mecânicos — resultado de evoluções que incorporam tecnologia ao corpo digital. São versáteis: combinam resistência mecânica com a intuição orgânica. Frequentemente resultam de Digievoluções de outros tipos.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ Passivo: +1 dado em Habilidade</span>
+        <span class="tag vantagem">▲ Pode usar itens e equipamentos como ação livre</span>
+      </div>
+    </div>
+
+    <div class="entry-card especie">
+      <div class="entry-name">Humanoide</div>
+      <div class="entry-sub">HUMANOID SPECIES</div>
+      <div class="entry-desc">Digimon com formas humanóides — bípedes, com membros superiores e inferiores definidos. São os que mais facilmente desenvolvem vínculos com humanos, por compartilharem postura e expressões reconhecíveis. Possuem ampla variedade de tipos de ataque.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ Passivo: +1 dado em Inteligência</span>
+        <span class="tag vantagem">▲ Gera +5 Energia de Fusão adicional por sessão</span>
+      </div>
+    </div>
+
+    <div class="entry-card especie">
+      <div class="entry-name">Vírus Alienígena</div>
+      <div class="entry-sub">ALIEN SPECIES</div>
+      <div class="entry-desc">Digimon cujas formas não correspondem a nenhuma categoria conhecida. Surgiram em regiões profundas do Nexus-0 onde as leis digitais funcionam de forma diferente. Seus poderes são imprevisíveis e muitas vezes incompreensíveis mesmo para seus parceiros.</div>
+      <div class="tag-row">
+        <span class="tag vantagem">▲ Passivo: 1 poder especial é completamente imprevisível (Mestre define efeito surpresa)</span>
+        <span class="tag vantagem">▲ Imune a leitura de atributos pelos inimigos</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ TRAÇOS ══════════ -->
+<div class="section-block" id="tracos">
+  <div class="section-title traco">◆ Traços</div>
+  <p class="section-intro">O Traço é a personalidade central do Digimon — como ele enxerga o mundo, reage a adversidades, trata seu parceiro humano e interage com os Digimon ao redor. Cada Traço também concede uma habilidade passiva única que reflete o comportamento do Digimon em situações de pressão.</p>
+
+  <div class="card-grid wide">
+
+    <div class="entry-card traco">
+      <div class="entry-name">Protetor</div>
+      <div class="entry-sub">GUARDIAN TRAIT</div>
+      <div class="entry-desc">Coloca sempre a segurança dos outros acima da própria. Não hesita em se jogar na frente de um ataque. Com o parceiro: profundamente leal, às vezes possessivo. Com outros Digimon: age como líder natural, especialmente com os mais fracos.</div>
+      <div class="personality-block">
+        <div class="personality-label">// HABILIDADE DE TRAÇO</div>
+        <div class="personality-text">Escudo Instintivo: 1× por combate, pode receber o dano de um ataque destinado ao parceiro ou a um aliado adjacente sem custo de ação.</div>
+      </div>
+    </div>
+
+    <div class="entry-card traco">
+      <div class="entry-name">Feroz</div>
+      <div class="entry-sub">FIERCE TRAIT</div>
+      <div class="entry-desc">Age por instinto e impulso. Entra em combate sem calcular riscos. Com o parceiro: intenso e apaixonado, dificulta ordens mas nunca abandona. Com outros Digimon: impõe respeito pela força, tende a desafiar quem considera fraco.</div>
+      <div class="personality-block">
+        <div class="personality-label">// HABILIDADE DE TRAÇO</div>
+        <div class="personality-text">Carga Selvagem: quando iniciar combate primeiro (antes de qualquer inimigo agir), adicione +1 dado de Físico ao primeiro ataque do turno. Escala com a evolução do Digimon.</div>
+      </div>
+    </div>
+
+    <div class="entry-card traco">
+      <div class="entry-name">Curioso</div>
+      <div class="entry-sub">CURIOUS TRAIT</div>
+      <div class="entry-desc">Fascinado por absolutamente tudo. Explora antes de pensar nas consequências. Com o parceiro: entusiasta e receptivo, aprende muito rápido. Com outros Digimon: tenta interagir com qualquer um, incluindo hostis — o que pode ser perigoso.</div>
+      <div class="personality-block">
+        <div class="personality-label">// HABILIDADE DE TRAÇO</div>
+        <div class="personality-text">Análise Rápida: ao encontrar um inimigo pela primeira vez, role Inteligência. Se bem-sucedido, o Mestre revela uma fraqueza ou característica especial daquele inimigo.</div>
+      </div>
+    </div>
+
+    <div class="entry-card traco">
+      <div class="entry-name">Calculista</div>
+      <div class="entry-sub">TACTICIAN TRAIT</div>
+      <div class="entry-desc">Planeja cada movimento com antecedência. Raramente age sem informações. Com o parceiro: parceiro estratégico, sugere abordagens e pode discordar se o plano for ruim. Com outros Digimon: respeita quem pensa, ignora quem só usa força.</div>
+      <div class="personality-block">
+        <div class="personality-label">// HABILIDADE DE TRAÇO</div>
+        <div class="personality-text">Posicionamento Tático: 1× por combate, pode reposicionar a si e ao parceiro antes de rolar iniciativa, escolhendo o ponto de entrada ideal.</div>
+      </div>
+    </div>
+
+    <div class="entry-card traco">
+      <div class="entry-name">Orgulhoso</div>
+      <div class="entry-sub">PROUD TRAIT</div>
+      <div class="entry-desc">Recusa ajuda mesmo quando precisa. Considera perder uma humilhação pessoal. Com o parceiro: respeita quem o trata como igual, mas ignora ordens que considera indignas. Com outros Digimon: rival eterno de qualquer um que considere comparável.</div>
+      <div class="personality-block">
+        <div class="personality-label">// HABILIDADE DE TRAÇO</div>
+        <div class="personality-text">Bravata: quando estiver com HP abaixo de 50%, ganhe +1 dado em todos os testes de ataque. O orgulho o faz lutar mais ferozmente quando encurralado.</div>
+      </div>
+    </div>
+
+    <div class="entry-card traco">
+      <div class="entry-name">Gentil</div>
+      <div class="entry-sub">GENTLE TRAIT</div>
+      <div class="entry-desc">Evita conflitos e busca soluções pacíficas. Pode demorar mais para evoluir porque raramente entra em combate por vontade própria. Com o parceiro: carinhoso e atencioso, sente o humor do parceiro constantemente. Com outros Digimon: tenta fazer amizade antes de qualquer coisa.</div>
+      <div class="personality-block">
+        <div class="personality-label">// HABILIDADE DE TRAÇO</div>
+        <div class="personality-text">Acalmar: 1× por cena, pode tentar pacificar um Digimon hostil. Role Sentidos. Se bem-sucedido, o Digimon pausa o combate por 1 turno.</div>
+      </div>
+    </div>
+
+    <div class="entry-card traco">
+      <div class="entry-name">Solitário</div>
+      <div class="entry-sub">LONE WOLF TRAIT</div>
+      <div class="entry-desc">Prefere agir sozinho. Demorou para aceitar o parceiro e ainda mantém distância emocional. Com o parceiro: mostra afeto de formas indiretas — protege sem dizer que está protegendo. Com outros Digimon: não tem aliados, apenas rivais temporários ou objetivos comuns.</div>
+      <div class="personality-block">
+        <div class="personality-label">// HABILIDADE DE TRAÇO</div>
+        <div class="personality-text">Autonomia: quando age sem ordens do parceiro (por instinto próprio), ganhe +1 dado em qualquer teste dessa ação. A solidão aguça os instintos.</div>
+      </div>
+    </div>
+
+    <div class="entry-card traco">
+      <div class="entry-name">Brincalhão</div>
+      <div class="entry-sub">PLAYFUL TRAIT</div>
+      <div class="entry-desc">Trata tudo como jogo, incluindo combates sérios. Dificulta a vida do parceiro com distrações mas frequentemente resolve situações com criatividade absurda. Com outros Digimon: adora provocar, raramente de forma maliciosa — só quer se divertir.</div>
+      <div class="personality-block">
+        <div class="personality-label">// HABILIDADE DE TRAÇO</div>
+        <div class="personality-text">Imprevisível: 1× por sessão, declare um ataque "improvisado". O Mestre não pode antecipar o efeito e os inimigos não podem usar reações contra ele.</div>
+      </div>
+    </div>
+
+    <div class="entry-card traco">
+      <div class="entry-name">Corajoso</div>
+      <div class="entry-sub">BRAVE TRAIT</div>
+      <div class="entry-desc">Enfrenta qualquer ameaça independente do tamanho. Nunca foge, mesmo quando deveria. Com o parceiro: fonte constante de inspiração, empurra o parceiro para além de seus limites. Com outros Digimon: ganha respeito natural — até inimigos o respeitam.</div>
+      <div class="personality-block">
+        <div class="personality-label">// HABILIDADE DE TRAÇO</div>
+        <div class="personality-text">Destemor: imune a efeitos de Medo e Pânico. Quando um aliado é ameaçado, ganha +1 dado no próximo ataque como resposta protetora.</div>
+      </div>
+    </div>
+
+    <div class="entry-card traco">
+      <div class="entry-name">Astuto</div>
+      <div class="entry-sub">CUNNING TRAIT</div>
+      <div class="entry-desc">Prefere enganar a confrontar diretamente. Observa antes de agir, sempre buscando vantagem. Com o parceiro: parceiro intelectual, frequentemente um passo à frente. Com outros Digimon: mantém aliados próximos e inimigos ainda mais próximos — para poder observá-los.</div>
+      <div class="personality-block">
+        <div class="personality-label">// HABILIDADE DE TRAÇO</div>
+        <div class="personality-text">Emboscada: se atacar um inimigo que não percebeu sua presença, cause dano dobrado. Pode ser usado 1× por cena mesmo em combate aberto, desde que se reposicione.</div>
+      </div>
+    </div>
+
+    <div class="entry-card traco">
+      <div class="entry-name">Nobre</div>
+      <div class="entry-sub">NOBLE TRAIT</div>
+      <div class="entry-desc">Segue um código rígido de honra. Nunca ataca pelas costas, nunca abandona um ferido, nunca mente para o parceiro. Com o parceiro: parceria de iguais — trata o parceiro como digno de total confiança. Com outros Digimon: respeita qualquer um que siga um código, mesmo inimigos.</div>
+      <div class="personality-block">
+        <div class="personality-label">// HABILIDADE DE TRAÇO</div>
+        <div class="personality-text">Código de Honra: ao cumprir uma promessa feita em jogo, ganhe <strong>3 pontos de Energia de Fusão</strong>. Ao quebrar uma promessa, perca 5 pontos de Energia de Fusão. Adicionalmente, enquanto estiver em combate defendendo alguém que confia em você (parceiro ou aliado), ganhe +1 dado em todos os testes de ataque e defesa — sem exigir promessa ativa.</div>
+      </div>
+    </div>
+
+    <div class="entry-card traco">
+      <div class="entry-name">Misterioso</div>
+      <div class="entry-sub">ENIGMATIC TRAIT</div>
+      <div class="entry-desc">Fala pouco, observa muito. O parceiro nunca tem certeza do que ele está pensando. Com o parceiro: lealdade absoluta, mas raramente demonstrada — o parceiro precisa aprender a ler os sinais. Com outros Digimon: pouquíssimos conseguem entendê-lo, o que o torna intimidador involuntariamente.</div>
+      <div class="personality-block">
+        <div class="personality-label">// HABILIDADE DE TRAÇO</div>
+        <div class="personality-text">Presença Perturbadora: inimigos ao alcance corpo a corpo devem superar um teste de Sentidos ou sofrer -1 dado em seus ataques no primeiro turno de combate.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ STATUS & DADOS ══════════ -->
+<div class="section-block" id="status">
+  <div class="section-title status">🎲 Status & Distribuição de Dados</div>
+  <p class="section-intro">Os 5 atributos de status do Digimon são representados por dados. Quanto maior o dado, mais poderoso o atributo. Você começa com <strong style="color:var(--gold)">8 pontos livres</strong> para distribuir entre os 5 atributos. Cada atributo começa em 2d4 (o mínimo). Para evoluir um dado, gaste 2 pontos.</p>
+
+  <div class="ponto-box">
+    <div class="ponto-title">// ESCALA DE EVOLUÇÃO DE DADOS (CUSTO: 2 PTS POR NÍVEL)</div>
+    <div class="dado-grid">
+      <span class="dado-chip">2d4</span>
+      <span class="dado-arrow">→ +2pts →</span>
+      <span class="dado-chip">2d6</span>
+      <span class="dado-arrow">→ +2pts →</span>
+      <span class="dado-chip">2d8</span>
+      <span class="dado-arrow">→ +2pts →</span>
+      <span class="dado-chip">2d10</span>
+      <span class="dado-arrow">→ +2pts →</span>
+      <span class="dado-chip">2d12</span>
+      <span class="dado-arrow">→ +2pts →</span>
+      <span class="dado-chip">2d20</span>
+      <span class="dado-arrow">→ +2pts →</span>
+      <span class="dado-chip">2d100</span>
+    </div>
+    <div style="font-size:13px; color:var(--text-dim); margin-top:8px">
+      Exemplo: com 8 pontos, você pode ter um atributo em 2d12 (gastou 4pts) e dois em 2d6 (gastou 2pts cada), totalizando 8 pontos gastos. Os dois atributos restantes permanecem em 2d4 gratuito.
+    </div>
+  </div>
+
+  <div class="info-box">
+    <strong>// EVOLUÇÃO POR ESTÁGIO</strong><br>
+    A cada estágio evolutivo (E2, E3, E4, E5), o Digimon ganha automaticamente +4 pontos adicionais para redistribuir nos seus status. Esses pontos representam o crescimento natural com a Digievolução e devem ser aplicados ao evoluir.
+  </div>
+
+  <table class="status-table">
+    <thead>
+      <tr>
+        <th>ATRIBUTO</th>
+        <th>E. BEBÊ (E1)</th>
+        <th>E. CRIANÇA (E2)</th>
+        <th>E. ADULTO (E3)</th>
+        <th>E. PERFEITO (E4)</th>
+        <th>E. FINAL (E5)</th>
+        <th>DESCRIÇÃO</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>⚔ Físico</td>
+        <td class="dice-cell">2d4</td>
+        <td class="dice-cell">3d4</td>
+        <td class="dice-cell">4d4</td>
+        <td class="dice-cell">5d4</td>
+        <td class="dice-cell">6d4</td>
+        <td style="font-size:12px; text-align:left; color:var(--text-dim)">Força, resistência e capacidade de causar/receber dano físico</td>
+      </tr>
+      <tr>
+        <td>✦ Habilidade</td>
+        <td class="dice-cell">2d4</td>
+        <td class="dice-cell">3d4</td>
+        <td class="dice-cell">4d4</td>
+        <td class="dice-cell">5d4</td>
+        <td class="dice-cell">6d4</td>
+        <td style="font-size:12px; text-align:left; color:var(--text-dim)">Precisão, controle de poderes e destreza digital</td>
+      </tr>
+      <tr>
+        <td>◉ Movimento</td>
+        <td class="dice-cell">2d4</td>
+        <td class="dice-cell">3d4</td>
+        <td class="dice-cell">4d4</td>
+        <td class="dice-cell">5d4</td>
+        <td class="dice-cell">6d4</td>
+        <td style="font-size:12px; text-align:left; color:var(--text-dim)">Velocidade, evasão e alcance de deslocamento</td>
+      </tr>
+      <tr>
+        <td>◆ Sentidos</td>
+        <td class="dice-cell">2d4</td>
+        <td class="dice-cell">3d4</td>
+        <td class="dice-cell">4d4</td>
+        <td class="dice-cell">5d4</td>
+        <td class="dice-cell">6d4</td>
+        <td style="font-size:12px; text-align:left; color:var(--text-dim)">Percepção, detecção e reação a estímulos digitais</td>
+      </tr>
+      <tr>
+        <td>◈ Inteligência</td>
+        <td class="dice-cell">2d4</td>
+        <td class="dice-cell">3d4</td>
+        <td class="dice-cell">4d4</td>
+        <td class="dice-cell">5d4</td>
+        <td class="dice-cell">6d4</td>
+        <td style="font-size:12px; text-align:left; color:var(--text-dim)">Raciocínio, uso de poderes especiais e compreensão do ambiente</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="info-box">
+    <strong>// DADOS BASE POR ESTÁGIO (SEM DISTRIBUIÇÃO)</strong><br>
+    A tabela acima mostra os dados base de cada estágio <em>antes</em> da distribuição de pontos. Os pontos distribuídos no E1 (8pts iniciais) se somam ao dado base. Os pontos ganhos em cada nova evolução se somam ao novo base do estágio correspondente.<br><br>
+    <strong>// HP POR ESTÁGIO</strong><br>
+    E. Bebê: 20 HP · E. Criança: 40 HP · E. Adulto: 60 HP · E. Perfeito: 80 HP · E. Final: 100 HP
+  </div>
+</div>
+
+<!-- ══════════ PODERES ESPECIAIS ══════════ -->
+<div class="section-block" id="poderes">
+  <div class="section-title poder">✦ Poderes Especiais — Sistema de Efeitos</div>
+  <p class="section-intro">Cada Poder Especial é construído combinando efeitos de uma lista. Você monta o poder escolhendo efeitos e somando seus custos em pontos. Cada fase evolutiva tem uma cota de pontos para gastar na criação dos poderes daquele estágio.</p>
+
+  <div class="fase-grid">
+    <div class="fase-card bebe">
+      <div class="fase-name">E. BEBÊ</div>
+      <div class="fase-pts">5</div>
+      <div class="fase-label">pontos totais</div>
+      <div class="fase-habilidades">1 poder especial (E1)</div>
+    </div>
+    <div class="fase-card crianca">
+      <div class="fase-name">E. CRIANÇA</div>
+      <div class="fase-pts">10</div>
+      <div class="fase-label">pontos totais</div>
+      <div class="fase-habilidades">2 poderes especiais (E2)</div>
+    </div>
+    <div class="fase-card adulto">
+      <div class="fase-name">E. ADULTO</div>
+      <div class="fase-pts">15</div>
+      <div class="fase-label">pontos totais</div>
+      <div class="fase-habilidades">3 poderes especiais (E3)</div>
+    </div>
+    <div class="fase-card perfeito">
+      <div class="fase-name">E. PERFEITO</div>
+      <div class="fase-pts">22</div>
+      <div class="fase-label">pontos totais</div>
+      <div class="fase-habilidades">4 poderes especiais (E4)</div>
+    </div>
+    <div class="fase-card final">
+      <div class="fase-name">E. FINAL</div>
+      <div class="fase-pts">30</div>
+      <div class="fase-label">pontos totais</div>
+      <div class="fase-habilidades">5 poderes especiais (E5)</div>
+    </div>
+  </div>
+
+  <div class="info-box">
+    <strong>// COMO MONTAR UM PODER</strong><br>
+    Exemplo: "Garra Ígnea" (E3, Adulto) = Dano Físico Médio (3pts) + Queima: Dano Contínuo (2pts) + Alcance Curto (1pt) = 6 pts gastos dos 15 disponíveis.<br><br>
+    Você pode distribuir os pontos livremente entre os poderes da fase. Não é obrigatório usar todos os pontos. Os Usos de cada poder são definidos pelo custo total: 1–4 pts = Ilimitado · 5–8 pts = 3×/combate · 9–12 pts = 2×/combate · 13+ pts = 1×/combate.
+  </div>
+
+  <div class="card-grid full">
+    <div class="entry-card poder">
+      <div class="entry-name">Lista de Efeitos — 163 Efeitos Disponíveis</div>
+      <div class="entry-sub">ORDENADOS POR CATEGORIA E CUSTO</div>
+      <table class="poder-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>EFEITO</th>
+            <th>CATEGORIA</th>
+            <th>RANK</th>
+            <th>CUSTO</th>
+            <th>DESCRIÇÃO</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- FÍSICO -->
+          <tr><td>01</td><td>Dano Físico Leve</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r1">RANK 1</span></td><td><span class="custo-badge">1 pt</span></td><td>Causa dano físico básico: role o dado de Físico do Digimon.</td></tr>
+          <tr><td>02</td><td>Dano Físico Médio</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">3 pts</span></td><td>Causa dano físico moderado: role 2× o dado de Físico e use o maior.</td></tr>
+          <tr><td>03</td><td>Dano Físico Pesado</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Causa dano físico severo: role 3× o dado de Físico e some os dois maiores.</td></tr>
+          <tr><td>04</td><td>Dano Físico Brutal</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">8 pts</span></td><td>Golpe devastador: role o dado de Físico 2× e some ambos os resultados. Garante uma média mais alta e consistente que o Pesado, além de não descartar nenhum valor.</td></tr>
+          <tr><td>05</td><td>Dano em Área</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Atinge todos os inimigos no alcance com metade do dano normal.</td></tr>
+          <tr><td>06</td><td>Golpe Perfurante</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">3 pts</span></td><td>Ignora metade da RD/resistência do alvo (arredonda para baixo). Mantém utilidade mesmo contra defesas altas.</td></tr>
+          <tr><td>07</td><td>Golpe Crítico</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Role o dado de Físico normalmente: se o resultado for o valor máximo do dado, dobre o dano total. O perigo de um golpe crítico é reconhecível — o alvo não pode esquivar desse ataque.</td></tr>
+          <tr><td>08</td><td>Drenagem de Vida</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Causa dano leve mas recupera metade do dano causado como HP.</td></tr>
+          <tr><td>09</td><td>Dano Contínuo (Queima/Veneno)</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">2 pts</span></td><td>Alvo sofre 1d6 de dano no início de cada turno por 3 turnos.</td></tr>
+          <tr><td>10</td><td>Redução de HP Máximo</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">7 pts</span></td><td>Reduz o HP máximo do alvo em 15 até o fim do combate (não cumulativo).</td></tr>
+
+          <!-- HABILIDADE -->
+          <tr><td>11</td><td>Debuff de Habilidade</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">2 pts</span></td><td>Alvo sofre -1 dado em todos os testes de Habilidade por 2 turnos.</td></tr>
+          <tr><td>12</td><td>Buff de Habilidade (aliado)</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">2 pts</span></td><td>Um aliado ganha +1 dado em testes de Habilidade por 2 turnos.</td></tr>
+          <tr><td>13</td><td>Cópia de Poder</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">8 pts</span></td><td>Copie o último Poder Especial usado por qualquer Digimon no campo. Use uma vez com metade dos efeitos.</td></tr>
+          <tr><td>14</td><td>Interferência Digital</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Alvo deve re-rolar seu próximo teste e usar o resultado menor.</td></tr>
+          <tr><td>15</td><td>Amplificação de Elemento</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>O próximo poder elemental do Digimon adiciona +1 dado de Habilidade como dano elemental bônus. Escala com a evolução do Digimon.</td></tr>
+          <tr><td>16</td><td>Anular Poder</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">7 pts</span></td><td>Cancele um Poder Especial inimigo antes que ele seja aplicado. 1×/combate.</td></tr>
+          <tr><td>17</td><td>Reflexo de Dano</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Se atingido por um ataque, reflita metade do dano ao atacante.</td></tr>
+          <tr><td>18</td><td>Sobrecarga de Dados</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r5">RANK 5</span></td><td><span class="custo-badge">10 pts</span></td><td>Alvo perde sua próxima ação inteira enquanto processa a sobrecarga.</td></tr>
+
+          <!-- MOVIMENTO -->
+          <tr><td>19</td><td>Impulso de Velocidade</td><td><span class="cat-badge movimento">MOVIMENTO</span></td><td><span class="rank-badge r1">RANK 1</span></td><td><span class="custo-badge">1 pt</span></td><td>+1 dado em Movimento pelo turno atual. Útil para testes de esquiva, perseguição ou qualquer disputa de velocidade neste turno.</td></tr>
+          <tr><td>20</td><td>Teleporte Curto</td><td><span class="cat-badge movimento">MOVIMENTO</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Reposicione-se instantaneamente em qualquer local ao qual você tenha acesso direto no confronto.</td></tr>
+          <tr><td>21</td><td>Imobilizar</td><td><span class="cat-badge movimento">MOVIMENTO</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">3 pts</span></td><td>Alvo não pode se mover por 1 turno (raízes, gelo, rede digital etc.).</td></tr>
+          <tr><td>22</td><td>Empurrar</td><td><span class="cat-badge movimento">MOVIMENTO</span></td><td><span class="rank-badge r1">RANK 1</span></td><td><span class="custo-badge">1 pt</span></td><td>Force o alvo a se reposicionar ou recuar no confronto.</td></tr>
+          <tr><td>23</td><td>Investida</td><td><span class="cat-badge movimento">MOVIMENTO</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">3 pts</span></td><td>Mova-se até o alvo e ataque em sequência sem custo de ação extra.</td></tr>
+          <tr><td>24</td><td>Esquiva Aprimorada</td><td><span class="cat-badge movimento">MOVIMENTO</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">2 pts</span></td><td>+1 dado em testes de Movimento para evitar ataques pelo próximo turno.</td></tr>
+          <tr><td>25</td><td>Perseguição</td><td><span class="cat-badge movimento">MOVIMENTO</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">2 pts</span></td><td>Se o alvo se mover, você segue automaticamente sem custo de ação. Efeitos que reposicionam sem "movimento" real — como Teleporte Curto, Empurrar ou Enganar Sentidos — quebram a perseguição normalmente, pois não há trajetória a seguir.</td></tr>
+          <tr><td>26</td><td>Campo de Desaceleração</td><td><span class="cat-badge movimento">MOVIMENTO</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Cria uma zona de 5m: todos os inimigos na zona têm Movimento reduzido em -2 dados por 2 turnos.</td></tr>
+
+          <!-- SENTIDOS -->
+          <tr><td>27</td><td>Detecção de Anomalia</td><td><span class="cat-badge sentidos">SENTIDOS</span></td><td><span class="rank-badge r1">RANK 1</span></td><td><span class="custo-badge">1 pt</span></td><td>Detecta automaticamente qualquer Digimon escondido, armadilha ou anomalia no alcance.</td></tr>
+          <tr><td>28</td><td>Visão de Dados</td><td><span class="cat-badge sentidos">SENTIDOS</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">2 pts</span></td><td>Veja o Atributo, Elemento e HP restante de qualquer Digimon no campo.</td></tr>
+          <tr><td>29</td><td>Radar Emocional</td><td><span class="cat-badge sentidos">SENTIDOS</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">2 pts</span></td><td>Detecte o estado emocional e intenção imediata de qualquer ser no alcance.</td></tr>
+          <tr><td>30</td><td>Cegueira Digital</td><td><span class="cat-badge sentidos">SENTIDOS</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Alvo fica cego por 2 turnos: -2 dados em ataques e testes que exigem visão.</td></tr>
+          <tr><td>31</td><td>Enganar Sentidos</td><td><span class="cat-badge sentidos">SENTIDOS</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Crie uma ilusão de dados: inimigo mira o alvo errado por 1 turno.</td></tr>
+          <tr><td>32</td><td>Amplificar Percepção (aliado)</td><td><span class="cat-badge sentidos">SENTIDOS</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">2 pts</span></td><td>Um aliado ganha +1 dado em Sentidos e não pode ser surpreendido por 3 turnos.</td></tr>
+          <tr><td>33</td><td>Espelho de Dados</td><td><span class="cat-badge sentidos">SENTIDOS</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">3 pts</span></td><td>Cria uma cópia ilusória de si mesmo. Inimigos devem superar Sentidos para identificar o real. A ilusão não resiste a dano e desaparece ao ser atingida. Acessível desde estágios iniciais — temático para Digimon como Renamon e Impmon.</td></tr>
+          <tr><td>34</td><td>Premonição</td><td><span class="cat-badge sentidos">SENTIDOS</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>O Mestre revela o tipo de ação que um inimigo vai executar no próximo turno (ataque, poder especial, defesa ou deslocamento), sem detalhes. Diferente de Leitura de Intenção, não concede bônus direto em dados — apenas a informação.</td></tr>
+
+          <!-- INTELIGÊNCIA -->
+          <tr><td>35</td><td>Análise de Vulnerabilidade</td><td><span class="cat-badge inteligencia">INTELIGÊNCIA</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">2 pts</span></td><td>Identifique a fraqueza elemental de um inimigo. O próximo ataque elemental contra ele adiciona +1 dado de Habilidade como dano bônus. Escala com a evolução do Digimon.</td></tr>
+          <tr><td>36</td><td>Otimização de Combate</td><td><span class="cat-badge inteligencia">INTELIGÊNCIA</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">3 pts</span></td><td>+1 dado em todos os testes de Físico e Habilidade por 2 turnos.</td></tr>
+          <tr><td>37</td><td>Hackear Dado</td><td><span class="cat-badge inteligencia">INTELIGÊNCIA</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Force um inimigo a re-rolar qualquer dado já lançado neste turno.</td></tr>
+          <tr><td>38</td><td>Suporte Tático</td><td><span class="cat-badge inteligencia">INTELIGÊNCIA</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">2 pts</span></td><td>Um aliado ganha +1 dado no próximo teste de qualquer atributo à sua escolha.</td></tr>
+          <!-- INTELIGÊNCIA (continuação) -->
+          <tr><td>39</td><td>Descompilação</td><td><span class="cat-badge inteligencia">INTELIGÊNCIA</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">7 pts</span></td><td>Remove um efeito positivo ativo de qualquer inimigo no alcance.</td></tr>
+          <tr><td>40</td><td>Protocolo de Barreira</td><td><span class="cat-badge inteligencia">INTELIGÊNCIA</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Crie uma barreira de dados: absorva os próximos 10 de dano recebido antes de afetar HP.</td></tr>
+          <tr><td>41</td><td>Comando de Equipe</td><td><span class="cat-badge inteligencia">INTELIGÊNCIA</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Todos os aliados no campo ganham +1 dado no próximo teste de qualquer atributo.</td></tr>
+          <tr><td>42</td><td>Compilação Rápida</td><td><span class="cat-badge inteligencia">INTELIGÊNCIA</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">3 pts</span></td><td>Reduza o custo de usos do próximo poder utilizado em 1 categoria (ex: 2×/combate vira 3×/combate).</td></tr>
+
+          <!-- ESPECIAL -->
+          <tr><td>43</td><td>Alcance Curto</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r1">RANK 1</span></td><td><span class="custo-badge">1 pt</span></td><td>O poder pode ser usado contra alvos próximos sem contato direto.</td></tr>
+          <tr><td>44</td><td>Alcance Médio</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">2 pts</span></td><td>O poder pode ser usado contra alvos a distância moderada dentro do confronto.</td></tr>
+          <tr><td>45</td><td>Alcance Longo</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">3 pts</span></td><td>O poder pode ser usado contra alvos distantes ainda que no confronto, sem restrição de alcance.</td></tr>
+          <tr><td>46</td><td>Cura de Aliado</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">3 pts</span></td><td>Restaura 10 HP de um aliado no alcance.</td></tr>
+          <tr><td>47</td><td>Cura em Área</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Restaura 8 HP de todos os aliados acessíveis no confronto.</td></tr>
+          <tr><td>48</td><td>Escudo de Dados</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">3 pts</span></td><td>Cria um escudo que bloqueia o próximo ataque recebido completamente, sem causar dano.</td></tr>
+          <tr><td>49</td><td>Regeneração de Combate</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Recupera 5 HP no início de cada turno por 3 turnos consecutivos.</td></tr>
+          <tr><td>50</td><td>Contra-Ataque</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Declare antes de ser atacado: se o ataque acertar, você reage imediatamente com Dano Físico Leve (role o dado de Físico) como reação sem gastar ação.</td></tr>
+          <tr><td>51</td><td>Fúria do Guardião</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r5">RANK 5</span></td><td><span class="custo-badge">10 pts</span></td><td>Quando um aliado chega a 0 HP, seu próximo ataque causa dano x2 e não pode ser bloqueado. A frequência de uso depende naturalmente de quantos aliados chegam a 0 HP no combate.</td></tr>
+          <tr><td>52</td><td>Ressurgir</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r5">RANK 5</span></td><td><span class="custo-badge">12 pts</span></td><td>Quando reduzido a 0 HP, role Físico. Se resultado ≥ metade do dado máximo, retorne com 15 HP. 1×/sessão.</td></tr>
+          <tr><td>53</td><td>Sincronização com Parceiro</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">6 pts</span></td><td>Por 2 turnos, seu parceiro humano pode somar seu dado de Inteligência ao seu ataque como bônus de Energia de Fusão.</td></tr>
+          <tr><td>54</td><td>Modo Berserker</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r5">RANK 5</span></td><td><span class="custo-badge">9 pts</span></td><td>Por 3 turnos: +2 dados em Físico, mas -2 dados em todos os testes de defesa e Sentidos. Não pode ser cancelado.</td></tr>
+
+          <!-- ══ NOVOS EFEITOS — FÍSICO AVANÇADO ══ -->
+          <tr><td colspan="6" style="background:#0a0c10; color:#e05555; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; padding:8px 10px;">── FÍSICO AVANÇADO ─────────────────────────────────────────</td></tr>
+          <tr><td>55</td><td>Dano Físico Leve (Duplo)</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">3 pts</span></td><td>Dois golpes rápidos: role o dado de Físico duas vezes e aplique cada resultado separadamente (cada um pode ser bloqueado/esquivado individualmente).</td></tr>
+          <tr><td>56</td><td>Golpe de Esmagamento</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Dano Físico Médio + alvo é derrubado (perde movimento no próximo turno enquanto se levanta).</td></tr>
+          <tr><td>57</td><td>Triturar Defesa</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Causa dano leve e reduz a resistência do alvo permanentemente em 2 até o fim do combate (cumulativo até -6).</td></tr>
+          <tr><td>58</td><td>Golpe Sísmico</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Atinge o chão: todos os inimigos próximos recebem Dano Físico Leve e ficam com -1 dado em Movimento por 1 turno.</td></tr>
+          <tr><td>59</td><td>Ataque Consecutivo</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">6 pts</span></td><td>Realize até 3 ataques Físicos Leves no mesmo turno. Cada ataque além do primeiro recebe -1 dado de Físico.</td></tr>
+          <tr><td>60</td><td>Golpe Vampírico</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Causa Dano Físico Médio e recupera HP igual a todo o dano causado (não apenas metade).</td></tr>
+          <tr><td>61</td><td>Contusão Profunda</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Dano leve + alvo sofre -1 dado em Físico por 3 turnos (a contusão dificulta movimentos ofensivos).</td></tr>
+          <tr><td>62</td><td>Impacto Perfurante Pesado</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">7 pts</span></td><td>Dano Físico Pesado que ignora qualquer resistência ou armadura do alvo completamente.</td></tr>
+          <tr><td>63</td><td>Golpe Fantasma</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">6 pts</span></td><td>Ataque que não pode ser esquivado por testes de Movimento — o alvo só pode tentar resistir com Físico.</td></tr>
+          <tr><td>64</td><td>Explosão de Dados</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">7 pts</span></td><td>O Digimon explode parte de sua própria estrutura de dados: causa Dano Físico Brutal a todos os inimigos no confronto, mas recebe 5 de dano a si mesmo.</td></tr>
+          <tr><td>65</td><td>Pressão de Combate</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">2 pts</span></td><td>Enquanto adjacente ao alvo, este sofre -1 dado em todos os testes (pressão física constante). Passivo enquanto a condição for mantida.</td></tr>
+          <tr><td>66</td><td>Dano de Execução</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r5">RANK 5</span></td><td><span class="custo-badge">9 pts</span></td><td>Se o alvo estiver com menos de 25% do HP máximo, este ataque causa dano x3 automaticamente. 1×/combate.</td></tr>
+          <tr><td>67</td><td>Veneno Corrosivo</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Dano leve + envenena o alvo: sofre 1d8 de dano no início de cada turno. Dura até ser curado ou fim do combate.</td></tr>
+          <tr><td>68</td><td>Correntes de Dados</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Imobiliza o alvo com correntes digitais: não pode se mover ou usar poderes especiais por 2 turnos. Causa dano leve ao aplicar.</td></tr>
+          <tr><td>69</td><td>Investida Brutal</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">6 pts</span></td><td>Move-se até o alvo e aplica Dano Físico Pesado. Se o alvo estiver imobilizado ou recuado, dano x2.</td></tr>
+          <tr><td>70</td><td>Marca da Presa</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Marca um inimigo: todos os aliados causam +3 de dano contra o alvo marcado por 2 turnos.</td></tr>
+
+          <!-- ══ NOVOS EFEITOS — HABILIDADE AVANÇADA ══ -->
+          <tr><td colspan="6" style="background:#0a0c10; color:#3ecfcf; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; padding:8px 10px;">── HABILIDADE AVANÇADA ──────────────────────────────────────</td></tr>
+          <tr><td>71</td><td>Dano de Habilidade Leve</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r1">RANK 1</span></td><td><span class="custo-badge">1 pt</span></td><td>Ataque de energia digital precisa: role o dado de Habilidade do Digimon como dano.</td></tr>
+          <tr><td>72</td><td>Dano de Habilidade Médio</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">3 pts</span></td><td>Projeção de energia concentrada: role 2× o dado de Habilidade e use o maior como dano.</td></tr>
+          <tr><td>73</td><td>Dano de Habilidade Pesado</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Descarga total de energia digital: role 3× o dado de Habilidade e some os dois maiores.</td></tr>
+          <tr><td>74</td><td>Dano de Habilidade Brutal</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">8 pts</span></td><td>Sobrecarga digital devastadora: role o dado de Habilidade e dobre o resultado.</td></tr>
+          <tr><td>75</td><td>Raio Múltiplo</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Dispara até 3 projéteis de energia: cada um causa Dano de Habilidade Leve. Podem mirar alvos diferentes.</td></tr>
+          <tr><td>76</td><td>Pulso de Repulsão</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">3 pts</span></td><td>Dano de Habilidade Leve + empurra o alvo para longe. Se o alvo se chocar com outro combatente, recebe +1d6 extra de dano.</td></tr>
+          <tr><td>77</td><td>Descarga Paralisante</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Dano de Habilidade Médio + alvo fica paralisado por 1 turno (não pode agir de nenhuma forma).</td></tr>
+          <tr><td>78</td><td>Bomba de Dados</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">7 pts</span></td><td>Projétil que explode: todos os alvos próximos recebem Dano de Habilidade Médio.</td></tr>
+          <tr><td>79</td><td>Feixe Cortante</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Linha de energia que atravessa o campo: atinge todos os inimigos em linha reta com Dano de Habilidade Leve.</td></tr>
+          <tr><td>80</td><td>Campo de Supressão</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">7 pts</span></td><td>Cria uma zona: inimigos dentro não podem usar Poderes Especiais de Rank 3 ou superior por 2 turnos.</td></tr>
+          <tr><td>81</td><td>Prisma Digital</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Divide um ataque de habilidade em 3 fragmentos menores (cada um com 1/3 do dado). Cada fragmento mira um alvo diferente.</td></tr>
+          <tr><td>82</td><td>Inversão de Fluxo</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">7 pts</span></td><td>Inverte os efeitos do próximo poder de um inimigo (cura vira dano, buffs viram debuffs). 1×/combate.</td></tr>
+          <tr><td>83</td><td>Sobrecarga Encadeada</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">8 pts</span></td><td>Dano de Habilidade Médio. Se o alvo usar um poder especial no turno seguinte, sofre o mesmo dano novamente automaticamente.</td></tr>
+          <tr><td>84</td><td>Roubo de Energia</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">7 pts</span></td><td>Drena a energia do inimigo: causa Dano de Habilidade Leve e rouba 1 uso de um poder especial do alvo (você pode usá-lo uma vez).</td></tr>
+          <tr><td>85</td><td>Amplificador de Traço</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Por 3 turnos, o efeito passivo do Traço do Digimon se aplica duas vezes por gatilho.</td></tr>
+
+          <!-- ══ NOVOS EFEITOS — MOVIMENTO AVANÇADO ══ -->
+          <tr><td colspan="6" style="background:#0a0c10; color:#4ecb71; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; padding:8px 10px;">── MOVIMENTO AVANÇADO ───────────────────────────────────────</td></tr>
+          <tr><td>86</td><td>Dash de Combate</td><td><span class="cat-badge movimento">MOVIMENTO</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">2 pts</span></td><td>Reposicione-se rapidamente como ação de bônus, sem gastar a ação principal.</td></tr>
+          <tr><td>87</td><td>Evasão Perfeita</td><td><span class="cat-badge movimento">MOVIMENTO</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Declare antes de ser atacado: ignore completamente o próximo ataque (sem teste). 1×/turno.</td></tr>
+          <tr><td>88</td><td>Teletransporte em Área</td><td><span class="cat-badge movimento">MOVIMENTO</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">7 pts</span></td><td>Teleporte um aliado ou inimigo (teste de Movimento para resistir) para qualquer ponto acessível no confronto.</td></tr>
+          <tr><td>89</td><td>Passo das Sombras</td><td><span class="cat-badge movimento">MOVIMENTO</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Torne-se invisível por 1 turno completo. O primeiro ataque após sair da invisibilidade causa +1 dado de dano.</td></tr>
+          <tr><td>90</td><td>Vortex de Dados</td><td><span class="cat-badge movimento">MOVIMENTO</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Puxa todos os inimigos próximos até você (sucção de dados), centralizando o confronto.</td></tr>
+          <tr><td>91</td><td>Barreira de Velocidade</td><td><span class="cat-badge movimento">MOVIMENTO</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">3 pts</span></td><td>O Digimon se lança em uma explosão de velocidade, realizando até 3 ataques Físicos Leves consecutivos em inimigos diferentes no mesmo turno. Só pode ser usado se o Digimon agiu antes de todos os alvos neste turno (Movimento superior na iniciativa).</td></tr>
+          <tr><td>92</td><td>Onda de Choque</td><td><span class="cat-badge movimento">MOVIMENTO</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>O Digimon se lança em alta velocidade e libera uma onda de impacto: empurra todos os inimigos que estejam ao seu alcance imediato para longe. Só pode ser usado se o Digimon agiu antes de todos os alvos neste turno (Movimento superior na iniciativa).</td></tr>
+          <tr><td>93</td><td>Posicionamento Tático</td><td><span class="cat-badge movimento">MOVIMENTO</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">2 pts</span></td><td>Reposicione um aliado em qualquer ponto acessível no confronto (com consentimento). Não gasta ação do aliado.</td></tr>
+          <tr><td>94</td><td>Âncora de Dados</td><td><span class="cat-badge movimento">MOVIMENTO</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">2 pts</span></td><td>Fixe-se ao solo: imune a ser empurrado, puxado ou teletransportado por 3 turnos. +1 dado em Físico defensivo.</td></tr>
+          <tr><td>95</td><td>Rastro de Dados</td><td><span class="cat-badge movimento">MOVIMENTO</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>O Digimon deixa uma zona de energia instável em sua posição anterior ao se deslocar. Qualquer inimigo que se aproximar ou permanecer nessa zona sofre 1d6 de dano por turno. Dura 3 turnos. O Digimon deve ter se deslocado neste turno para ativar.</td></tr>
+          <tr><td>96</td><td>Fuga Relâmpago</td><td><span class="cat-badge movimento">MOVIMENTO</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">2 pts</span></td><td>Ao ser alvejado por um ataque, role Movimento: se o resultado superar o ataque, esquive e reposicione-se até 8m.</td></tr>
+          <tr><td>97</td><td>Cercar</td><td><span class="cat-badge movimento">MOVIMENTO</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">3 pts</span></td><td>Mova-se ao redor do alvo: agora flanqueando. Causa +2 dados em Físico enquanto flanquear (até ser reposicionado).</td></tr>
+          <tr><td>98</td><td>Zona de Controle</td><td><span class="cat-badge movimento">MOVIMENTO</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Qualquer inimigo que tentar se afastar do Digimon sofre Dano Físico Leve automaticamente (sem ação).</td></tr>
+
+          <!-- ══ NOVOS EFEITOS — SENTIDOS AVANÇADOS ══ -->
+          <tr><td colspan="6" style="background:#0a0c10; color:#f5c842; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; padding:8px 10px;">── SENTIDOS AVANÇADOS ───────────────────────────────────────</td></tr>
+          <tr><td>99</td><td>Mapeamento de Campo</td><td><span class="cat-badge sentidos">SENTIDOS</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">2 pts</span></td><td>Revele a posição exata e HP atual de todos os inimigos no campo, incluindo escondidos. Dura 2 turnos.</td></tr>
+          <tr><td>100</td><td>Visão Noturna Digital</td><td><span class="cat-badge sentidos">SENTIDOS</span></td><td><span class="rank-badge r1">RANK 1</span></td><td><span class="custo-badge">1 pt</span></td><td>Nenhuma penalidade por escuridão, névoa ou ilusões visuais. Permanente enquanto o poder estiver ativo.</td></tr>
+          <tr><td>101</td><td>Rastreamento de Assinatura</td><td><span class="cat-badge sentidos">SENTIDOS</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">3 pts</span></td><td>Marque a assinatura de dados de um inimigo: sabe sua localização enquanto estiverem ligados pelo resto da sessão.</td></tr>
+          <tr><td>102</td><td>Sentido de Perigo</td><td><span class="cat-badge sentidos">SENTIDOS</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">2 pts</span></td><td>Nunca pode ser surpreendido ou emboscado. Sempre age no início do turno, independente da ordem de iniciativa.</td></tr>
+          <tr><td>103</td><td>Análise de Combate</td><td><span class="cat-badge sentidos">SENTIDOS</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Após observar um inimigo por 1 turno, identifique todos os seus poderes especiais, pontos fracos e HP restante.</td></tr>
+          <tr><td>104</td><td>Eco de Dados</td><td><span class="cat-badge sentidos">SENTIDOS</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Detecte qualquer objeto, estrutura ou criatura no confronto através de obstáculos ou encobrimentos.</td></tr>
+          <tr><td>105</td><td>Leitura de Intenção</td><td><span class="cat-badge sentidos">SENTIDOS</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Veja o próximo movimento de um inimigo específico antes que ele aconteça. +2 dados em esquiva ou bloqueio contra esse alvo por 1 turno.</td></tr>
+          <tr><td>106</td><td>Ilusão Perfeita</td><td><span class="cat-badge sentidos">SENTIDOS</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">7 pts</span></td><td>Cria uma ilusão tão convincente que inimigos interagem fisicamente com ela. Dura 3 turnos ou até receber dano.</td></tr>
+          <tr><td>107</td><td>Mascarar Aura</td><td><span class="cat-badge sentidos">SENTIDOS</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">3 pts</span></td><td>Oculta a presença digital do Digimon: não pode ser detectado por poderes de Sentidos inimigos por 3 turnos.</td></tr>
+          <tr><td>108</td><td>Pulso de Revelação</td><td><span class="cat-badge sentidos">SENTIDOS</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Emite uma onda que remove todos os efeitos de invisibilidade, ilusão e camuflagem no confronto.</td></tr>
+          <tr><td>109</td><td>Visão do Guardião</td><td><span class="cat-badge sentidos">SENTIDOS</span></td><td><span class="rank-badge r5">RANK 5</span></td><td><span class="custo-badge">8 pts</span></td><td>Por 1 turno, o Digimon enxerga todos os eventos do campo simultaneamente. Pode agir em qualquer ponto do campo como reação. 1×/combate.</td></tr>
+
+          <!-- ══ NOVOS EFEITOS — INTELIGÊNCIA AVANÇADA ══ -->
+          <tr><td colspan="6" style="background:#0a0c10; color:#c97de8; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; padding:8px 10px;">── INTELIGÊNCIA AVANÇADA ────────────────────────────────────</td></tr>
+          <tr><td>110</td><td>Estratégia de Campo</td><td><span class="cat-badge inteligencia">INTELIGÊNCIA</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Reorganize a iniciativa: você e todos os aliados movem para o início da ordem de turno nesta rodada.</td></tr>
+          <tr><td>111</td><td>Decodificação Forçada</td><td><span class="cat-badge inteligencia">INTELIGÊNCIA</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">6 pts</span></td><td>Force um inimigo a revelar seu Poder Especial mais poderoso (o Mestre descreve o efeito antes de ele usá-lo).</td></tr>
+          <tr><td>112</td><td>Recompilar Aliado</td><td><span class="cat-badge inteligencia">INTELIGÊNCIA</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Remove todos os efeitos negativos de um aliado e restaura 15 HP.</td></tr>
+          <tr><td>113</td><td>Protocolo Anti-Vírus</td><td><span class="cat-badge inteligencia">INTELIGÊNCIA</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">3 pts</span></td><td>Por 3 turnos, o Digimon é imune a efeitos de debuff (veneno, paralisia, cegueira, etc.).</td></tr>
+          <tr><td>114</td><td>Overclock</td><td><span class="cat-badge inteligencia">INTELIGÊNCIA</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">7 pts</span></td><td>Por 2 turnos, o Digimon pode usar 2 Poderes Especiais por turno sem custo extra. Após isso, sofre 10 de dano por estresse.</td></tr>
+          <tr><td>115</td><td>Previsão de Ataque</td><td><span class="cat-badge inteligencia">INTELIGÊNCIA</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Declare antes de qualquer ação inimiga: se correto sobre o tipo de ação, bloqueie-a automaticamente sem teste. 1×/turno.</td></tr>
+          <tr><td>116</td><td>Algoritmo de Evasão</td><td><span class="cat-badge inteligencia">INTELIGÊNCIA</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Calcule a trajetória dos ataques inimigos: +2 dados em todos os testes de esquiva por 2 turnos.</td></tr>
+          <tr><td>117</td><td>Divisão de Processamento</td><td><span class="cat-badge inteligencia">INTELIGÊNCIA</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">6 pts</span></td><td>Divida sua atenção: aplique efeitos de dois poderes de custo 3 ou menor simultaneamente no mesmo turno.</td></tr>
+          <tr><td>118</td><td>Firewall Pessoal</td><td><span class="cat-badge inteligencia">INTELIGÊNCIA</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Cria uma barreira inteligente: absorve os próximos 20 de dano E reflete 5 de dano ao atacante quando quebrada.</td></tr>
+          <tr><td>119</td><td>Hack de Sistema</td><td><span class="cat-badge inteligencia">INTELIGÊNCIA</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">8 pts</span></td><td>Hackeie a estrutura de dados de um inimigo: escolha um dos efeitos negativos que ele tiver ativo e transfira-o para outro inimigo.</td></tr>
+          <tr><td>120</td><td>Otimização Total</td><td><span class="cat-badge inteligencia">INTELIGÊNCIA</span></td><td><span class="rank-badge r5">RANK 5</span></td><td><span class="custo-badge">10 pts</span></td><td>Por 1 turno completo, todos os testes do Digimon usam o resultado máximo do dado (sem rolar). 1×/combate.</td></tr>
+
+          <!-- ══ NOVOS EFEITOS — ESPECIAL AVANÇADO ══ -->
+          <tr><td colspan="6" style="background:#0a0c10; color:#e8934a; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; padding:8px 10px;">── ESPECIAL AVANÇADO ────────────────────────────────────────</td></tr>
+          <tr><td>121</td><td>Cura Profunda</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Restaura 25 HP de um aliado e remove 1 efeito negativo. Não funciona em si mesmo.</td></tr>
+          <tr><td>122</td><td>Ressurgimento de Equipe</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r5">RANK 5</span></td><td><span class="custo-badge">12 pts</span></td><td>Todos os aliados com 0 HP voltam com 20 HP. 1×/sessão. Custa 15 de dano ao próprio Digimon.</td></tr>
+          <tr><td>123</td><td>Modo Fusão Parcial</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r5">RANK 5</span></td><td><span class="custo-badge">10 pts</span></td><td>Canaliza Energia de Fusão momentaneamente: por 2 turnos, todos os status do Digimon sobem 1 nível de dado (2d4→2d6, etc.).</td></tr>
+          <tr><td>124</td><td>Barreira de Grupo</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">7 pts</span></td><td>Cria uma barreira coletiva: todos os aliados no campo absorvem os próximos 8 de dano antes de afetar HP.</td></tr>
+          <tr><td>125</td><td>Escudo Reativo</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Declare após ser alvejado: reduza o dano recebido à metade. O restante é refletido ao atacante.</td></tr>
+          <tr><td>126</td><td>Transferência de Dano</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">6 pts</span></td><td>Por 2 turnos, todo o dano que um aliado específico receber é redirecionado para este Digimon (que recebe metade).</td></tr>
+          <tr><td>127</td><td>Explosão de Fusão</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r5">RANK 5</span></td><td><span class="custo-badge">11 pts</span></td><td>Libera Energia de Fusão acumulada em explosão massiva: dano x3 para todos os inimigos no confronto. Reduz Energia de Fusão em 10 pontos. 1×/combate.</td></tr>
+          <tr><td>128</td><td>Modo de Sobrevivência</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">7 pts</span></td><td>Ao chegar em 25% do HP máximo, ativa automaticamente: reduz todo dano recebido à metade por 2 turnos. Passivo.</td></tr>
+          <tr><td>129</td><td>Vínculo Profundo</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Por 3 turnos, o parceiro humano pode usar sua ação para dar +1 dado em qualquer teste do Digimon sem gastar Energia de Fusão.</td></tr>
+          <tr><td>130</td><td>Armadura Digital</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Invoca cobertura de dados cristalizados: reduz o próximo dano recebido em 15 (não cumulativo). Quebra após absorver.</td></tr>
+          <tr><td>131</td><td>Grito de Batalha</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">3 pts</span></td><td>Inspira aliados: todos os aliados ganham +1 dado em Físico e Habilidade no próximo turno.</td></tr>
+          <tr><td>132</td><td>Aura Intimidadora</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Inimigos com HP abaixo de 50% devem superar teste de Inteligência ou ficam com -2 dados em todos os testes por 2 turnos.</td></tr>
+          <tr><td>133</td><td>Sacrifício Calculado</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">6 pts</span></td><td>Sacrifica 20 HP próprios para causar exatamente 40 de dano direto em um alvo (ignora toda resistência).</td></tr>
+          <tr><td>134</td><td>Protocolo de Extinção</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r5">RANK 5</span></td><td><span class="custo-badge">13 pts</span></td><td>O golpe definitivo: role todos os dados do Digimon (Físico + Habilidade) e some todos os resultados como dano. 1×/sessão.</td></tr>
+
+          <!-- ══ NOVOS EFEITOS — ELEMENTAL ══ -->
+          <tr><td colspan="6" style="background:#0a0c10; color:#4ecb71; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; padding:8px 10px;">── ELEMENTAL ────────────────────────────────────────────────</td></tr>
+          <tr><td>135</td><td>Chama Devoradora</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Ataque de fogo que causa 1d8 de dano imediato + 1d6 por turno por 3 turnos (Queima intensa). Exclusivo para elemento Fogo.</td></tr>
+          <tr><td>136</td><td>Congelamento Absoluto</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">6 pts</span></td><td>Cristaliza o alvo em gelo de dados: completamente imóvel por 2 turnos, -3 dados em tudo. Exclusivo Gelo.</td></tr>
+          <tr><td>137</td><td>Tempestade Elétrica</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">6 pts</span></td><td>Raio em cadeia: atinge até 4 alvos em sequência (cada salto causa -2 de dano). Exclusivo Trovão.</td></tr>
+          <tr><td>138</td><td>Cortina de Vento</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Cria uma barreira de vento que desvia automaticamente qualquer poder com efeito de Alcance (Curto, Médio ou Longo) por 2 turnos. Ataques sem efeito de Alcance — incluindo poderes de Habilidade usados em contato direto — não são desviados. Exclusivo Vento.</td></tr>
+          <tr><td>139</td><td>Muralha de Pedra</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Ergue uma barreira de dados cristalizados: bloqueia o movimento de todos os inimigos em linha de 8m. Dura 3 turnos. Exclusivo Terra.</td></tr>
+          <tr><td>140</td><td>Maré Digital</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Onda de energia aquática: cura todos os aliados em 8 HP e causa 1d8 de dano a todos os inimigos na área. Exclusivo Água.</td></tr>
+          <tr><td>141</td><td>Pulso de Purificação</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">7 pts</span></td><td>Ondas de luz sagrada: causa 1d10 de dano a Digimon de tipo Vírus e Trevas, e restaura 10 HP de todos os aliados. Exclusivo Luz.</td></tr>
+          <tr><td>142</td><td>Nova das Trevas</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">7 pts</span></td><td>Explosão de escuridão corruptora: causa 1d10 de dano a todos os inimigos visíveis e aplica Medo (-2 dados por 2 turnos). Exclusivo Trevas.</td></tr>
+          <tr><td>143</td><td>Lança de Aço</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Projétil de metal digital: causa 1d8 de dano perfurante (ignora 3 de resistência) e reduz armadura do alvo em 2 permanentemente. Exclusivo Aço.</td></tr>
+          <tr><td>144</td><td>Raiz Anciã</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Raízes de dados prendem e drenam: imobiliza por 2 turnos e causa 1d6 de dano por turno + cura o Digimon em igual quantidade. Exclusivo Planta.</td></tr>
+          <tr><td>145</td><td>Vácuo Existencial</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r5">RANK 5</span></td><td><span class="custo-badge">11 pts</span></td><td>Cria um vazio de dados que consome parcialmente o alvo: causa 1d12 de dano e remove permanentemente 1 efeito positivo passivo do inimigo. Exclusivo Vazio.</td></tr>
+
+          <!-- ══ NOVOS EFEITOS — CONDICIONAIS ══ -->
+          <tr><td colspan="6" style="background:#0a0c10; color:#5b9ef5; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; padding:8px 10px;">── CONDICIONAIS E GATILHOS ──────────────────────────────────</td></tr>
+          <tr><td>146</td><td>Golpe de Oportunidade</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">2 pts</span></td><td>Quando um inimigo errar um ataque, reaja imediatamente com Dano Físico Leve sem gastar sua ação.</td></tr>
+          <tr><td>147</td><td>Absorção de Elemento</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">6 pts</span></td><td>Declare um elemento: qualquer dano desse elemento recebido este turno é convertido em cura de HP igual. 1×/turno.</td></tr>
+          <tr><td>148</td><td>Retaliação Automática</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">5 pts</span></td><td>Passivo: sempre que receber dano, cause automaticamente 1d4 de dano ao atacante (sem ação necessária). Dura 3 turnos.</td></tr>
+          <tr><td>149</td><td>Escalada de Poder</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Acumule cargas: a cada turno sem usar este poder, ganhe +1 dado bônus (máximo +3). Use para liberar tudo em um único ataque.</td></tr>
+          <tr><td>150</td><td>Último Recurso</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r5">RANK 5</span></td><td><span class="custo-badge">8 pts</span></td><td>Só usável com 10% ou menos de HP: cause dano igual ao HP máximo do Digimon como ataque final. 1×/sessão.</td></tr>
+          <tr><td>151</td><td>Ativação por Ameaça</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">3 pts</span></td><td>Passivo: quando um aliado for alvejado com um ataque enquanto você estiver adjacente, interponha-se absorvendo metade do dano.</td></tr>
+          <tr><td>152</td><td>Fúria Acumulada</td><td><span class="cat-badge fisico">FÍSICO</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">5 pts</span></td><td>A cada turno que não atacar, ganhe +2 de dano bônus no próximo ataque físico (máximo +10). Reset após usar.</td></tr>
+          <tr><td>153</td><td>Reação de Defesa</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Quando bloquear ou esquivar com sucesso, pode usar imediatamente uma habilidade de custo 3 ou menos como reação gratuita.</td></tr>
+          <tr><td>154</td><td>Eco de Habilidade</td><td><span class="cat-badge habilidade">HABILIDADE</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">6 pts</span></td><td>O último Poder Especial de Habilidade usado repete-se automaticamente com metade do efeito no turno seguinte (sem custo extra).</td></tr>
+
+          <!-- ══ NOVOS EFEITOS — SUPORTE E TERRENO ══ -->
+          <tr><td colspan="6" style="background:#0a0c10; color:#c97de8; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; padding:8px 10px;">── SUPORTE E CONTROLE DE TERRENO ────────────────────────────</td></tr>
+          <tr><td>155</td><td>Zona Sagrada</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">6 pts</span></td><td>Cria uma zona sagrada: aliados dentro recuperam 3 HP por turno e são imunes a efeitos de Medo. Dura 3 turnos.</td></tr>
+          <tr><td>156</td><td>Campo Minado Digital</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Planta 3 minas de dados no campo. No início de cada turno, o Mestre determina se algum inimigo ativou uma mina com base nas ações narradas. Cada mina ativada causa 1d8 de dano. Duram até o fim do combate ou até serem ativadas.</td></tr>
+          <tr><td>157</td><td>Neblina de Dados</td><td><span class="cat-badge sentidos">SENTIDOS</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Cria neblina densa no confronto: todos os testes de ataque nessa zona têm -2 dados. Aliados com Sentidos altos ignoram penalidade.</td></tr>
+          <tr><td>158</td><td>Reparação de Campo</td><td><span class="cat-badge inteligencia">INTELIGÊNCIA</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">3 pts</span></td><td>Remove um efeito de terreno negativo (neblina, zona corrompida, campo minado) da área imediata.</td></tr>
+          <tr><td>159</td><td>Armadilha de Dados</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r3">RANK 3</span></td><td><span class="custo-badge">4 pts</span></td><td>Prepara uma armadilha oculta: o próximo inimigo que ativar é imobilizado por 2 turnos e recebe 1d6 de dano.</td></tr>
+          <tr><td>160</td><td>Núcleo de Regeneração</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">7 pts</span></td><td>Implanta um cristal de dados no confronto: todos os aliados próximos regeneram 5 HP por turno por 4 turnos. Inimigos que destruírem o cristal recebem 1d10 de dano.</td></tr>
+
+          <tr><td colspan="6" style="background:#0a0c10; color:#3ecfcf; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; padding:8px 10px;">── PASSIVOS PERMANENTES ─────────────────────────────────────</td></tr>
+          <tr><td>161</td><td>Alado</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r1">RANK 1</span></td><td><span class="custo-badge">2 pts</span></td><td>Passivo permanente: o Digimon pode voar, alcançando posições que outros não conseguem. Disponível para qualquer espécie — útil para Digimon que ganham asas em estágios específicos sem ser Pássaro.</td></tr>
+          <tr><td>162</td><td>Duradouro</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r2">RANK 2</span></td><td><span class="custo-badge">3 pts</span></td><td>Passivo permanente: aumenta a duração de todos os efeitos de buff e zona aplicados por este Digimon em +1 turno. Não se aplica a condições negativas aplicadas em inimigos (veneno, paralisia, medo etc.).</td></tr>
+          <tr><td>163</td><td>Alcance Campo</td><td><span class="cat-badge especial">ESPECIAL</span></td><td><span class="rank-badge r4">RANK 4</span></td><td><span class="custo-badge">5 pts</span></td><td>O poder pode ser usado contra qualquer alvo no confronto, sem restrição de alcance.</td></tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- fim poderes -->
+
+
+<script>
+const backTop = document.getElementById('back-top');
+window.addEventListener('scroll', () => {
+  backTop.classList.toggle('visible', window.scrollY > 400);
+});
+</script>
+
+</body>
+</html>
