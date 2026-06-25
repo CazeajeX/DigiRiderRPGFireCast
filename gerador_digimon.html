@@ -1,0 +1,2415 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Digimon — DigiRider RPG</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
+
+:root {
+  --bg: #07090e;
+  --panel: #0d1119;
+  --panel2: #111827;
+  --border: #1e2a3a;
+  --border2: #2a3a50;
+  --text: #d0d8e8;
+  --dim: #5a6a80;
+  --gold: #c9a84c;
+  --gold2: #e8c96a;
+  --cyan: #3ecfcf;
+  --green: #4ecb71;
+  --purple: #c97de8;
+  --red: #e05555;
+  --orange: #e8934a;
+  --blue: #5b9ef5;
+
+  --bebe: #4ecb71;
+  --crianca: #3ecfcf;
+  --adulto: #5b9ef5;
+  --perfeito: #f5c842;
+  --final: #e05555;
+
+  --p-inof: #4ecb71;
+  --p-caut: #f5c842;
+  --p-peri: #e8934a;
+  --p-muit: #e05555;
+  --p-lend: #c97de8;
+
+  --arquetipo: #7b8cf2;
+  --traco-pers: #e86a9a;
+  --item-cor: #f0c040;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+.header {
+  background: linear-gradient(180deg, #0a0f1a 0%, var(--bg) 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 24px 24px 18px;
+  position: sticky; top: 0; z-index: 100;
+}
+.header h1 {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 20px;
+  letter-spacing: 4px;
+  color: var(--gold);
+  margin-bottom: 3px;
+}
+.header p {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 2px;
+}
+
+/* ── LAYOUT ── */
+.layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 0;
+  min-height: calc(100vh - 80px);
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  padding: 24px 20px;
+  overflow-y: auto;
+  height: calc(100vh - 80px);
+  position: sticky;
+  top: 80px;
+}
+
+.sb-section {
+  margin-bottom: 24px;
+}
+
+.sb-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* Inputs */
+.input-field {
+  width: 100%;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 15px;
+  padding: 10px 12px;
+  border-radius: 2px;
+  outline: none;
+  transition: border-color .15s;
+}
+.input-field:focus { border-color: var(--cyan); }
+
+.input-field::placeholder { color: var(--dim); }
+
+/* Stage selector */
+.stage-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.stage-btn {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  color: var(--dim);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 8px 4px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all .15s;
+}
+.stage-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+.stage-btn.active { color: #000; }
+.stage-btn[data-stage="bebe"].active   { background: var(--bebe);    border-color: var(--bebe);    color:#000; }
+.stage-btn[data-stage="crianca"].active{ background: var(--crianca);  border-color: var(--crianca); color:#000; }
+.stage-btn[data-stage="adulto"].active { background: var(--adulto);   border-color: var(--adulto);  color:#fff; }
+.stage-btn[data-stage="perfeito"].active{background: var(--perfeito); border-color: var(--perfeito);color:#000; }
+.stage-btn[data-stage="final"].active  { background: var(--final);    border-color: var(--final);   color:#fff; }
+
+/* Element / Attribute selector */
+.tag-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.tag-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--dim);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .5px;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all .15s;
+}
+.tag-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+.tag-btn.active { background: var(--cyan); border-color: var(--cyan); color: #000; }
+
+/* Level slider */
+.slider-wrap { display: flex; align-items: center; gap: 10px; }
+.slider {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  outline: none;
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  background: var(--cyan);
+  border-radius: 50%;
+  cursor: pointer;
+}
+.slider-val {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 14px;
+  color: var(--cyan);
+  min-width: 24px;
+  text-align: right;
+}
+
+/* Buttons */
+.btn {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid;
+  border-radius: 2px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all .15s;
+  margin-bottom: 6px;
+}
+.btn-primary {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: #000;
+}
+.btn-primary:hover { background: #5ee0e0; }
+.btn-secondary {
+  background: transparent;
+  border-color: var(--purple);
+  color: var(--purple);
+}
+.btn-secondary:hover { background: var(--purple); color: #000; }
+.btn-random {
+  background: transparent;
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.btn-random:hover { background: var(--gold); color: #000; }
+.btn-export {
+  background: transparent;
+  border-color: var(--green);
+  color: var(--green);
+}
+.btn-export:hover { background: var(--green); color: #000; }
+.btn-copy {
+  background: transparent;
+  border-color: var(--blue);
+  color: var(--blue);
+}
+.btn-copy:hover { background: var(--blue); color: #000; }
+
+/* History list */
+.history-list { display: flex; flex-direction: column; gap: 6px; }
+.history-chip {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border2);
+  padding: 7px 10px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  transition: border-color .15s, background .15s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+.history-chip:hover { border-color: var(--cyan); background: var(--panel); }
+.history-chip .hc-name { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.history-chip .hc-meta { color: var(--dim); flex-shrink: 0; }
+
+/* ── MAIN CONTENT ── */
+.main {
+  padding: 24px;
+  overflow-y: auto;
+}
+
+/* Empty state */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: var(--dim);
+  text-align: center;
+  gap: 12px;
+}
+.empty-state .icon { font-size: 48px; opacity: .3; }
+.empty-state h2 { font-family: 'Share Tech Mono', monospace; font-size: 14px; letter-spacing: 3px; color: var(--dim); }
+.empty-state p { font-size: 13px; max-width: 360px; }
+
+/* Result */
+.result { display: none; }
+.result.visible { display: block; }
+
+/* Digimon header card */
+.digi-header {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-top: 3px solid;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.digi-name-big {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 26px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+.digi-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.meta-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border: 1px solid;
+  border-radius: 2px;
+}
+.digi-header-right { text-align: right; }
+.hp-display {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 28px;
+  color: var(--red);
+  font-weight: 700;
+}
+.hp-label { font-size: 11px; color: var(--dim); }
+.perigo-display {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  padding: 4px 10px;
+  border: 1px solid;
+  border-radius: 2px;
+  margin-top: 8px;
+  display: inline-block;
+}
+.carga-display {
+  margin-top: 10px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: right;
+}
+.carga-sub {
+  display: block;
+  font-size: 9px;
+  font-weight: 400;
+  color: var(--dim);
+  letter-spacing: .5px;
+  margin-top: 2px;
+}
+
+/* Section blocks */
+.section-block {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 18px 20px;
+  margin-bottom: 14px;
+}
+.section-title {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Attributes table */
+.attr-table { width: 100%; border-collapse: collapse; }
+.attr-table th {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--dim);
+  text-align: center;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.attr-table td {
+  padding: 8px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+}
+.attr-table td:first-child {
+  text-align: left;
+  font-size: 14px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  color: var(--gold);
+}
+.attr-table tr:last-child td { border-bottom: none; }
+.attr-base { color: var(--dim); font-size: 11px; }
+.attr-final { font-size: 15px; font-weight: 700; }
+.pts-row td {
+  border-top: 1px solid var(--border);
+  color: var(--cyan);
+  font-size: 12px;
+}
+
+/* Upgrade indicators */
+.dice-chain {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.dice-pip {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 1px;
+  border: 1px solid var(--border);
+  color: var(--dim);
+}
+.dice-pip.active-dice {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: rgba(62,207,207,0.1);
+}
+
+/* Powers grid */
+.powers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 900px) { .powers-grid { grid-template-columns: 1fr; } }
+
+.power-card {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-left: 3px solid;
+  padding: 14px 16px;
+  position: relative;
+  transition: border-color .15s;
+}
+.power-card.locked {
+  border-color: var(--gold2);
+}
+.lock-btn {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--dim);
+  font-size: 12px;
+  width: 24px; height: 24px;
+  border-radius: 2px;
+  cursor: pointer;
+  line-height: 1;
+  transition: all .15s;
+}
+.lock-btn:hover { border-color: var(--gold2); color: var(--gold2); }
+.lock-btn.is-locked {
+  background: var(--gold2);
+  border-color: var(--gold2);
+  color: #000;
+}
+.power-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+.power-name {
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.power-badges { display: flex; flex-direction: column; gap: 3px; align-items: flex-end; }
+.badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  padding: 2px 6px;
+  border: 1px solid;
+  border-radius: 1px;
+  white-space: nowrap;
+}
+.power-desc { font-size: 13px; color: #8a96a8; line-height: 1.5; margin-bottom: 8px; }
+.power-effects { display: flex; flex-direction: column; gap: 4px; }
+.effect-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 12px;
+}
+.effect-num {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--gold);
+  background: rgba(201,168,76,0.1);
+  border: 1px solid rgba(201,168,76,0.3);
+  padding: 1px 5px;
+  border-radius: 1px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.effect-text { color: var(--text); line-height: 1.4; }
+.power-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.power-uses {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--dim);
+}
+.power-dmg {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--red);
+}
+
+/* Traits section */
+.traits-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+@media (max-width: 800px) { .traits-grid { grid-template-columns: 1fr 1fr; } }
+.trait-card {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  border-radius: 2px;
+}
+.trait-name { font-size: 13px; font-weight: 700; color: var(--gold); margin-bottom: 3px; }
+.trait-desc { font-size: 12px; color: var(--dim); }
+
+/* ── Toggle switch (item sim/não) ── */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  padding: 9px 12px;
+  border-radius: 2px;
+}
+.toggle-row span { font-size: 13px; color: var(--text); }
+.toggle-switch {
+  position: relative;
+  width: 38px; height: 20px;
+  flex-shrink: 0;
+  background: var(--border2);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 16px; height: 16px;
+  background: var(--dim);
+  border-radius: 50%;
+  transition: left .15s, background .15s;
+}
+.toggle-switch.on { background: rgba(240,192,64,.25); }
+.toggle-switch.on::after { left: 20px; background: var(--item-cor); }
+
+/* Elemento select com descrição prévia */
+.elem-hint {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--dim);
+  font-style: italic;
+  line-height: 1.4;
+}
+
+/* ── Item card (equipamento do Digimon) ── */
+.item-card-gen {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--item-cor);
+  padding: 14px 16px;
+  margin-top: 4px;
+}
+.item-card-gen .item-top-gen {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+.item-card-gen .item-name-gen {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--item-cor);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.item-card-gen .item-rarity-gen {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  padding: 2px 7px;
+  border: 1px solid var(--item-cor);
+  color: var(--item-cor);
+  border-radius: 1px;
+  white-space: nowrap;
+}
+.item-card-gen .item-desc-gen { font-size: 13px; color: #8a96a8; line-height: 1.5; margin-bottom: 8px; }
+.item-card-gen .item-effect-gen {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.55;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.item-card-gen .item-effect-gen strong { color: var(--item-cor); }
+.item-none-box {
+  font-size: 13px;
+  color: var(--dim);
+  font-style: italic;
+  padding: 10px 0;
+}
+
+/* ── Traço de Personalidade (buff) ── */
+.persona-card {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--traco-pers);
+  padding: 14px 16px;
+}
+.persona-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--traco-pers);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 6px;
+}
+.persona-desc { font-size: 13px; color: #8a96a8; line-height: 1.5; margin-bottom: 8px; }
+.persona-skill {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.55;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.persona-skill strong { color: var(--traco-pers); }
+
+/* ── Elemento info card (ficha final) ── */
+.elem-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 800px) { .elem-info-grid { grid-template-columns: 1fr; } }
+.elem-info-card {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--cyan);
+  padding: 12px 14px;
+}
+.elem-info-name { font-size: 14px; font-weight: 700; color: var(--cyan); margin-bottom: 4px; text-transform: uppercase; }
+.elem-info-desc { font-size: 12px; color: #8a96a8; line-height: 1.5; margin-bottom: 6px; }
+.elem-info-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.elem-tag-v { font-size: 10px; color: var(--green); background: rgba(78,203,113,.08); border: 1px solid rgba(78,203,113,.3); padding: 2px 6px; border-radius: 1px; }
+.elem-tag-f { font-size: 10px; color: var(--red); background: rgba(224,85,85,.08); border: 1px solid rgba(224,85,85,.3); padding: 2px 6px; border-radius: 1px; }
+
+/* ── Arquétipo (talentos) ── */
+.arq-class-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--arquetipo);
+  border: 1px solid var(--arquetipo);
+  padding: 5px 12px;
+  border-radius: 2px;
+  margin-bottom: 4px;
+}
+.arq-pts-note {
+  font-size: 11px;
+  color: var(--dim);
+  font-family: 'Share Tech Mono', monospace;
+  margin-bottom: 12px;
+}
+.talent-card-gen {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--arquetipo);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.talent-card-gen.capstone-gen {
+  border-left-color: var(--gold);
+  background: rgba(201,168,76,.05);
+}
+.talent-top-gen { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+.talent-name-gen { font-size: 14px; font-weight: 700; color: var(--arquetipo); }
+.talent-card-gen.capstone-gen .talent-name-gen { color: var(--gold); }
+.talent-stage-tag { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--dim); border: 1px solid var(--border); padding: 1px 6px; border-radius: 1px; white-space: nowrap; }
+.talent-desc-gen { font-size: 12px; color: var(--text); line-height: 1.5; }
+.no-arq-note { font-size: 12px; color: var(--dim); font-style: italic; }
+
+/* Color maps by stage */
+.color-bebe    { color: var(--bebe);    }
+.color-crianca { color: var(--crianca); }
+.color-adulto  { color: var(--adulto);  }
+.color-perfeito{ color: var(--perfeito);}
+.color-final   { color: var(--final);   }
+
+.border-bebe    { border-color: var(--bebe) !important; }
+.border-crianca { border-color: var(--crianca) !important; }
+.border-adulto  { border-color: var(--adulto) !important; }
+.border-perfeito{ border-color: var(--perfeito) !important; }
+.border-final   { border-color: var(--final) !important; }
+
+/* Separator */
+.sep { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+/* Tooltip / info badge */
+.info { font-size: 12px; color: var(--dim); font-style: italic; margin-top: 6px; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { position: relative; top: 0; height: auto; }
+}
+
+/* Print / export styles */
+@media print {
+  .sidebar, .header { display: none; }
+  .main { padding: 0; }
+}
+</style>
+</head>
+<body>
+<a href="index.html" style="display:inline-flex;align-items:center;gap:8px;margin:16px 20px;padding:8px 16px;background:#0f1218;border:1px solid #1e2530;border-radius:4px;color:#5b9ef5;font-family:Share Tech Mono,monospace;font-size:12px;letter-spacing:2px;text-decoration:none;text-transform:uppercase;" onmouseover="this.style.borderColor='+'#5b9ef5'+'" onmouseout="this.style.borderColor='+'#1e2530'+'">&#8592; P&aacute;gina Inicial</a>
+
+<div class="header">
+  <h1>◈ Gerador de Digimon</h1>
+  <p>// DIGIRIDER RPG · ATRIBUTOS + PODERES · 100% OFFLINE</p>
+</div>
+
+<div class="layout">
+
+  <!-- ════════════════════════ SIDEBAR ════════════════════════ -->
+  <aside class="sidebar">
+
+    <div class="sb-section">
+      <span class="sb-label">Nome do Digimon</span>
+      <input class="input-field" type="text" id="digi-name" placeholder="Ex: Agumon, Gabumon..." maxlength="40">
+    </div>
+
+    <div class="sb-section">
+      <span class="sb-label">Estágio de Evolução</span>
+      <div class="stage-grid">
+        <button class="stage-btn" data-stage="bebe"    onclick="setStage('bebe')">E1 BEBÊ</button>
+        <button class="stage-btn" data-stage="crianca" onclick="setStage('crianca')">E2 CRIANÇA</button>
+        <button class="stage-btn" data-stage="adulto"  onclick="setStage('adulto')">E3 ADULTO</button>
+        <button class="stage-btn" data-stage="perfeito"onclick="setStage('perfeito')">E4 PERFEITO</button>
+        <button class="stage-btn active" data-stage="final" onclick="setStage('final')" style="grid-column:1/-1">E5 FINAL</button>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <span class="sb-label">Nível (1 – 30)</span>
+      <div class="slider-wrap">
+        <input class="slider" type="range" id="digi-level" min="1" max="30" value="10"
+               oninput="document.getElementById('level-val').textContent=this.value">
+        <span class="slider-val" id="level-val">10</span>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <span class="sb-label">Atributo (Tipo)</span>
+      <div class="tag-grid" id="attr-tags">
+        <button class="tag-btn" onclick="toggleTag(this,'attr')">VACINA</button>
+        <button class="tag-btn" onclick="toggleTag(this,'attr')">VÍRUS</button>
+        <button class="tag-btn" onclick="toggleTag(this,'attr')">DADO</button>
+        <button class="tag-btn active" onclick="toggleTag(this,'attr')">LIVRE</button>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <span class="sb-label">Elemento(s)</span>
+      <div class="tag-grid" id="elem-tags">
+        <button class="tag-btn active" onclick="toggleTag(this,'elem')">FOGO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'elem')">ÁGUA</button>
+        <button class="tag-btn" onclick="toggleTag(this,'elem')">GELO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'elem')">VENTO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'elem')">ELÉTRICO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'elem')">PLANTA</button>
+        <button class="tag-btn" onclick="toggleTag(this,'elem')">TERRA</button>
+        <button class="tag-btn" onclick="toggleTag(this,'elem')">TREVAS</button>
+        <button class="tag-btn" onclick="toggleTag(this,'elem')">LUZ</button>
+        <button class="tag-btn" onclick="toggleTag(this,'elem')">DRAGÃO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'elem')">MÁQUINA</button>
+        <button class="tag-btn" onclick="toggleTag(this,'elem')">INSETO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'elem')">BESTA</button>
+        <button class="tag-btn" onclick="toggleTag(this,'elem')">AÇO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'elem')">VENENO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'elem')">FANTASMA</button>
+        <button class="tag-btn" onclick="toggleTag(this,'elem')">SAGRADO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'elem')">VAZIO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'elem')">NEUTRO</button>
+      </div>
+      <div class="elem-hint" id="elem-hint"></div>
+    </div>
+
+    <div class="sb-section">
+      <span class="sb-label">Espécie / Tipo Físico</span>
+      <div class="tag-grid" id="species-tags">
+        <button class="tag-btn active" onclick="toggleTag(this,'species')">DRAGÃO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'species')">ANIMAL</button>
+        <button class="tag-btn" onclick="toggleTag(this,'species')">PÁSSARO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'species')">AQUÁTICO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'species')">INSETO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'species')">PLANTA</button>
+        <button class="tag-btn" onclick="toggleTag(this,'species')">MÁQUINA</button>
+        <button class="tag-btn" onclick="toggleTag(this,'species')">FANTASMA</button>
+        <button class="tag-btn" onclick="toggleTag(this,'species')">MÍTICO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'species')">CYBORG</button>
+        <button class="tag-btn" onclick="toggleTag(this,'species')">HUMANOIDE</button>
+        <button class="tag-btn" onclick="toggleTag(this,'species')">VÍRUS ALIENÍGENA</button>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <span class="sb-label">Estilo de Combate <span style="color:var(--dim);font-weight:400">(distribui pontos)</span></span>
+      <div class="tag-grid" id="style-tags">
+        <button class="tag-btn active" onclick="toggleTag(this,'style')">AGRESSIVO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'style')">DEFENSIVO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'style')">VELOZ</button>
+        <button class="tag-btn" onclick="toggleTag(this,'style')">SUPORTE</button>
+        <button class="tag-btn" onclick="toggleTag(this,'style')">FURTIVO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'style')">PODEROSO</button>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <span class="sb-label">Traço de Personalidade <span style="color:var(--dim);font-weight:400">(buff único)</span></span>
+      <div class="tag-grid" id="persona-tags">
+        <button class="tag-btn active" onclick="toggleTag(this,'persona')">PROTETOR</button>
+        <button class="tag-btn" onclick="toggleTag(this,'persona')">FEROZ</button>
+        <button class="tag-btn" onclick="toggleTag(this,'persona')">CURIOSO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'persona')">CALCULISTA</button>
+        <button class="tag-btn" onclick="toggleTag(this,'persona')">ORGULHOSO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'persona')">GENTIL</button>
+        <button class="tag-btn" onclick="toggleTag(this,'persona')">SOLITÁRIO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'persona')">BRINCALHÃO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'persona')">CORAJOSO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'persona')">ASTUTO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'persona')">NOBRE</button>
+        <button class="tag-btn" onclick="toggleTag(this,'persona')">MISTERIOSO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'persona')">ALEATÓRIO</button>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <span class="sb-label">Arquétipo de Combate <span style="color:var(--dim);font-weight:400">(talentos, a partir de E2)</span></span>
+      <div class="tag-grid" id="arq-tags">
+        <button class="tag-btn active" onclick="toggleTag(this,'arq')">POTÊNCIA</button>
+        <button class="tag-btn" onclick="toggleTag(this,'arq')">PERÍCIA</button>
+        <button class="tag-btn" onclick="toggleTag(this,'arq')">PRESSÃO</button>
+        <button class="tag-btn" onclick="toggleTag(this,'arq')">PERSPICÁCIA</button>
+        <button class="tag-btn" onclick="toggleTag(this,'arq')">MISTO (ALEATÓRIO)</button>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <span class="sb-label">Origem <span style="color:var(--dim);font-weight:400">(Selvagens são mais fortes)</span></span>
+      <div class="toggle-row">
+        <span>🐾 Digimon Selvagem?</span>
+        <div class="toggle-switch" id="wild-toggle" onclick="toggleWildSwitch()"></div>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <span class="sb-label">Equipamento</span>
+      <div class="toggle-row">
+        <span>Digimon vem com item equipado?</span>
+        <div class="toggle-switch" id="item-toggle" onclick="toggleItemSwitch()"></div>
+      </div>
+    </div>
+
+    <div class="sb-section" style="border-top:1px solid var(--border);padding-top:16px">
+      <button class="btn btn-primary" onclick="generate()">⚡ GERAR DIGIMON</button>
+      <button class="btn btn-random" onclick="randomize()">🎲 TUDO ALEATÓRIO</button>
+      <button class="btn btn-secondary" onclick="generatePowers()">✦ APENAS PODERES</button>
+      <button class="btn btn-export" onclick="exportPDF()">📄 EXPORTAR / IMPRIMIR</button>
+      <button class="btn btn-copy" id="copy-btn" onclick="copyAsText()">📋 COPIAR COMO TEXTO</button>
+    </div>
+
+    <div class="sb-section" id="history-wrap" style="display:none">
+      <span class="sb-label">Histórico da Sessão</span>
+      <div id="history-list" class="history-list"></div>
+    </div>
+
+  </aside>
+
+  <!-- ════════════════════════ MAIN ════════════════════════ -->
+  <main class="main" id="main-content">
+
+    <div class="empty-state" id="empty-state">
+      <div class="icon">⚡</div>
+      <h2>AGUARDANDO GERAÇÃO</h2>
+      <p>Preencha as informações ao lado e clique em <strong>Gerar Digimon</strong> para criar atributos e poderes automaticamente.</p>
+      <p style="margin-top:8px;font-size:12px">Ou use <strong>Tudo Aleatório</strong> para uma surpresa completa.</p>
+    </div>
+
+    <div class="result" id="result"></div>
+
+  </main>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════════
+let currentStage = 'final';
+let lockedPowerNames = new Set();
+let currentPowers = [];      // poderes atualmente exibidos (objetos completos)
+let currentSheet = null;     // dados da última ficha gerada (para copiar como texto)
+let history = [];            // últimas fichas geradas nesta sessão (máx. 8)
+let itemEnabled = false;      // se o Digimon gerado deve vir com item equipado
+let isWildEnabled = false;    // se o Digimon gerado é Selvagem (mais forte que os de Treinador)
+const HISTORY_MAX = 8;
+
+// ════════════════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════════════════
+function rng(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function pickN(arr, n) {
+  const shuffled = [...arr].sort(() => Math.random() - .5);
+  return shuffled.slice(0, n);
+}
+function getSelected(groupId) {
+  return [...document.querySelectorAll(`#${groupId} .tag-btn.active`)].map(b => b.textContent);
+}
+
+// ════════════════════════════════════════════════════════════
+//  UI CONTROLS
+// ════════════════════════════════════════════════════════════
+function setStage(stage) {
+  currentStage = stage;
+  document.querySelectorAll('.stage-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-stage="${stage}"]`).classList.add('active');
+  // auto-adjust level range
+  const ranges = {bebe:[1,4],crianca:[2,8],adulto:[5,15],perfeito:[12,22],final:[18,30]};
+  const [mn,mx] = ranges[stage];
+  const sl = document.getElementById('digi-level');
+  sl.min = mn; sl.max = mx;
+  if (parseInt(sl.value) < mn) { sl.value = mn; document.getElementById('level-val').textContent = mn; }
+  if (parseInt(sl.value) > mx) { sl.value = mx; document.getElementById('level-val').textContent = mx; }
+}
+
+function toggleTag(btn, groupId) {
+  // For attr, species, style, persona, arq: single select
+  if (groupId === 'attr' || groupId === 'species' || groupId === 'style' || groupId === 'persona' || groupId === 'arq') {
+    document.querySelectorAll(`#${groupId}-tags .tag-btn`).forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (groupId === 'elem') updateElemHint();
+  } else {
+    // elem: multi-select, max 2
+    const active = document.querySelectorAll(`#${groupId}-tags .tag-btn.active`);
+    if (btn.classList.contains('active')) {
+      btn.classList.remove('active');
+    } else {
+      if (active.length >= 2) active[0].classList.remove('active');
+      btn.classList.add('active');
+    }
+    updateElemHint();
+  }
+}
+
+function toggleItemSwitch() {
+  itemEnabled = !itemEnabled;
+  document.getElementById('item-toggle').classList.toggle('on', itemEnabled);
+}
+
+function toggleWildSwitch() {
+  isWildEnabled = !isWildEnabled;
+  document.getElementById('wild-toggle').classList.toggle('on', isWildEnabled);
+}
+
+function updateElemHint() {
+  const hintEl = document.getElementById('elem-hint');
+  if (!hintEl) return;
+  const sel = getSelected('elem-tags');
+  if (sel.length === 0) { hintEl.textContent = ''; return; }
+  const parts = sel.map(e => {
+    const info = ELEMENT_INFO[e];
+    return info ? `${e}: ${info.desc}` : '';
+  }).filter(Boolean);
+  hintEl.textContent = parts.join('  ·  ');
+}
+
+// ════════════════════════════════════════════════════════════
+//  STAGE DATA
+// ════════════════════════════════════════════════════════════
+const STAGE_DATA = {
+  bebe:    { label:'E1 BEBÊ',    hp:20,  baseDice:'2d4', pts:8,  color:'var(--bebe)',    cls:'bebe',    pows:1, rank:1, arqPts:0 },
+  crianca: { label:'E2 CRIANÇA', hp:40,  baseDice:'3d4', pts:12, color:'var(--crianca)', cls:'crianca', pows:1, rank:2, arqPts:1 },
+  adulto:  { label:'E3 ADULTO',  hp:60,  baseDice:'4d4', pts:16, color:'var(--adulto)',  cls:'adulto',  pows:2, rank:2, arqPts:2 },
+  perfeito:{ label:'E4 PERFEITO',hp:80,  baseDice:'5d4', pts:20, color:'var(--perfeito)',cls:'perfeito',pows:2, rank:3, arqPts:3 },
+  final:   { label:'E5 FINAL',   hp:100, baseDice:'6d4', pts:24, color:'var(--final)',   cls:'final',   pows:3, rank:4, arqPts:4 },
+};
+
+// Carga de Dados — reserva = HP base do estágio; regen por turno = 20% (mín. 16) — ver Manual de Combate Parte 7
+function getCarga(stage) {
+  const hp = STAGE_DATA[stage].hp;
+  const regen = Math.max(16, Math.round(hp * 0.2));
+  return { max: hp, regen };
+}
+
+// Cadeia de LADOS de dado (o "Xd" — quantidade — vem do estágio, ver STAGE_DATA.baseDice)
+const DIE_SIDES_CHAIN = [4, 6, 8, 10, 12, 20, 100];
+const DICE_CHAIN = ['2d4','2d6','2d8','2d10','2d12','2d20','2d100']; // mantido p/ exibição da escala genérica de upgrade
+// Sobe o LADO do dado (d4→d6→d8...) mantendo a QUANTIDADE de dados do estágio atual.
+// Ex.: base "4d4" (E3 Adulto) com 3 upgrades = "4d10" (nunca "2d10").
+function upgradeDice(baseDiceStr, times) {
+  const m = baseDiceStr.match(/^(\d+)d(\d+)$/);
+  if (!m) return baseDiceStr;
+  const qty = parseInt(m[1], 10);
+  const sideIdx = DIE_SIDES_CHAIN.indexOf(parseInt(m[2], 10));
+  const newSideIdx = Math.min((sideIdx === -1 ? 0 : sideIdx) + times, DIE_SIDES_CHAIN.length - 1);
+  return `${qty}d${DIE_SIDES_CHAIN[newSideIdx]}`;
+}
+
+// ════════════════════════════════════════════════════════════
+//  ATTRIBUTE GENERATION
+// ════════════════════════════════════════════════════════════
+function generateAttrs(stage, style, level, bonusAttrPts = 0, wildBonus = null) {
+  const sd = STAGE_DATA[stage];
+  let pts = sd.pts + bonusAttrPts; // bônus de talentos (ex.: Colosso) somam aos pontos normais do estágio
+  // distribute points based on style
+  const attrs = { fisico:0, habilidade:0, movimento:0, sentidos:0, inteligencia:0 };
+  const styleWeights = {
+    'AGRESSIVO':  [4,2,1,1,0],
+    'DEFENSIVO':  [3,1,1,1,2],
+    'VELOZ':      [1,2,4,2,1],
+    'SUPORTE':    [0,1,1,2,4],
+    'FURTIVO':    [1,2,3,3,1],
+    'PODEROSO':   [5,1,1,1,0],
+  };
+  const weights = styleWeights[style] || [2,2,2,2,0];
+  const attrKeys = ['fisico','habilidade','movimento','sentidos','inteligencia'];
+  // Distribute pts weighted
+  let remaining = pts;
+  const alloc = [0,0,0,0,0];
+  for (let i = 0; i < 5; i++) {
+    const share = Math.floor(remaining * (weights[i] / weights.reduce((a,b)=>a+b,0)));
+    alloc[i] = share;
+  }
+  // fill remainder
+  let allocated = alloc.reduce((a,b)=>a+b,0);
+  let extra = pts - allocated;
+  while (extra > 0) { alloc[rng(0,4)]++; extra--; }
+  // apply
+  attrKeys.forEach((k,i) => { attrs[k] = alloc[i]; });
+  // Converte pontos investidos em upgrades de LADO de dado (cada upgrade custa 2 pts).
+  // Teto: 6 upgrades = chegar de d4 a d100 (d4→d6→d8→d10→d12→d20→d100).
+  const result = {};
+  attrKeys.forEach((k) => {
+    let upgrades = Math.min(Math.floor(attrs[k] / 2), 6);
+    // Digimon Selvagem: +2 dados (upgrades) diretos no atributo sorteado, além dos pontos normais
+    if (wildBonus && wildBonus.attrKey === k) {
+      upgrades = Math.min(upgrades + 2, 6);
+    }
+    result[k] = { upgrades, dice: upgradeDice(sd.baseDice, upgrades) };
+  });
+  result.ptsTotal = pts;
+  result.ptsBonus = bonusAttrPts;
+  return result;
+}
+
+function renderAttrTable(stage, style, level, precomputedAttrs, bonusAttrPts = 0) {
+  const sd = STAGE_DATA[stage];
+  const attrs = precomputedAttrs || generateAttrs(stage, style, level, bonusAttrPts);
+  const attrNames = ['Físico','Habilidade','Movimento','Sentidos','Inteligência'];
+  const attrKeys  = ['fisico','habilidade','movimento','sentidos','inteligencia'];
+  const stageHeaders = ['E1 BEBÊ','E2 CRIANÇA','E3 ADULTO','E4 PERFEITO','E5 FINAL'];
+  const stageBase    = ['2d4','3d4','4d4','5d4','6d4'];
+  const stageKeys    = ['bebe','crianca','adulto','perfeito','final'];
+  const ptsBase       = [8,12,16,20,24];
+  const currentIdx   = stageKeys.indexOf(stage);
+  const bonus = attrs.ptsBonus || bonusAttrPts || 0;
+
+  let rows = '';
+  attrKeys.forEach((k,i) => {
+    const { dice, upgrades } = attrs[k];
+    let cells = '';
+    stageKeys.forEach((sk,si) => {
+      const isActive = si === currentIdx;
+      const stageDice = isActive ? dice : stageBase[si];
+      cells += `<td class="${isActive ? 'attr-final' : 'attr-base'}" style="${isActive ? 'color:'+sd.color : ''}">${stageDice}</td>`;
+    });
+    const upgradeLabel = upgrades > 0 ? `<span style="font-size:10px;color:var(--cyan)"> (+${upgrades} upgrades)</span>` : '';
+    rows += `<tr><td>♦ ${attrNames[i]}${upgradeLabel}</td>${cells}</tr>`;
+  });
+
+  const ptsCells = ptsBase.map((p,si) => si === currentIdx && bonus > 0
+    ? `<td style="color:var(--item-cor)">${p}+${bonus}</td>`
+    : `<td>${p}</td>`).join('');
+
+  return `
+<table class="attr-table">
+  <thead>
+    <tr>
+      <th style="text-align:left">ATRIBUTO</th>
+      ${stageHeaders.map((h,i) => `<th style="${i===currentIdx?'color:'+sd.color:''}">
+        ${i===currentIdx?'<strong>':''}${h}${i===currentIdx?'</strong>':''}</th>`).join('')}
+    </tr>
+  </thead>
+  <tbody>
+    ${rows}
+    <tr class="pts-row">
+      <td>Pts Disponíveis${bonus > 0 ? ' <span style="color:var(--item-cor);font-size:10px">(+Colosso)</span>' : ''}</td>
+      ${ptsCells}
+    </tr>
+  </tbody>
+</table>
+<p class="info" style="margin-top:8px">
+  Dado base do estágio: <strong>${sd.baseDice}</strong> · Upgrades sobem o <em>lado</em> do dado mantendo a quantidade: d4 → d6 → d8 → d10 → d12 → d20 → d100 · Cada upgrade custa 2 pontos
+</p>`;
+}
+
+// ════════════════════════════════════════════════════════════
+//  ELEMENTOS — descrição oficial + vantagens/fraquezas
+//  (baseado no Guia de Criação de Digimon · DigiRider RPG)
+//  Os "pseudo-elementos" temáticos (Dragão, Máquina, Inseto, Besta, Aço,
+//  Veneno, Fantasma, Sagrado, Neutro) mantêm os poderes/traços já existentes
+//  no gerador, com descrição adaptada para uso narrativo e de combate.
+// ════════════════════════════════════════════════════════════
+const ELEMENT_INFO = {
+  FOGO:      { desc:'Energia de combustão digital. Intensos, apaixonados e ofensivos — incendeiam dados inimigos com dano contínuo.', vantagens:['Queima: +2d6 dano contínuo (requer poder especial)','Derrete gelo e inflama matéria digital (passivo)'], fraquezas:['Fraco vs Gelo e Água (+5 dano recebido)','−2 dados em zonas úmidas'] },
+  ÁGUA:      { desc:'Energia de fluxo de dados e adaptação constante. Fluidos, versáteis e suportivos — curam aliados e drenam inimigos.', vantagens:['Drenagem: cura 10 HP ao acertar (1×/combate)','+1 dado em ambientes aquáticos (passivo)'], fraquezas:['Fraco vs Trovão (+5 dano recebido)','−2 dados em zonas secas'] },
+  GELO:      { desc:'Energia de congelamento e imobilização digital. Calculistas, pacientes e defensivos — paralisam e reduzem mobilidade inimiga.', vantagens:['Congelar: −2 dados de Movimento no inimigo (requer poder especial)','Cria barreiras de cristal de dados (requer poder especial)'], fraquezas:['Fraco vs Fogo (+5 dano recebido)','−2 dados em zonas vulcânicas'] },
+  VENTO:     { desc:'Energia cinética e de pressão de ar digital. Ágeis, evasivos e difíceis de acertar — repelem e desequilibram oponentes.', vantagens:['+2 dados em Movimento (passivo)','Empurrar inimigos (requer poder especial)'], fraquezas:['Fraco vs Trovão (+5 dano recebido)','−2 de dano em ataques físicos diretos'] },
+  ELÉTRICO:  { desc:'Energia eletromagnética pura (Trovão). Rápidos, diretos e imprevisíveis como raios — atordoam e interferem em sistemas eletrônicos.', vantagens:['Atordoar: inimigo perde 1 ação (requer poder especial; 1×/combate)','+10 de dano vs Digimon Máquina/Cyborg'], fraquezas:['Fraco vs Terra (+5 dano recebido)','−2 dados em ambientes isolados'] },
+  PLANTA:    { desc:'Energia de crescimento de dados e regeneração. Pacientes, suportivos e resilientes — prosperam em batalhas de longa duração.', vantagens:['Regenera 2 HP por estágio, por turno (passivo — ex.: E5 = 10 HP/turno)','Imobilizar com raízes de dados (requer poder especial; 1×/combate)'], fraquezas:['Fraco vs Fogo e Gelo (+5 dano recebido)','−2 dados em desertos digitais'] },
+  TERRA:     { desc:'Energia de dados cristalizados e estrutura sólida. Robustos, lentos e incrivelmente resistentes — os melhores tanques do Nexus-0.', vantagens:['+10 HP por estágio (passivo)','Imune a Derrubar/Empurrar (passivo)'], fraquezas:['Fraco vs Vento (+5 dano recebido)','−2 dados em Movimento'] },
+  TREVAS:    { desc:'Energia das regiões corrompidas e da Zona Null. Manipulam medo, ilusão e corrupção de dados — não necessariamente malignos, mas instáveis.', vantagens:['+10 de dano vs Digimon de Luz (passivo, em poderes elementais)','Medo: −1 dado em ações inimigas (requer poder especial)'], fraquezas:['Fraco vs Luz (+5 dano recebido)','−2 dados em zonas purificadas'] },
+  LUZ:       { desc:'Energia sagrada purificada pelo Nexus-0. Emanam proteção e purificação — os aliados mais valiosos contra Digimon corrompidos.', vantagens:['+10 de dano vs Digimon de Trevas (passivo, em poderes elementais)','Remover 1 efeito negativo por turno (requer poder especial)'], fraquezas:['Fraco vs Trevas — reciprocidade (+5 dano recebido)','−2 de dano vs tipos Neutro e Vazio'] },
+  DRAGÃO:    { desc:'Não é um elemento oficial, mas uma afinidade temática dracônica intensa — força bruta, domínio territorial e presença avassaladora.', vantagens:['Combina bem com Fogo/Terra narrativamente','Traços de presença e força física elevada'], fraquezas:['Sem afinidade elemental própria no triângulo oficial','Depende de combinação com elemento real para bônus de dano elemental'] },
+  MÁQUINA:   { desc:'Afinidade temática tecnológica — sistemas, blindagem e precisão. Frequentemente combinada com Elétrico/Trovão.', vantagens:['Traços de blindagem, auto-reparo e overdrive'], fraquezas:['Vulnerável a EMP e hackeamento','Vulnerável ao elemento Elétrico/Trovão em excesso'] },
+  INSETO:    { desc:'Afinidade temática de enxame e veneno digital — mobilidade multidirecional e debilitação contínua.', vantagens:['Traços de veneno passivo e camuflagem'], fraquezas:['Geralmente menor HP base','Vulnerável a efeitos em área'] },
+  BESTA:     { desc:'Afinidade temática selvagem — instinto, território e faro de combate.', vantagens:['Traços de adrenalina de combate e instinto de caça'], fraquezas:['Tende a agir por impulso','Vulnerável a controle mental/charme'] },
+  AÇO:       { desc:'Energia de dados metálicos e armadura digital. Os mais resistentes do sistema — fortalezas ambulantes que perfuram blindagens.', vantagens:['Reduz todo dano recebido em 5 (passivo — físico e habilidade)','Perfurar: poderes especiais ignoram 3 de RD do alvo'], fraquezas:['Fraco vs Fogo e Trovão (+5 dano recebido)','−1 dado em Movimento (estrutura pesada)'] },
+  VENENO:    { desc:'Afinidade temática tóxica — degradação contínua e corrosão de estruturas de dado.', vantagens:['Traços de envenenamento passivo e pele ácida'], fraquezas:['Pouca utilidade contra Digimon imunes a veneno','Geralmente baixo dano direto inicial'] },
+  FANTASMA:  { desc:'Afinidade temática etérea — dados fragmentados que atravessam o físico, intangibilidade e medo.', vantagens:['Traços de imaterialidade parcial e presença assustadora'], fraquezas:['Vulnerável a ataques puramente energéticos/sagrados','Pouca presença física para resistir empurrões'] },
+  SAGRADO:   { desc:'Afinidade temática equivalente a Luz intensificada — julgamento, proteção divina e cura.', vantagens:['Sinergia total com elemento Luz','Traços de aura divina e cura passiva'], fraquezas:['Fraco vs Trevas, como Luz','Pode sofrer penalidade narrativa contra tipos neutros'] },
+  VAZIO:     { desc:'Energia da Zona Null e do espaço entre dados. Extremamente raro — existe fora das interações elementais normais.', vantagens:['Sem fraqueza elemental','Ignora resistências elementais'], fraquezas:['Sem bônus elemental próprio','Instável: o Mestre pode adicionar complicações'] },
+  NEUTRO:    { desc:'Sem afinidade elemental definida. Versátil e equilibrado, sem vantagens ou fraquezas especiais no triângulo elemental.', vantagens:['Nunca sofre fraqueza elemental (+5 dano)','Flexível para qualquer combinação temática'], fraquezas:['Não causa bônus de dano elemental (+5) contra ninguém','Menos especializado que elementos puros'] },
+};
+
+// ════════════════════════════════════════════════════════════
+//  TRAÇOS DE PERSONALIDADE — buff único + identidade de comportamento
+//  (baseado no Guia de Criação de Digimon · DigiRider RPG, seção Traços)
+// ════════════════════════════════════════════════════════════
+const PERSONA_TRAITS = {
+  PROTETOR:    { desc:'Coloca sempre a segurança dos outros acima da própria. Não hesita em se jogar na frente de um ataque. Profundamente leal ao parceiro, às vezes possessivo; age como líder natural com os mais fracos.', skill:'Escudo Instintivo: 1× por combate, pode receber o dano de um ataque destinado ao parceiro ou a um aliado adjacente sem custo de ação.' },
+  FEROZ:       { desc:'Age por instinto e impulso. Entra em combate sem calcular riscos. Intenso e apaixonado com o parceiro — dificulta ordens mas nunca abandona. Desafia quem considera fraco.', skill:'Carga Selvagem: ao iniciar o combate primeiro (antes de qualquer inimigo agir), adiciona +1 dado de Físico ao primeiro ataque do turno. Escala com a evolução do Digimon.' },
+  CURIOSO:     { desc:'Fascinado por absolutamente tudo. Explora antes de pensar nas consequências. Entusiasta e receptivo com o parceiro; tenta interagir com qualquer um, incluindo hostis — o que pode ser perigoso.', skill:'Análise Rápida: ao encontrar um inimigo pela primeira vez, role Inteligência. Se bem-sucedido, o Mestre revela uma fraqueza ou característica especial daquele inimigo.' },
+  CALCULISTA:  { desc:'Planeja cada movimento com antecedência. Raramente age sem informações. Parceiro estratégico que sugere abordagens; respeita quem pensa, ignora quem só usa força.', skill:'Posicionamento Tático: 1× por combate, pode reposicionar a si e ao parceiro antes de rolar iniciativa, escolhendo o ponto de entrada ideal.' },
+  ORGULHOSO:   { desc:'Recusa ajuda mesmo quando precisa. Considera perder uma humilhação pessoal. Respeita quem o trata como igual, mas ignora ordens que considera indignas. Rival eterno de quem julga comparável.', skill:'Bravata: quando estiver com HP abaixo de 50%, ganha +1 dado em todos os testes de ataque. O orgulho o faz lutar mais ferozmente quando encurralado.' },
+  GENTIL:      { desc:'Evita conflitos e busca soluções pacíficas. Pode demorar mais para evoluir porque raramente entra em combate por vontade própria. Carinhoso e atencioso com o parceiro; tenta fazer amizade antes de qualquer coisa.', skill:'Acalmar: 1× por cena, pode tentar pacificar um Digimon hostil. Role Sentidos. Se bem-sucedido, o Digimon pausa o combate por 1 turno.' },
+  SOLITÁRIO:   { desc:'Prefere agir sozinho. Demorou para aceitar o parceiro e mantém distância emocional, mostrando afeto de formas indiretas. Não tem aliados, apenas rivais temporários ou objetivos comuns.', skill:'Autonomia: quando age sem ordens do parceiro (por instinto próprio), ganha +1 dado em qualquer teste dessa ação. A solidão aguça os instintos.' },
+  BRINCALHÃO:  { desc:'Trata tudo como jogo, incluindo combates sérios. Dificulta a vida do parceiro com distrações mas resolve situações com criatividade absurda. Adora provocar outros Digimon, raramente de forma maliciosa.', skill:'Imprevisível: 1× por sessão, declara um ataque "improvisado". O Mestre não pode antecipar o efeito e inimigos não podem usar reações contra ele.' },
+  CORAJOSO:    { desc:'Enfrenta qualquer ameaça independente do tamanho. Nunca foge, mesmo quando deveria. Fonte constante de inspiração para o parceiro; ganha respeito natural até de inimigos.', skill:'Destemor: imune a efeitos de Medo e Pânico. Quando um aliado é ameaçado, ganha +1 dado no próximo ataque como resposta protetora.' },
+  ASTUTO:      { desc:'Prefere enganar a confrontar diretamente. Observa antes de agir, sempre buscando vantagem. Parceiro intelectual, frequentemente um passo à frente; mantém inimigos próximos para observá-los.', skill:'Emboscada: se atacar um inimigo que não percebeu sua presença, causa dano dobrado. Pode ser usado 1× por cena mesmo em combate aberto, desde que se reposicione antes.' },
+  NOBRE:       { desc:'Segue um código rígido de honra. Nunca ataca pelas costas, nunca abandona um ferido, nunca mente para o parceiro. Trata o parceiro como digno de total confiança; respeita qualquer um que siga um código, mesmo inimigos.', skill:'Código de Honra: ao cumprir uma promessa feita em jogo, ganha 3 pts de Energia de Fusão (perde 5 ao quebrá-la). Além disso, enquanto defende alguém que confia nele, ganha +1 dado em ataque e defesa — sem precisar de promessa ativa.' },
+  MISTERIOSO:  { desc:'Fala pouco, observa muito. O parceiro nunca tem certeza do que ele está pensando. Lealdade absoluta, mas raramente demonstrada. Poucos conseguem entendê-lo, o que o torna intimidador involuntariamente.', skill:'Presença Perturbadora: inimigos ao alcance corpo a corpo devem superar um teste de Sentidos ou sofrem −1 dado em seus ataques no primeiro turno de combate.' },
+};
+
+function pickPersona(name) {
+  if (!name || name === 'ALEATÓRIO') return pick(Object.keys(PERSONA_TRAITS));
+  return name;
+}
+
+// ════════════════════════════════════════════════════════════
+//  ARQUÉTIPO — 4 classes de Talentos fixos (Potência, Perícia, Pressão, Perspicácia)
+//  (baseado no Guia de Criação de Digimon · DigiRider RPG, seção Arquétipo)
+//  +1 Ponto de Arquétipo por Digievolução a partir da E2 (máx. 4 na E5)
+// ════════════════════════════════════════════════════════════
+const ARCHETYPE_DATA = {
+  POTÊNCIA: {
+    tag:'PODERES DEVASTADORES',
+    desc:'Foco em aumentar a força e efetividade dos poderes. Para Digimon focados e empenhados, que preferem resolver tudo com um golpe decisivo.',
+    talents: [
+      { name:'Grandioso', desc:'Escolha 1 espaço de criação de Poder Especial. A partir de agora — e em todos os estágios futuros — esse espaço pode usar efeitos de até 1 Rank acima do máximo normal do estágio. O espaço escolhido não pode ser trocado depois.' },
+      { name:'Ilimitado', desc:'Recebe +1 Ponto de Criação extra de Poder Especial em cada estágio, a partir de agora. Acumula com os pontos normais de cada fase.' },
+      { name:'Pujante', desc:'Ao usar um Poder Especial que cause dano, declare Pujante: ignora toda a Redução de Dano (RD) do alvo nesse ataque. 1×/combate.' },
+    ],
+    capstone: { name:'◆ Potência Máxima — Poder Atroz', desc:'Ao usar um Poder Especial, declare Poder Atroz e escolha: progrida o tipo de Dano em 1 etapa (Leve→Médio→Pesado→Brutal) OU aumente a Cura/Escudo concedido em +2 pts por estágio atual (na E5, +10). 1×/combate.' },
+  },
+  PERÍCIA: {
+    tag:'UMA RESPOSTA PARA CADA SITUAÇÃO',
+    desc:'Especialização em ter uma resposta disponível para cada situação. Para Digimon astutos e ligeiros, que preferem flexibilidade a força bruta.',
+    talents: [
+      { name:'Versatilidade', desc:'Recebe +1 espaço de criação de Poder Especial extra em cada estágio, com efeitos limitados a 1 Rank abaixo do máximo daquele estágio. Esse espaço tem orçamento de pontos próprio.' },
+      { name:'Rotatividade', desc:'Para cada Poder Especial utilizado, reduz o custo em Carga de Dados dos outros Poderes Especiais em 2 (nunca abaixo de 1 pt). Reseta ao repetir um poder já usado ou passar 1 turno sem usar nenhum.' },
+      { name:'Mimetismo', desc:'Ao testemunhar um Poder Especial que não causa Dano nem Condições, declare Mimetismo: até o fim da sessão, fora de combate, adiciona aquele poder à sua lista, pagando a Carga normal pelo custo original. 1×/sessão.' },
+    ],
+    capstone: { name:'◆ Perícia Máxima — Arsenal', desc:'Pode usar os Poderes Especiais montados em estágios anteriores de evolução pelos quais já passou, mesmo estando no estágio atual. Consomem Carga de Dados normalmente, da reserva atual.' },
+  },
+  PRESSÃO: {
+    tag:'FORÇA FÍSICA PURA',
+    desc:'Sem necessidade de poderes, foca em habilidades físicas para sobrepor oponentes. Para Digimon mais brutos, que preferem um combate simples e direto.',
+    talents: [
+      { name:'Inefável', desc:'No início do seu turno, declare Inefável: remove 1 condição negativa que esteja te afetando. 1×/combate.' },
+      { name:'Colosso', desc:'Recebe +2 Pontos de Atributo extra em cada estágio, a partir de agora, somados ao ganho normal de cada Digievolução.' },
+      { name:'Imponente', desc:'Escolha 1 Atributo: ele pode ser evoluído com pontos até 1 patamar de dado acima do máximo normal do estágio. O teto absoluto continua d20 — nunca chega a 2d100.' },
+    ],
+    capstone: { name:'◆ Pressão Máxima — Inquebrável', desc:'No início de cada combate, recebe uma barreira com +5 HP por estágio atual (na E5, +25 HP) que absorve dano antes de afetar o HP. Não impede efeitos de dano certo. Não acumula entre combates.' },
+  },
+  PERSPICÁCIA: {
+    tag:'QUEBRANDO OS LIMITES',
+    desc:'Foco em burlar as regras e utilizar poderes de um jeito único. Ideal para Digimon táticos e misteriosos, que preferem soluções inesperadas.',
+    talents: [
+      { name:'Ardil', desc:'Pode substituir sua Ação de Movimento para usar Poderes Especiais do tipo Inteligência, Sentidos ou Movimento — desde que não causem Dano, Condições ou Cura.' },
+      { name:'Híbrido', desc:'Escolhe uma segunda Espécie (permanente, a partir de agora). Recebe as desvantagens de ambas a todo momento, mas só recebe os efeitos benéficos passivos de uma por vez — pode alternar a Espécie ativa no início de cada turno.' },
+      { name:'Econômico', desc:'Escolhe 1 Poder Especial (escolha permanente): seu custo de Carga de Dados passa a ser 3 por Ponto de Criação, em vez de 4.' },
+    ],
+    capstone: { name:'◆ Perspicácia Máxima — Adaptação Instantânea', desc:'Ao usar um Poder Especial, pode substituir 1 de seus efeitos por outro da mesma categoria, custo e Rank, pagando uma taxa extra de Carga igual ao custo em pontos do efeito substituído ×4. Válido só para efeitos de Rank 3 ou inferior.' },
+  },
+};
+
+// Sorteia os talentos de uma classe de Arquétipo de acordo com os pts disponíveis no estágio (máx 4, 1/estágio a partir de E2)
+function generateArchetype(className, arqPts) {
+  if (arqPts <= 0 || !className) return null;
+  const classes = (className === 'MISTO (ALEATÓRIO)') ? pickN(Object.keys(ARCHETYPE_DATA), 1) : [className];
+  // Para "misto", sorteia talentos de qualquer classe; para classe fixa, usa só ela até completar (3 pts = classe completa)
+  let chosenTalents = [];
+  let capstoneUnlocked = false;
+  let mainClass = className === 'MISTO (ALEATÓRIO)' ? null : className;
+
+  if (mainClass) {
+    const data = ARCHETYPE_DATA[mainClass];
+    const pool = [...data.talents];
+    const numTalents = Math.min(arqPts, pool.length);
+    chosenTalents = pickN(pool, numTalents).map(t => ({ ...t, classe: mainClass }));
+    capstoneUnlocked = arqPts >= 3; // 3 talentos da mesma classe = bônus completo
+  } else {
+    // misto: sorteia 1 talento de classes diferentes, sem fechar bônus de classe completa de propósito
+    const allClasses = pickN(Object.keys(ARCHETYPE_DATA), Math.min(arqPts, 4));
+    chosenTalents = allClasses.map(c => {
+      const t = pick(ARCHETYPE_DATA[c].talents);
+      return { ...t, classe: c };
+    });
+    mainClass = 'MISTO';
+  }
+  return { mainClass, talents: chosenTalents, capstoneUnlocked, capstone: capstoneUnlocked && ARCHETYPE_DATA[mainClass] ? ARCHETYPE_DATA[mainClass].capstone : null };
+}
+
+// ════════════════════════════════════════════════════════════
+//  ITENS PARA DIGIMON — equipáveis, baseados nos Acessórios para Digimon
+//  (Itens #031–#045 · DigiRider RPG)
+// ════════════════════════════════════════════════════════════
+const DIGIMON_ITEMS = [
+  { name:'Holy Ring', rarity:'Épico', desc:'O anel sagrado que muitos Digimon do tipo Anjo carregam naturalmente. Forjado com dados de luz pura, confere proteção divina e amplifica poderes sagrados.', effect:'+3 em Resistência. Ataques do tipo Luz causam +2 de dano bônus. Imune a efeitos de corrupção leve. Digimon de Trevas que o equiparem sofrem −1 dado em todos os testes em vez de receber os bônus.' },
+  { name:'Colete de Chrome Digizoid', rarity:'Lendário', desc:'Uma armadura forjada com o lendário Chrome Digizoid — o metal mais duro da Cyberede.', effect:'RD 10 permanente contra todos os tipos de dano. +5 HP máximo. Ataques físicos causam +3 de dano fixo.' },
+  { name:'Capacete de Chrome Digizoid', rarity:'Lendário', desc:'Proteção craniana de Chrome Digizoid que amplifica os processos cognitivos digitais do Digimon.', effect:'RD 6 e +2 dados em testes de Inteligência. 1×/combate pode prever o ataque de um inimigo — o próximo ataque contra este Digimon automaticamente erra.' },
+  { name:'Amuleto de Dado Dourado', rarity:'Raro', desc:'Um amuleto forjado com dado dourado que aumenta a vitalidade e a regeneração natural do Digimon entre combates.', effect:'+5 HP máximo. Ao fim de cada combate, recupera +3 HP automaticamente. Não acumula com outros amuletos.' },
+  { name:'Garra de Adamantite', rarity:'Épico', desc:'Garras reforçadas de Adamantite instaladas nas patas do Digimon, que aumentam dramaticamente o poder de ataques físicos.', effect:'Ataques físicos ganham +1 dado de dano e +2 de dano fixo. Acertos com margem de 5+ causam sangramento digital (−1 HP/turno por 3 turnos).' },
+  { name:'Cristal de Amplificação Elemental', rarity:'Raro', desc:'Um cristal sintônico ao elemento do Digimon que amplifica seus ataques elementais. Existe uma versão para cada elemento.', effect:'Ataques do elemento correspondente causam +3 de dano fixo. Habilidades especiais do mesmo elemento custam −1 ação para ativar.' },
+  { name:'Manto de Sombra Digital', rarity:'Épico', desc:'Um manto tecido com sombras digitalizadas que torna o Digimon difícil de rastrear. Útil para tipos Furtivo e Ilusório.', effect:'+2 dados em esquiva. Inimigos com ataques à distância sofrem −1 dado ao mirar neste Digimon. 1×/combate pode ficar completamente invisível por 1 turno.' },
+  { name:'Coroa de Dados — Versão Menor', rarity:'Raro', desc:'Uma coroa de dados comprimidos que amplifica os poderes mentais e habilidades especiais do portador.', effect:'+1 dado em todos os testes de habilidades especiais. Cada habilidade especial usada em combate gera +1 de dano fixo nos usos subsequentes naquela sessão (acumula até +5).' },
+  { name:'Colar de Osso Digital', rarity:'Incomum', desc:'Colares feitos com ossos digitais de Digimon antigos, que carregam memória residual de combate da era primária.', effect:'+2 HP máximo e +1 em Físico ou Sentidos (escolha ao equipar). 1×/sessão o Digimon pode "lembrar" uma técnica ancestral desconhecida — o Mestre escolhe o efeito.' },
+  { name:'Anéis de Controle Removidos', rarity:'Épico', desc:'Restos dos Anéis de Controle usados para escravizar Digimon. Deprogramados, tornam-se símbolo de libertação que fortalece a vontade do portador.', effect:'Imune a efeitos de controle mental e charme. Resiste a efeitos de status com vantagem. O parceiro ganha +1 dado em testes de Vínculo.' },
+  { name:'Núcleo de Poder Oculto', rarity:'Épico', desc:'Um núcleo de poder comprimido que, ao ser ativado, libera uma descarga de energia que desperta habilidades latentes no portador.', effect:'Ao ativar, desbloqueia uma habilidade secreta permanentemente (definida pelo Mestre com base na espécie). Consumível — usa-se 1× e se desintegra, mas o desbloqueio permanece.' },
+  { name:'Tag de Brasão', rarity:'Raro', desc:'Uma Tag especial que amplifica o brasão do DigiRider parceiro quando equipada no Digimon.', effect:'Se o parceiro possuir um Brasão, todos os bônus do brasão aumentam em +1. O Digimon ganha +1 dado em ataques de sua habilidade signature.' },
+  { name:'Escamas de Dragão Digital', rarity:'Raro', desc:'Placas feitas de escamas extraídas de Dramons abatidos, que fornecem proteção extra com aparência feroz.', effect:'RD 4 permanente. Ataques do tipo Dragão recebidos têm sua eficiência reduzida em −2 de dano. +1 dado em testes de Intimidação.' },
+  { name:'Bússola de Dado Primordial', rarity:'Incomum', desc:'Uma pequena bússola de dado que aponta para a fonte de energia mais próxima. Útil para exploradores de dungeons.', effect:'Nunca se perde em áreas digitais. +1 dado em testes de Sobrevivência e Exploração. Detecta automaticamente itens enterrados em um raio de 10 metros digitais.' },
+  { name:'Marca da Evolução — Tatuagem Digital', rarity:'Épico', desc:'Uma tatuagem de dado gravada diretamente na estrutura digital do Digimon durante um ritual especial. Não pode ser removida.', effect:'Escolha um atributo ao gravar: ganha +2 permanente. O custo de energia para evoluir para a próxima forma é reduzido em 15. Só pode ser feita uma vez por Digimon.' },
+];
+
+function generateItem() {
+  return pick(DIGIMON_ITEMS);
+}
+
+// ════════════════════════════════════════════════════════════
+//  POWER GENERATION
+// ════════════════════════════════════════════════════════════
+const POWER_TEMPLATES = {
+  FOGO: [
+    { name:'Chama Devastadora', desc:'Uma explosão concentrada de chamas digitais lançada contra o alvo. O calor é tão intenso que fragmenta a estrutura de dados do alvo.', effects:['Causa dano de Fogo igual ao dado de Físico + Habilidade.','O alvo fica com -1 dado em Físico por 1 turno (queimadura digital).','Em área: pode atingir todos em zona próxima ao alvo.'], uses:'3× por combate' },
+    { name:'Sopro Infernal', desc:'Lança uma cortina de fogo cobrindo uma área larga. Digimon da mesma espécie que o atacante são imunes.', effects:['Dano em área = dado de Físico.','Aliados com elemento Fogo recebem +1d4 de HP ao invés de dano.','Inimigos com Gelo recebem dano dobrado.'], uses:'2× por combate' },
+    { name:'Punho de Magma', desc:'Reveste o membro atacante com lava digital cristalizada. O impacto converte energia cinética em calor instantâneo.', effects:['Dano físico + Fogo = 2× dado de Físico.','Ignora RD física do alvo.','Se crítico: deixa o alvo paralisado por 1 turno.'], uses:'4× por combate' },
+    { name:'Vulcão de Dados', desc:'Invoca uma erupção de dados comprimidos em fogo que emerge do chão sob o inimigo.', effects:['Dano = dado de Habilidade + Físico.','Se o alvo falhar em Movimento, fica preso na lava por 2 turnos.','Cria zona de terreno vulcânico que dura 2 turnos.'], uses:'1× por combate' },
+    { name:'Escudo de Brasa', desc:'Envolve o corpo em uma armadura de brasas que queima quem se aproxima.', effects:['Concede RD 8 por 2 turnos.','Atacantes corpo-a-corpo recebem 1d4 de dano reflexivo.','Pode ser dissipado gastando 5 HP para criar uma explosão de fogo.'], uses:'2× por combate' },
+    { name:'Meteoro de Chamas', desc:'Condensa dados de fogo em uma esfera que cai sobre o campo de batalha como um meteorito.', effects:['Dano massivo em área = 3× dado de Físico.','Todos na zona de impacto devem rolar Movimento ou caem.','O terreno fica inacessível por 1 turno.'], uses:'1× por sessão' },
+  ],
+  ÁGUA: [
+    { name:'Torrente Cortante', desc:'Dispara um jato de água digital pressurizado que corta estruturas de dados com precisão cirúrgica.', effects:['Dano = dado de Habilidade.','Perfura RD até 5.','Se atingir ponto fraco: causa sangramento digital (3 dano por turno, 2 turnos).'], uses:'3× por combate' },
+    { name:'Maré Caótica', desc:'Invoca uma onda gigante que varre o campo de batalha e desequilibra tudo em seu caminho.', effects:['Dano em área = dado de Físico.','Inimigos devem rolar Físico ou serem empurrados 1 zona.','O terreno fica alagado: Movimento -1 dado para todos por 2 turnos.'], uses:'1× por combate' },
+    { name:'Redemoinho Digital', desc:'Cria um vórtice de dados de água que suga o alvo para o centro.','effects':['Puxa o alvo para perto e causa dano = dado de Habilidade por turno.','Alvo preso não pode se mover sem superar Físico.','Dura 2 turnos.'], uses:'2× por combate' },
+    { name:'Bolha de Isolamento', desc:'Encapsula o alvo em uma esfera de dados líquidos que comprime e desorenta.', effects:['Imobiliza alvo por 1 turno (Físico alto pode resistir).','Silencia o alvo: sem Poderes Especiais neste turno.','Ao estourar: dano = dado de Físico.'], uses:'2× por combate' },
+  ],
+  GELO: [
+    { name:'Cristalização de Dados', desc:'Congela a estrutura de dados do alvo de dentro para fora, paralisando movimentos e processamento.', effects:['Alvo fica paralisado por 1 turno (sem rolagem: automático).','Ataques contra alvo paralisado têm +2 dados.','O alvo recebe dano = dado de Habilidade ao ser "descongelado".'], uses:'2× por combate' },
+    { name:'Tempestade Gelada', desc:'Invoca uma nevasca digital que reduz temperatura e acuidade de todos em campo.', effects:['Todos perdem -1 dado em Sentidos por 2 turnos.','Digimon de Fogo recebem 1d6 de dano por turno.','Aliados de Gelo ficam imunes e ganham +1 dado em Físico.'], uses:'1× por combate' },
+    { name:'Lança de Gelo', desc:'Projeta uma lança de gelo cristalizado que perfura armaduras e causa sangramento de frio.', effects:['Dano = dado de Habilidade + Físico.','Ignora RD de armadura.','Se crítico: fragmentos espalham e atingem alvo adjacente por 1d4.'], uses:'3× por combate' },
+    { name:'Barreira de Cristal', desc:'Ergue uma parede de gelo de dados que bloqueia ataques e pode ser usada ofensivamente.', effects:['RD 10 pelo próximo turno.','Pode explodir a barreira: causa dano = dado de Físico em área.','Ao explodir, fragmentos reduzem Movimento dos inimigos próximos.'], uses:'2× por combate' },
+  ],
+  ELÉTRICO: [
+    { name:'Descarga Suprema', desc:'Libera toda a eletricidade acumulada em uma descarga única e devastadora.', effects:['Dano = dado de Habilidade + dado de Físico.','Alvo deve rolar Físico ou ficar atordoado por 1 turno.','Conduz por superfícies metálicas: Digimon do tipo Máquina recebem dano extra.'], uses:'2× por combate' },
+    { name:'Rede de Relâmpagos', desc:'Lança múltiplos raios que se ramificam entre os inimigos próximos.', effects:['Atinge até 3 alvos diferentes com dado de Habilidade cada.','Alvos com armadura metálica recebem dano dobrado.','Inimigos atingidos ficam com -1 dado em Habilidade por 1 turno.'], uses:'2× por combate' },
+    { name:'Pulso EMP Digital', desc:'Emite um pulso eletromagnético que interfere em sistemas digitais e estruturas de máquinas.', effects:['Desativa todos os equipamentos de Digimon do tipo Máquina por 2 turnos.','Humanos com upgrades de Digivice devem rolar Inteligência ou perder 1 upgrade por 1 turno.','Causa 1d6 de dano em todos inimigos na área.'], uses:'1× por combate' },
+    { name:'Armadura Elétrica', desc:'Reveste o corpo com campos elétricos que deflectem ataques físicos e causam dano ao toque.', effects:['RD 5 contra ataques físicos.','Atacantes corpo-a-corpo recebem 1d6 de dano elétrico.','Pode ser liberado como explosão: dano em área = dado de Habilidade.'], uses:'2× por combate' },
+  ],
+  VENTO: [
+    { name:'Lâmina de Vento', desc:'Comprime dados de ar em cortes invisíveis que se movem mais rápido que qualquer olho pode rastrear.', effects:['Dano = dado de Habilidade. Não pode ser esquivado na primeira vez por combate.','Cortes múltiplos: usa 2 ataques seguidos ao custo de 1 ação.','Inimigos com Sentidos alto podem detectar com risco.'], uses:'3× por combate' },
+    { name:'Ciclone Pessoal', desc:'Envolve o corpo em um campo de vento rotativo que desvia projéteis e acelera movimentos.', effects:['Concede +2 dados em Movimento por 2 turnos.','Projéteis têm 50% de chance de errar (50% alto).','Ao se mover, cria uma rajada que empurra inimigos adjacentes.'], uses:'2× por combate' },
+    { name:'Garra da Tempestade', desc:'Concentra vento em forma de garras que rasgam estrutura de dados com precisão clínica.', effects:['Dano = 2× dado de Habilidade.','Ignora invisibilidade e furtividade.','Se o alvo tiver menos Movimento que o atacante, acerto automático.'], uses:'2× por combate' },
+    { name:'Tornado de Dados', desc:'Invoca um tornado que suga os inimigos para o centro e destrói suas estruturas de dados.', effects:['Todos em área devem rolar Físico ou serem puxados para o centro.','Dano gradual = dado de Físico por turno dentro do tornado.','Dura 2 turnos. O atacante pode se mover livremente enquanto ativo.'], uses:'1× por combate' },
+  ],
+  PLANTA: [
+    { name:'Espinhos Explosivos', desc:'Dispara espinhos de dado vegetal que explodem ao impacto liberando toxinas digitais.', effects:['Dano = dado de Habilidade.','Alvo recebe efeito de veneno: 2 de dano por turno por 3 turnos.','Em área: atinge todos em zona próxima.'], uses:'3× por combate' },
+    { name:'Raízes do Nexus', desc:'Invoca raízes de código vivo que emergem do chão e aprisionam os inimigos.', effects:['Um alvo fica imobilizado por 2 turnos (Físico para resistir).','Criam zona de terreno vegetal que regenera aliados: +3 HP por turno.','As raízes podem ser destruídas: RD 10.'], uses:'2× por combate' },
+    { name:'Floração Tóxica', desc:'Libera um pólencreate de dados tóxicos que cobre toda a área e envenena os pulmões digitais.', effects:['Todos os inimigos em área recebem envenenamento (-1 dado em Habilidade por 2 turnos).','Aliados de Planta são imunes.','Pode ser combinado com Fogo para criar uma explosão de esporos.'], uses:'1× por combate' },
+    { name:'Absorção de Dados', desc:'Drena a energia vital de um alvo e a converte em regeneração própria.', effects:['Causa dano = dado de Habilidade.','Recupera HP igual ao dano causado.','Se o alvo estiver envenenado, o drain é dobrado.'], uses:'3× por combate' },
+  ],
+  TERRA: [
+    { name:'Golpe Sísmico', desc:'Golpeia o chão com força brutal, enviando ondas sísmicas de dados por todo o campo.', effects:['Dano em área = dado de Físico.','Todos devem rolar Físico ou caírem (perdendo 1 ação).','Cria terreno instável: -1 dado em Movimento por 2 turnos para todos.'], uses:'2× por combate' },
+    { name:'Fortaleza de Pedra', desc:'Ergue uma armadura de dados rochosos ao redor do próprio corpo.', effects:['RD 15 pelo próximo turno.','Fica imóvel mas pode atacar normalmente.','Ao final: pode soltar a armadura como explosão de pedras (dano em área = dado de Físico).'], uses:'2× por combate' },
+    { name:'Meteorito de Dado', desc:'Invoca uma rocha colossal de dados comprimidos e a lança sobre os inimigos.', effects:['Dano = 3× dado de Físico em um alvo.','Alvo deve rolar Físico ou ser imobilizado por 1 turno.','Fragmentos atingem inimigos adjacentes por 1d6.'], uses:'1× por combate' },
+    { name:'Punho da Montanha', desc:'Concentra a força de uma montanha inteira em um único soco devastador.', effects:['Dano = 2× dado de Físico.','Se acertar: empurra o alvo uma zona inteira.','Se o alvo bater em uma parede ou obstáculo: dano extra = dado de Físico.'], uses:'2× por combate' },
+  ],
+  TREVAS: [
+    { name:'Queda das Sombras', desc:'Invoca a escuridão total ao redor do alvo, cortando seus sentidos e deixando-o completamente perdido.', effects:['Alvo fica cego por 2 turnos: -2 dados em todos os testes.','Enquanto cego, o atacante tem +2 dados contra o alvo.','Pode ser dissipado por Luz ou rolar Sentidos alto.'], uses:'2× por combate' },
+    { name:'Dreno de Alma Digital', desc:'Suga a essência de dados do alvo, enfraquecendo sua estrutura e fortalecendo o atacante.', effects:['Causa dano = dado de Habilidade.','O alvo perde 10 de Energia de Digievolução.','O atacante recupera HP igual ao dano causado.'], uses:'2× por combate' },
+    { name:'Maldição de Dados', desc:'Implanta um código corrompido na estrutura do alvo que degrada seu desempenho gradualmente.', effects:['O alvo perde -1 dado em um atributo por turno por 3 turnos (escolhe no início).','Difícil de remover: requer Antídoto de Dado ou cura de status.','Não causa dano imediato mas é extremamente debilitante.'], uses:'1× por combate' },
+    { name:'Portal das Sombras', desc:'Abre um portal de trevas que permite ao atacante se mover instantaneamente pelo campo.', effects:['Teletransporte para qualquer ponto visível na zona como ação livre.','Pode levar um aliado junto.','Ao emergir: ataque surpresa com +2 dados.'], uses:'2× por combate' },
+    { name:'Explosão Abissal', desc:'Libera toda a energia das trevas acumulada em uma única explosão catastrófica.', effects:['Dano enorme = 3× dado de Habilidade em todos os inimigos.','O atacante perde 10 HP pelo desgaste.','Inimigos que sobreviverem ficam com -1 dado em tudo por 1 turno.'], uses:'1× por sessão' },
+  ],
+  LUZ: [
+    { name:'Julgamento Divino', desc:'Invoca raios de luz sagrada que purifcam e destroem dados corrompidos e entidades das trevas.', effects:['Dano = dado de Habilidade + Físico contra todos os tipos.','Contra Vírus e Trevas: dano dobrado.','Cura aliados adjacentes em metade do dano causado.'], uses:'2× por combate' },
+    { name:'Escudo de Pureza', desc:'Cria uma barreira de luz sagrada que repele o mal e fortalece os aliados dentro dela.', effects:['RD 10 contra todos os ataques.','Aliados dentro do escudo ganham +1 dado em todos os testes.','Inimigos Vírus perdem -1 dado ao atacar.'], uses:'2× por combate' },
+    { name:'Flecha de Luz', desc:'Dispara uma seta de luz pura que perfura qualquer escuridão e defesa.', effects:['Dano = dado de Habilidade. Não pode ser esquivado por inimigos das Trevas.','Desfaz invisibilidade e efeitos de sombra do alvo.','Cura 1 efeito negativo de um aliado ao mesmo tempo.'], uses:'3× por combate' },
+    { name:'Onda de Bênção', desc:'Emite uma onda de luz que restaura dados danificados de todos os aliados.', effects:['Cura todos os aliados por valor = dado de Habilidade.','Remove 1 efeito negativo de cada aliado curado.','Inimigos das Trevas recebem dano igual à cura gerada.'], uses:'1× por combate' },
+  ],
+  DRAGÃO: [
+    { name:'Rugido do Dragão', desc:'Um rugido de dados comprimidos que abala a estrutura de qualquer ser digital e impõe domínio absoluto.', effects:['Todos os inimigos devem rolar Sentidos ou ficam com medo por 1 turno (-1 dado em tudo).','O atacante ganha +1 dado em Físico por 2 turnos.','Inimigos mais fracos (Nível < 50%) fogem automaticamente.'], uses:'2× por combate' },
+    { name:'Garra do Supremo', desc:'Ataca com garras infundidas de dados dracônicos que ignoram qualquer barreira conhecida.', effects:['Dano = 2× dado de Físico.','Ignora toda RD e barreiras ativas.','Se crítico: o alvo é jogado no ar e cai no turno seguinte (turno perdido).'], uses:'2× por combate' },
+    { name:'Fogo Dracônico', desc:'Cospe chamas de dado de natureza dracônica que são mais densas e persistentes que fogo normal.', effects:['Dano = dado de Físico + Habilidade.','O fogo persiste: 1d4 de dano no início do próximo turno do alvo.','Não pode ser apagado por água: só por Gelo com custo extra.'], uses:'3× por combate' },
+    { name:'Asa do Caos', desc:'Usa as asas para criar uma explosão de vento e dado dracônico que varre o campo.', effects:['Dano em área = dado de Físico.','Empurra todos os inimigos 1 zona.','O atacante pode se reposicionar livremente após o uso.'], uses:'2× por combate' },
+    { name:'Forma Final do Dragão', desc:'Assume a forma máxima dracônica, transcendendo os limites normais do Nexus-0.', effects:['Todos os atributos sobem 1 categoria de dado por 3 turnos.','Fica imune a efeitos de medo e confusão.','O custo: 20 HP de desgaste ao final dos 3 turnos.'], uses:'1× por sessão' },
+  ],
+  MÁQUINA: [
+    { name:'Canhão de Dados', desc:'Dispara um projétil concentrado de dados comprimidos que atravessa qualquer barreira física.', effects:['Dano = dado de Habilidade + Físico.','Perfura RD de até 10.','Pode ser carregado (+1 turno) para dano dobrado.'], uses:'3× por combate' },
+    { name:'Modo de Combate', desc:'Ativa todos os sistemas de combate simultaneamente, otimizando cada parâmetro para a batalha.', effects:['Ganha +1 dado em Físico, Habilidade e Movimento por 3 turnos.','Pode atacar 2 vezes por turno durante este modo.','Ao fim: fica com -1 dado em todos por 1 turno (superaquecimento).'], uses:'1× por combate' },
+    { name:'Escudo de Aço', desc:'Projeta uma barreira de polímero digital de alta densidade ao redor do corpo.', effects:['RD 12 por 2 turnos.','Imune a efeitos de EMP e hacking por 2 turnos.','Pode explodir a barreira: dano em área = 1d6.'], uses:'2× por combate' },
+    { name:'Overload de Sistema', desc:'Força os circuitos além do limite, causando uma explosão de energia que varre o campo.', effects:['Dano massivo em área = 2× dado de Habilidade.','O atacante recebe 10 HP de dano por superaquecimento.','Desativa todos os efeitos de status negativos próprios.'], uses:'1× por combate' },
+  ],
+  INSETO: [
+    { name:'Veneno Paralisante', desc:'Injeta um código venenoso na estrutura de dados do alvo que degrada funções motoras.', effects:['O alvo perde -2 dados em Movimento por 3 turnos.','Se o alvo já estiver envenenado: fica paralisado por 1 turno.','O veneno pode ser transmitido para alvos adjacentes na proximidade.'], uses:'2× por combate' },
+    { name:'Enxame de Dados', desc:'Invoca centenas de insetos digitais que cobrem o alvo e perturbam seus sistemas.', effects:['Dano gradual = dado de Habilidade por turno por 2 turnos.','O alvo fica com -1 dado em Sentidos durante o enxame.','Difícil de remover: requer Antídoto ou gasto de ação completa.'], uses:'2× por combate' },
+    { name:'Mandíbula Perfurante', desc:'Ataca com mandíbulas reforçadas que perfuram qualquer material de dado conhecido.', effects:['Dano = dado de Físico.','Ignora RD completa.','Se atingir o mesmo alvo 2 turnos seguidos: causa efeito extra de evisceração (dano dobrado no 3º turno).'], uses:'3× por combate' },
+  ],
+  BESTA: [
+    { name:'Investida Selvagem', desc:'Lança-se contra o alvo com velocidade e fúria que superpassam qualquer esquema tático.', effects:['Dano = 2× dado de Físico.','Se usar na abertura do turno (primeiro a agir): dano triplo.','O alvo deve rolar Físico ou ser derrubado.'], uses:'2× por combate' },
+    { name:'Uivo de Dominância', desc:'Emite um uivo que afirma domínio territorial e abala a confiança dos inimigos.', effects:['Todos os inimigos perdem -1 dado em Habilidade por 2 turnos.','Aliados do tipo Besta ganham +1 dado em Físico.','Digimon selvagens podem ser intimidados a não atacar.'], uses:'2× por combate' },
+    { name:'Faro Aguçado', desc:'Usa os sentidos animalescos para identificar a fraqueza de cada inimigo com precisão absurda.', effects:['Revela todos os atributos e fraquezas de 1 inimigo.','O próximo ataque contra esse inimigo tem +2 dados.','Detecta emboscadas e inimigos invisíveis automaticamente.'], uses:'2× por combate' },
+  ],
+  AÇO: [
+    { name:'Lâmina de Dado Absoluto', desc:'Empunha uma lâmina forjada com dados de pureza máxima que corta através de qualquer estrutura.', effects:['Dano = dado de Físico + Habilidade.','Ignora toda RD e barreiras.','Se crítico: o alvo perde 1 equipamento ou upgrade por 1 turno.'], uses:'2× por combate' },
+    { name:'Armadura Impenetrável', desc:'A estrutura de Aço do próprio corpo se fortalece além do limite, tornando-se praticamente indestrutível.', effects:['RD 20 por 1 turno.','Ataques físicos ricocheteiam: atacante recebe 1d4 de dano.','Ao final: pode converter a dureza em um único golpe devastador.'], uses:'1× por combate' },
+  ],
+  VENENO: [
+    { name:'Névoa Tóxica', desc:'Libera uma nuvem de dados tóxicos que envenena todos em área e persiste por vários turnos.', effects:['Todos em área recebem envenenamento: -1 dado em Habilidade por 3 turnos.','O veneno se acumula: cada turno adicional dentro da névoa aumenta o efeito.','Aliados imunes ao Veneno podem usá-la como cobertura.'], uses:'1× por combate' },
+    { name:'Picada Mortal', desc:'Um ataque preciso que injeta veneno diretamente no núcleo de dados do alvo.', effects:['Dano imediato = dado de Habilidade.','Veneno persistente: 3 de dano por turno por 4 turnos.','Se o alvo já estiver envenenado: veneno anterior reinicia o contador.'], uses:'3× por combate' },
+  ],
+  FANTASMA: [
+    { name:'Possessão Digital', desc:'Infiltra a estrutura de dados do alvo, assumindo controle temporário de suas funções básicas.', effects:['O alvo age sob controle do atacante por 1 turno (não pode se defender).','Durante a possessão, o atacante fica vulnerável (sem ações).','Se o alvo resistir (Inteligência): sofre 1d6 de dano psíquico.'], uses:'1× por combate' },
+    { name:'Atravessar Sólidos', desc:'Torna-se completamente imaterial, atravessando qualquer obstáculo ou barreira digital.', effects:['Fica imune a ataques físicos por 1 turno.','Pode se mover por qualquer zona sem custo.','O próximo ataque vindo da imaterialidade ignora todas as defesas.'], uses:'2× por combate' },
+    { name:'Medo Eterno', desc:'Projeta o terror mais profundo na mente digital do alvo, paralisando-o de dentro para fora.', effects:['Alvo fica com medo por 2 turnos: não pode se aproximar do atacante.','-2 dados em todos os testes enquanto com medo.','Cumulativo com outros efeitos de medo.'], uses:'2× por combate' },
+  ],
+  SAGRADO: [
+    { name:'Espada da Justiça', desc:'Empunha uma lâmina de luz sagrada criada pela própria vontade de proteger, que julga o mal.', effects:['Dano = dado de Habilidade + Físico.','Contra entidades das Trevas: dano triplo.','Cura 1 aliado por valor = dado de Habilidade ao mesmo tempo.'], uses:'2× por combate' },
+    { name:'Milagre Digital', desc:'Invoca um milagre que restaura o que parecia perdido, trazendo de volta a esperança à batalha.', effects:['Ressuscita 1 aliado que caiu com 5 HP.','OU cura completamente todos os aliados em campo.','Só pode ser usado quando 1 aliado ou você está com menos de 20% do HP.'], uses:'1× por sessão' },
+  ],
+  VAZIO: [
+    { name:'Corrupção Absoluta', desc:'Toca o alvo com dados da Zona Null, reescrevendo sua estrutura de forma irreconhecível.', effects:['Causa dano = dado de Habilidade + Físico.','O alvo perde 1 Poder Especial aleatório por 2 turnos (inacessível).','Efeito de corrupção: -1 dado em Inteligência por 3 turnos.'], uses:'1× por combate' },
+    { name:'Absorção do Vazio', desc:'Suga dados do ambiente e dos inimigos para se fortalecer, tornando-se mais perigoso a cada turno.', effects:['Recupera HP = dado de Habilidade a cada turno por 2 turnos.','Inimigos adjacentes perdem -1 dado em Físico (absorção passiva).','Ao final: libera a energia absorvida como explosão (dano = total absorvido).'], uses:'1× por combate' },
+  ],
+  NEUTRO: [
+    { name:'Adaptação Total', desc:'Observa o padrão de combate do inimigo e se adapta perfeitamente para superá-lo.', effects:['Copia o Poder Especial mais recente usado pelo inimigo e usa imediatamente.','Ganha +1 dado em todos os atributos por 1 turno.','Pode ser usado como reação ao ver o inimigo agir.'], uses:'1× por combate' },
+    { name:'Força de Vontade', desc:'A pura determinação do Digimon supera qualquer limitação física ou digital.', effects:['Nega completamente 1 efeito negativo (veneno, paralisia, medo, etc.).','O próximo ataque tem +2 dados.','Recupera 10 HP imediatamente.'], uses:'2× por combate' },
+  ],
+};
+
+// Generic fallback powers for any element
+const GENERIC_POWERS = [
+  { name:'Investida Total', desc:'Usa todo o corpo como arma, lançando-se contra o alvo com velocidade máxima.', effects:['Dano = dado de Físico.','Se o alvo não se mover: dano dobrado.','Pode ser usado como reação a um ataque inimigo.'], uses:'3× por combate' },
+  { name:'Defesa Absoluta', desc:'Assume uma postura defensiva que transforma qualquer ataque em oportunidade.', effects:['RD = dado de Físico por 1 turno.','Se o ataque falhar completamente: contra-ataque automático.','Pode ser combinado com qualquer outro poder defensivo.'], uses:'2× por combate' },
+  { name:'Pulso de Energia', desc:'Libera toda a energia interna em uma explosão que afasta inimigos.', effects:['Dano em área = dado de Habilidade.','Inimigos em área são empurrados 1 zona.','Pode desfazer 1 efeito negativo próprio ao ativá-lo.'], uses:'2× por combate' },
+  { name:'Foco de Precisão', desc:'Concentra cada recurso em um ataque único de precisão matemática.', effects:['O próximo ataque tem +3 dados.','Não pode ser esquivado.','Gasta uma ação adicional de preparação.'], uses:'1× por combate' },
+  { name:'Resistência de Ferro', desc:'A estrutura de dados endurece além do limite, absorvendo até os ataques mais poderosos.', effects:['Nega completamente o próximo ataque recebido (qualquer dano).','Depois de negar: ganha +1 dado em Físico por 1 turno.','Só funciona 1× por combate.'], uses:'1× por combate' },
+  { name:'Grito de Batalha', desc:'Um grito que reverbera pelos dados do ambiente, fortalecendo aliados e intimidando inimigos.', effects:['Todos os aliados ganham +1 dado em todos os testes por 1 turno.','Inimigos devem rolar Sentidos ou ficam com medo (medo: -1 dado em Habilidade).','Pode ser ouvido em zonas adjacentes.'], uses:'2× por combate' },
+];
+
+// Traits by element — cada traço é { name, desc, mechanic }
+// mechanic é o efeito de jogo objetivo (usado no card de traço)
+const ELEMENT_TRAITS = {
+  FOGO: [
+    { name:'Imunidade ao Calor',            mechanic:'Imune a dano de Fogo e a efeitos de queimadura. Ambientes vulcânicos não causam dano nem penalidade.' },
+    { name:'Aura de Chamas',                mechanic:'Atacantes corpo-a-corpo recebem 1d4 de dano de Fogo automaticamente ao acertar este Digimon.' },
+    { name:'Corpo Incandescente',           mechanic:'+2 de dano em todo ataque físico (corpo a corpo). O calor intensifica o impacto de cada golpe.' },
+    { name:'Presença Intimidadora',         mechanic:'Inimigos que iniciam combate contra este Digimon rolam Sentidos — se falharem, perdem a 1ª ação de seu 1º turno.' },
+    { name:'Regeneração em Zonas de Fogo',  mechanic:'Recupera 3 HP por turno enquanto estiver em terreno em chamas, zona vulcânica ou sob efeito de calor extremo.' },
+  ],
+  ÁGUA: [
+    { name:'Respiração Subaquática',        mechanic:'Pode agir normalmente em ambiente aquático sem penalidade. Inimigos sem essa habilidade têm −1 dado em Habilidade.' },
+    { name:'Velocidade em Água',            mechanic:'+1 dado em Movimento sempre que o combate ou deslocamento ocorrer em terreno alagado ou submerso.' },
+    { name:'Regeneração em Chuva',          mechanic:'Recupera 2 HP por turno enquanto estiver sob chuva, spray de água ou qualquer efeito de Água em campo.' },
+    { name:'Sensor de Pressão',             mechanic:'Não pode ser surpreendido em combate. Detecta automaticamente inimigos invisíveis dentro da mesma zona.' },
+    { name:'Afinidade com Digimon Aquáticos', mechanic:'Digimon do tipo Aquático aliados ganham +1 dado em Habilidade enquanto estiverem na mesma zona que este.' },
+  ],
+  GELO: [
+    { name:'Resistência ao Frio',           mechanic:'Imune a penalidades de ambiente frio e a efeitos de congelamento. Reduz em 2 o dano de ataques de Gelo recebidos.' },
+    { name:'Passagem Silenciosa em Neve',   mechanic:'Em terreno gelado ou nevado, testes de furtividade têm +1 dado. Inimigos não recebem aviso de aproximação.' },
+    { name:'Paralisação por Toque',         mechanic:'1× por combate, ao acertar um ataque físico, pode forçar o alvo a rolar Físico. Se falhar, fica paralisado por 1 turno.' },
+    { name:'Aura de Geada',                 mechanic:'Inimigos adjacentes que iniciarem o turno próximos recebem −1 dado em Movimento durante esse turno (frio paralisante).' },
+    { name:'Imunidade a Veneno de Gelo',    mechanic:'Imune a venenos digitais de temperatura baixa e a qualquer efeito de "congelamento de dados" aplicado por inimigos.' },
+  ],
+  ELÉTRICO: [
+    { name:'Condução de Energia',           mechanic:'Pode canalizar ataques elétricos recebidos: ao invés de tomar dano, armazena e devolve como +1d4 no próximo ataque (1× por combate).' },
+    { name:'EMP Natural',                   mechanic:'1× por sessão, emite um pulso que desativa equipamentos eletrônicos e upgrades de Digivice por 1 turno em todos os inimigos na zona.' },
+    { name:'Velocidade de Raio',            mechanic:'Sempre age primeiro em caso de empate de iniciativa. Em seu turno, pode se mover uma zona extra antes de atacar.' },
+    { name:'Absorção de Ataques Elétricos', mechanic:'Ao receber dano de um ataque Elétrico, recupera metade do dano como HP em vez de perdê-lo.' },
+    { name:'Interface com Máquinas',        mechanic:'Pode hackear ou se comunicar com Digimon do tipo Máquina como ação de bônus. Testes de Inteligência contra Máquinas têm +1 dado.' },
+  ],
+  VENTO: [
+    { name:'Levitação Passiva',             mechanic:'Imune a efeitos de terreno (lama, lava, raízes). Inimigos não podem usar bloqueio de terreno contra este Digimon.' },
+    { name:'Passo Silencioso',              mechanic:'Não ativa armadilhas de movimento. Em terreno aberto, detectação de sua posição requer Sentidos com dificuldade extra (+1 dado de dificuldade).' },
+    { name:'Escuta Aprimorada',            mechanic:'+1 dado em Sentidos para detectar inimigos. Nunca pode ser surpreendido por ataques furtivos à distância.' },
+    { name:'Rajada ao se Mover',           mechanic:'Ao se deslocar, pode empurrar 1 inimigo adjacente para outra zona sem custo de ação (Físico para resistir).' },
+    { name:'Imunidade a Gases',            mechanic:'Imune a efeitos de veneno gasoso, névoas e fumaça. Ambientes de baixa visibilidade não causam penalidade para este Digimon.' },
+  ],
+  PLANTA: [
+    { name:'Regeneração em Terreno Natural', mechanic:'Recupera 2 HP por turno em zonas com solo, vegetação ou mata digital. Duplica para 4 HP se o terreno for floresta densa.' },
+    { name:'Fotossíntese Digital',          mechanic:'Ao invés de gastar ação para recuperar HP, pode recuperar 3 HP automaticamente em qualquer turno em que não usar poder especial.' },
+    { name:'Comunicação com Flora',         mechanic:'Pode ordenar que plantas digitais da zona imobilizem um alvo (Físico para resistir, dura 1 turno). Ação de bônus, 2× por combate.' },
+    { name:'Toxinas Passivas',              mechanic:'Todo ataque físico aplica veneno passivo: 1 de dano extra por turno por 2 turnos. Não se acumula, mas renova a duração a cada acerto.' },
+    { name:'Enraizamento',                 mechanic:'Pode se fixar ao solo como ação de bônus: ganha RD 4 e +1 dado em Físico, mas perde Movimento enquanto enraizado. Sai da posição como ação.' },
+  ],
+  TERRA: [
+    { name:'Vibração Sísmica',             mechanic:'Ao golpear o solo (ação de bônus, 1× por combate), todos inimigos na mesma zona rolam Físico ou caem (−1 dado em Movimento por 1 turno).' },
+    { name:'Minhocas de Dado Aliadas',     mechanic:'1× por sessão, invoca entidades de dado menores que distraem 1 inimigo: alvo tem −1 dado em Habilidade por 2 turnos.' },
+    { name:'Enterrar-se em Solo',          mechanic:'Pode gastar 1 ação para se enterrar: fica invisível e imune a ataques à distância por 1 turno, emergindo onde quiser na mesma zona.' },
+    { name:'Resistência a Impacto',        mechanic:'Reduz em 3 o dano de qualquer ataque físico (corpo a corpo). Esse valor é aplicado antes de qualquer outra RD.' },
+    { name:'Peso Massivo',                 mechanic:'Imune a efeitos de empurrão, recuo e derrubada. Ataques de Movimento inimigos destinados a reposicioná-lo falham automaticamente.' },
+  ],
+  TREVAS: [
+    { name:'Invisibilidade em Sombras',    mechanic:'Em zonas com pouca luz ou efeitos de escuridão, fica automaticamente invisível. Ataques contra ele têm −1 dado nessas condições.' },
+    { name:'Drenar Energia Passivo',       mechanic:'A cada ataque que acerta, recupera 2 HP (drena energia do alvo). Não funciona contra Digimon com Imunidade a Trevas.' },
+    { name:'Imunidade ao Medo',            mechanic:'Não pode ser afetado por efeitos de intimidação, medo ou pânico — incluindo traços como Presença Intimidadora de inimigos.' },
+    { name:'Sentir Emoções Negativas',     mechanic:'+1 dado em Sentidos contra alvos com HP abaixo de 50%. Detecta automaticamente inimigos com efeito de medo ou desespero.' },
+    { name:'Toque Congelante',             mechanic:'Ao acertar ataque físico, aplica −1 dado em Habilidade no alvo por 1 turno (o frio digital entorpece os reflexos). 2× por combate.' },
+  ],
+  LUZ: [
+    { name:'Aura Purificadora',            mechanic:'Aliados na mesma zona removem 1 efeito de status negativo (veneno, paralisação, medo) no início de cada turno deste Digimon.' },
+    { name:'Cura Passiva de Aliados',      mechanic:'1 aliado adjacente escolhido recupera 2 HP por turno automaticamente enquanto este Digimon estiver ativo e não paralisado.' },
+    { name:'Visão no Escuro',              mechanic:'Vê perfeitamente em ambientes escuros. Anula penalidades de Sentidos e de ataque causadas por baixa luminosidade ou fumaça.' },
+    { name:'Detectar Mentiras',            mechanic:'Em interações sociais e interrogatórios, sabe automaticamente quando está sendo enganado. +1 dado em testes de Inteligência social.' },
+    { name:'Imunidade à Corrupção',        mechanic:'Imune a efeitos de dado corrompido, vírus digital e controle mental. Não pode ser hackeado por poderes de Trevas ou Vazio.' },
+  ],
+  DRAGÃO: [
+    { name:'Presença Dracônica',           mechanic:'No início do combate, todos os inimigos rolam Sentidos. Os que falharem perdem sua ação de bônus no primeiro turno (presença avassaladora).' },
+    { name:'Escamas Resistentes',          mechanic:'RD 3 permanente contra todos os tipos de dano físico. Não se acumula com outras fontes de RD física — usa o maior valor.' },
+    { name:'Rugido Ensurdecedor',          mechanic:'1× por combate, como ação de bônus: todos os inimigos na zona perdem −1 dado em Sentidos por 2 turnos (ensurdecimento digital).' },
+    { name:'Voo Natural',                  mechanic:'Pode se mover para qualquer zona do campo sem custo extra de Movimento. Imune a efeitos de terreno e armadilhas de chão.' },
+    { name:'Hoard de Dados',               mechanic:'+2 de dano em ataques contra inimigos que já causaram dano a este Digimon neste combate (instinto protetor de território).' },
+  ],
+  MÁQUINA: [
+    { name:'Sistema de Análise',           mechanic:'No 1º turno de combate, pode gastar ação de bônus para analisar o inimigo: revela HP atual, traços e fraqueza elementar.' },
+    { name:'Auto-Reparo',                  mechanic:'Ao final de cada turno em que não recebeu dano, recupera 3 HP automaticamente (sistema de manutenção interno ativo).' },
+    { name:'Blindagem Integrada',          mechanic:'RD 5 contra o primeiro ataque recebido em cada combate. Depois disso, a blindagem aquece e precisa recalibrar.' },
+    { name:'Overdrive Momentâneo',         mechanic:'1× por combate, como ação de bônus: ganha +1 dado em Físico E Habilidade por 1 turno inteiro (sobrecarga de sistema).' },
+    { name:'Compatibilidade com Upgrades', mechanic:'Pode equipar 1 upgrade de Digivice extra (além do limite normal). Upgrades de equipamento têm bônus +1 quando usados neste Digimon.' },
+  ],
+  INSETO: [
+    { name:'Exoesqueleto Resistente',      mechanic:'RD 2 permanente contra dano físico. Quando HP cai abaixo de 30%, a resistência sobe para RD 4 (exoesqueleto endurece sob pressão).' },
+    { name:'Voo Silencioso',               mechanic:'Pode se deslocar para qualquer zona sem fazer barulho. Inimigos com Sentidos baixo não detectam a aproximação (sem ação de alerta).' },
+    { name:'Veneno Passivo',               mechanic:'Todo ataque físico aplica veneno: 2 de dano por turno por 3 turnos. Alvos com Imunidade a Venenos são imunes a este efeito.' },
+    { name:'Camuflagem',                   mechanic:'Em qualquer terreno (não precisa ser escuridão), pode gastar 1 ação para ficar camuflado: próximo ataque tem +1 dado e ignora esquiva.' },
+    { name:'Enxame de Dados Aliados',      mechanic:'1× por sessão, invoca um enxame que ocupa uma zona: inimigos nela têm −1 dado em Habilidade e não podem usar poderes à distância por 2 turnos.' },
+  ],
+  BESTA: [
+    { name:'Olfato Digital',               mechanic:'Detecta automaticamente inimigos em fuga ou furtivos na mesma zona. Não pode ser surpreendido por ataques de flanqueo.' },
+    { name:'Adrenalina de Combate',        mechanic:'Quando HP cai abaixo de 50%, ganha +1 dado em Físico permanentemente até o fim do combate (instinto de sobrevivência ativado).' },
+    { name:'Territorialismo',              mechanic:'+2 de dano em ataques contra inimigos que invadiram a zona onde este Digimon estava no início do combate.' },
+    { name:'Pele Grossa',                  mechanic:'Reduz em 2 o dano de qualquer efeito de área (explosões, tsunamis, furacões digitais). Aplicado antes de outras RDs.' },
+    { name:'Instinto de Caça',             mechanic:'Sempre que um inimigo fugir ou se reposicionar, pode realizar 1 ataque de oportunidade gratuito contra ele (fora do turno normal).' },
+  ],
+  AÇO: [
+    { name:'Corpo de Aço',                 mechanic:'RD 4 permanente contra dano físico. Em contrapartida, −1 dado em Movimento (o peso do corpo metálico é real).' },
+    { name:'Peso Controlável',             mechanic:'Pode aumentar ou diminuir a própria massa como ação de bônus: +RD 2 OU +1 dado Movimento (não ambos ao mesmo tempo).' },
+    { name:'Lâminas Passivas',             mechanic:'Atacantes corpo-a-corpo que acertam este Digimon recebem 1d6 de dano cortante reflexivo (lâminas do corpo ricocheteiam o golpe).' },
+    { name:'Resistência a Corte',          mechanic:'Imune a efeitos de sangramento e a dano contínuo de ataques cortantes. Reduz em 3 o dano de ataques de lâmina.' },
+    { name:'Condução Controlada',          mechanic:'Pode direcionar ataques elétricos recebidos: sofre apenas metade do dano e redireciona a outra metade para 1 inimigo adjacente.' },
+  ],
+  VENENO: [
+    { name:'Aura Tóxica',                  mechanic:'Inimigos adjacentes no início do turno recebem 1 de dano de veneno automaticamente (névoa tóxica passiva). Aliados imunes.' },
+    { name:'Envenenamento Passivo',        mechanic:'Todo ataque bem-sucedido aplica veneno digital: 3 de dano por turno por 2 turnos. Múltiplos envenenamentos renova, não acumula.' },
+    { name:'Imunidade a Venenos',          mechanic:'Completamente imune a qualquer efeito de veneno, ácido ou corrosão — próprios ou de inimigos. Não recebe dano de terreno tóxico.' },
+    { name:'Gosto Amargo',                 mechanic:'Inimigos que usam habilidades de absorção ou drenar HP neste Digimon sofrem 1d4 de dano de veneno em vez de recuperar HP.' },
+    { name:'Pele Ácida',                   mechanic:'Atacantes corpo-a-corpo que acertam recebem 1d4 de dano ácido. Armaduras e RD física do atacante são ignoradas por este dano.' },
+  ],
+  FANTASMA: [
+    { name:'Imaterialidade Parcial',       mechanic:'Ataques físicos (não mágicos/elementais) têm 25% de chance de atravessar sem causar dano (role 1d4: em "1", o ataque passa).' },
+    { name:'Invisibilidade Natural',       mechanic:'Pode se tornar invisível como ação de bônus. Permanece até atacar ou ser detectado por Sentidos alto. 2× por combate.' },
+    { name:'Toque Fantasma',               mechanic:'Ataques deste Digimon ignoram RD física e de armadura. O dano vai direto ao HP, independente de escudos físicos.' },
+    { name:'Presença Assustadora',         mechanic:'Ao entrar em combate ou aparecer de surpresa, todos os inimigos rolam Sentidos ou ficam com −1 dado em tudo por 1 turno (susto).' },
+    { name:'Comunicação com Dados Antigos', mechanic:'Pode ler registros digitais apagados e "conversar" com ghosts de Digimon derrotados. +1 dado em Inteligência para investigação.' },
+  ],
+  SAGRADO: [
+    { name:'Aura Divina',                  mechanic:'Aliados na mesma zona têm +1 de dano em todos os ataques. Digimon do tipo Trevas/Vazio que entram na zona rolam Sentidos ou perdem 1 ação.' },
+    { name:'Proteção de Aliados',          mechanic:'1× por turno, pode redirecionar o dano de um ataque destinado a um aliado adjacente para si mesmo (absorção heroica).' },
+    { name:'Detecção do Mal',              mechanic:'Sente automaticamente a presença de Digimon corrompidos ou inimigos com intenção hostil dentro do campo de batalha.' },
+    { name:'Imunidade a Corrupção',        mechanic:'Imune a controle mental, vírus digitais e hackeamento. Efeitos de corrupção simplesmente não funcionam contra este Digimon.' },
+    { name:'Cura Passiva',                 mechanic:'Recupera 2 HP no início de cada turno seu, automaticamente, enquanto o HP não estiver no máximo.' },
+  ],
+  VAZIO: [
+    { name:'Absorção de Dados Passiva',    mechanic:'Ao derrotar um inimigo, absorve fragmentos de dado: recupera HP igual ao nível do inimigo derrotado (máx. 10 HP por absorção).' },
+    { name:'Corrupção pelo Toque',         mechanic:'Ataques físicos têm chance de corromper: alvo rola Inteligência — se falhar, perde o controle de 1 poder especial por 1 turno.' },
+    { name:'Imunidade a Efeitos de Status', mechanic:'Completamente imune a veneno, paralisação, medo, congelamento e qualquer efeito de status negativo aplicado externamente.' },
+    { name:'Presença Perturbadora',        mechanic:'Inimigos em raio próximo têm −1 dado em Inteligência enquanto este Digimon estiver vivo e ativo no campo.' },
+    { name:'Conexão com a Zona Null',      mechanic:'1× por sessão, pode teleportar para qualquer zona no campo como ação de bônus, ignorando distância e obstáculos.' },
+  ],
+  NEUTRO: [
+    { name:'Adaptação Rápida',             mechanic:'No 2º turno de combate, pode copiar 1 traço passivo de qualquer Digimon presente no campo (dura até o fim do combate).' },
+    { name:'Imunidade Variável',           mechanic:'1× por combate, pode declarar imunidade a 1 tipo de dano específico por 1 turno (escolha após ver o ataque vir).' },
+    { name:'Afinidade Universal',          mechanic:'Nunca sofre desvantagem do triângulo de atributos (Vacina/Vírus/Dado). Trata todos os confrontos como neutros.' },
+    { name:'Aprendizado de Combate',       mechanic:'A cada 2 ataques recebidos do mesmo tipo, ganha +1 dado de bônus contra aquele tipo específico (adaptação em tempo real).' },
+    { name:'Resistência Genérica',         mechanic:'RD 2 contra todos os tipos de dano (físico, elemental, especial). Genérica mas consistente — sempre ativa.' },
+  ],
+};
+
+function getPowerPool(elements) {
+  let pool = [...GENERIC_POWERS];
+  elements.forEach(el => {
+    if (POWER_TEMPLATES[el]) pool = [...pool, ...POWER_TEMPLATES[el]];
+  });
+  return pool;
+}
+
+function getAllPowers() {
+  let all = [...GENERIC_POWERS];
+  Object.values(POWER_TEMPLATES).forEach(arr => { all = [...all, ...arr]; });
+  return all;
+}
+
+function findPowerByName(name) {
+  return getAllPowers().find(p => p.name === name) || null;
+}
+
+function togglePowerLock(name) {
+  if (lockedPowerNames.has(name)) lockedPowerNames.delete(name);
+  else lockedPowerNames.add(name);
+  // re-render just the cards to reflect lock state, without re-rolling
+  const container = document.getElementById('powers-section');
+  if (!container || currentPowers.length === 0) return;
+  const stage = currentStage;
+  const sd = STAGE_DATA[stage];
+  const level = parseInt(document.getElementById('digi-level').value);
+  const elemList = getSelected('elem-tags').length ? getSelected('elem-tags') : ['NEUTRO'];
+  const html = currentPowers.map((p,i) => renderPowerCard(p, i+1, stage, elemList, level, sd)).join('');
+  container.innerHTML = `<div class="powers-grid">${html}</div>`;
+}
+
+function getTraits(elements) {
+  let traits = [];
+  elements.forEach(el => {
+    if (ELEMENT_TRAITS[el]) traits = [...traits, ...ELEMENT_TRAITS[el]];
+  });
+  if (traits.length === 0) traits = ELEMENT_TRAITS['NEUTRO'];
+  return traits;
+}
+
+// Helpers para compatibilidade (objetos novos e strings legadas)
+function traitName(t) { return typeof t === 'object' ? t.name : t; }
+function traitMechanic(t) { return typeof t === 'object' ? t.mechanic : 'Traço passivo do elemento.'; }
+
+// ════════════════════════════════════════════════════════════
+//  PERIGOSITY
+// ════════════════════════════════════════════════════════════
+function getPerigo(stage, level) {
+  const s = {bebe:'Inofensivo',crianca:'Inofensivo',adulto:'Cauteloso',perfeito:'Perigoso',final:'Muito Perigoso'};
+  let p = s[stage] || 'Cauteloso';
+  if (level >= 25) p = 'Lendário';
+  else if (level >= 20) p = 'Muito Perigoso';
+  else if (level >= 15) p = 'Perigoso';
+  else if (level >= 10) p = 'Cauteloso';
+  const colors = {'Inofensivo':'var(--p-inof)','Cauteloso':'var(--p-caut)','Perigoso':'var(--p-peri)','Muito Perigoso':'var(--p-muit)','Lendário':'var(--p-lend)'};
+  return { label: p, color: colors[p] || 'var(--p-caut)' };
+}
+
+// ════════════════════════════════════════════════════════════
+//  MAIN GENERATE
+// ════════════════════════════════════════════════════════════
+function generate() {
+  const name    = document.getElementById('digi-name').value.trim() || 'Digimon Desconhecido';
+  const stage   = currentStage;
+  const level   = parseInt(document.getElementById('digi-level').value);
+  const attrs   = getSelected('attr-tags');
+  const elems   = getSelected('elem-tags');
+  const species = getSelected('species-tags');
+  const style   = getSelected('style-tags')[0] || 'AGRESSIVO';
+  const personaSel = getSelected('persona-tags')[0] || 'ALEATÓRIO';
+  const arqSel  = getSelected('arq-tags')[0] || 'POTÊNCIA';
+
+  const attr    = attrs[0] || 'LIVRE';
+  const elemList = elems.length > 0 ? elems : ['NEUTRO'];
+  const speciesList = species[0] || 'HUMANOIDE';
+  const persona = pickPersona(personaSel);
+
+  renderResult(name, stage, level, attr, elemList, speciesList, style, persona, arqSel);
+}
+
+function generatePowers() {
+  const name    = document.getElementById('digi-name').value.trim() || 'Digimon Desconhecido';
+  const stage   = currentStage;
+  const level   = parseInt(document.getElementById('digi-level').value);
+  const elems   = getSelected('elem-tags');
+  const style   = getSelected('style-tags')[0] || 'AGRESSIVO';
+  const elemList = elems.length > 0 ? elems : ['NEUTRO'];
+
+  // Only regenerate the powers section
+  const sd = STAGE_DATA[stage];
+  const pool = getPowerPool(elemList);
+
+  // Mantém poderes fixados (🔒), até o limite de slots do estágio
+  const locked = currentPowers.filter(p => lockedPowerNames.has(p.name)).slice(0, sd.pows);
+  const lockedNames = locked.map(p => p.name);
+  const remainingSlots = sd.pows - locked.length;
+  const available = pool.filter(p => !lockedNames.includes(p.name));
+  const shuffled = available.sort(() => Math.random() - .5).slice(0, remainingSlots);
+  const chosen = [...locked, ...shuffled];
+
+  currentPowers = chosen;
+  if (currentSheet) currentSheet.powers = chosen;
+
+  const container = document.getElementById('powers-section');
+  if (!container) { generate(); return; }
+
+  let html = '';
+  chosen.forEach((p,i) => {
+    html += renderPowerCard(p, i+1, stage, elemList, level, sd);
+  });
+  container.innerHTML = `<div class="powers-grid">${html}</div>`;
+}
+
+function randomize() {
+  // Random name
+  const prefixes = ['Agni','Hydro','Cryo','Volt','Terra','Silva','Umbra','Lux','Ferro','Vento','Magna','Pyro','Giga','Neo','Chaos'];
+  const suffixes = ['mon','dramon','myotis','garurumon','tyranno','omon','remon','smon','demon','angel'];
+  document.getElementById('digi-name').value = pick(prefixes) + pick(suffixes);
+
+  // Random stage
+  const stages = ['bebe','crianca','adulto','perfeito','final'];
+  const rStage = pick(stages);
+  setStage(rStage);
+
+  // Random level within stage range
+  const ranges = {bebe:[1,4],crianca:[2,8],adulto:[5,15],perfeito:[12,22],final:[18,30]};
+  const [mn,mx] = ranges[rStage];
+  const rLvl = rng(mn,mx);
+  document.getElementById('digi-level').value = rLvl;
+  document.getElementById('level-val').textContent = rLvl;
+
+  // Random attr
+  const attrBtns = [...document.querySelectorAll('#attr-tags .tag-btn')];
+  attrBtns.forEach(b => b.classList.remove('active'));
+  pick(attrBtns).classList.add('active');
+
+  // Random elements (1-2)
+  const elemBtns = [...document.querySelectorAll('#elem-tags .tag-btn')];
+  elemBtns.forEach(b => b.classList.remove('active'));
+  const numElems = rng(1,2);
+  pickN(elemBtns, numElems).forEach(b => b.classList.add('active'));
+
+  // Random species
+  const speciesBtns = [...document.querySelectorAll('#species-tags .tag-btn')];
+  speciesBtns.forEach(b => b.classList.remove('active'));
+  pick(speciesBtns).classList.add('active');
+
+  // Random style
+  const styleBtns = [...document.querySelectorAll('#style-tags .tag-btn')];
+  styleBtns.forEach(b => b.classList.remove('active'));
+  pick(styleBtns).classList.add('active');
+
+  // Random persona (traço de personalidade)
+  const personaBtns = [...document.querySelectorAll('#persona-tags .tag-btn')];
+  personaBtns.forEach(b => b.classList.remove('active'));
+  pick(personaBtns).classList.add('active');
+
+  // Random archetype
+  const arqBtns = [...document.querySelectorAll('#arq-tags .tag-btn')];
+  arqBtns.forEach(b => b.classList.remove('active'));
+  pick(arqBtns).classList.add('active');
+
+  // Random item toggle (60% de chance de vir com item)
+  itemEnabled = Math.random() < 0.6;
+  document.getElementById('item-toggle').classList.toggle('on', itemEnabled);
+
+  // Random wild toggle (35% de chance de ser Selvagem — a maioria continua sendo de Treinador)
+  isWildEnabled = Math.random() < 0.35;
+  document.getElementById('wild-toggle').classList.toggle('on', isWildEnabled);
+
+  updateElemHint();
+  generate();
+}
+
+function renderPowerCard(p, idx, stage, elemList, level, sd) {
+  const rank = sd.rank;
+  const col = sd.color;
+  const isLocked = lockedPowerNames.has(p.name);
+  const effectsHtml = p.effects.map((ef,ei) =>
+    `<div class="effect-row"><span class="effect-num">Ef.${ei+1}</span><span class="effect-text">${ef}</span></div>`
+  ).join('');
+
+  // ── Cálculo do dado de ataque real ──────────────────────────────────────
+  // Usa o atributo ativo da ficha atual (Físico para corpo-a-corpo, Habilidade para distância/poderes)
+  // Detecta se o poder é mais físico ou habilidade pelo texto dos efeitos
+  const descLower = (p.desc + p.effects.join(' ')).toLowerCase();
+  const isHabilidade = /habilidade|distância|projétil|precisão|disparo|raio|jato|lança/i.test(descLower);
+  const attrKey = isHabilidade ? 'habilidade' : 'fisico';
+  const attrLabel = isHabilidade ? 'Habilidade' : 'Físico';
+
+  // Tenta pegar dado da ficha atual; fallback para baseDice do estágio
+  let baseDiceForPower = sd.baseDice;
+  if (currentSheet && currentSheet.attrsData && currentSheet.attrsData[attrKey]) {
+    baseDiceForPower = currentSheet.attrsData[attrKey].dice;
+  }
+
+  // ── Bônus de traços relevantes ──────────────────────────────────────────
+  const traitBonuses = [];
+  if (currentSheet && currentSheet.traits) {
+    currentSheet.traits.forEach(t => {
+      const tn = traitName(t).toLowerCase();
+      const tm = traitMechanic(t).toLowerCase();
+      // Traços que adicionam dado extra no ataque ou dano
+      if (/\+1 dado em físico/i.test(tm) && attrKey === 'fisico')   traitBonuses.push({ src: traitName(t), bonus: '+1d dado em Físico' });
+      if (/\+1 dado em habilidade/i.test(tm) && attrKey === 'habilidade') traitBonuses.push({ src: traitName(t), bonus: '+1d dado em Habilidade' });
+      if (/\+2 de dano/i.test(tm))   traitBonuses.push({ src: traitName(t), bonus: '+2 dano' });
+      if (/\+1 de dano/i.test(tm))   traitBonuses.push({ src: traitName(t), bonus: '+1 dano' });
+      if (/corpo incandescente/i.test(tn) && attrKey === 'fisico') traitBonuses.push({ src: 'Corpo Incandescente', bonus: '+2 dano (corpo-a-corpo)' });
+      if (/toxinas passivas/i.test(tn)) traitBonuses.push({ src: 'Toxinas Passivas', bonus: '+1 veneno/turno por 2t' });
+      if (/veneno passivo/i.test(tn))   traitBonuses.push({ src: 'Veneno Passivo', bonus: '+2 veneno/turno por 3t' });
+      if (/envenenamento passivo/i.test(tn)) traitBonuses.push({ src: 'Envenenamento Passivo', bonus: '+3 veneno/turno por 2t' });
+      if (/drenar energia passivo/i.test(tn)) traitBonuses.push({ src: 'Drenar Energia Passivo', bonus: '+2 HP recuperado por acerto' });
+    });
+  }
+
+  // Bônus de triângulo de atributos (mostra dica)
+  const attrTypeBonus = currentSheet ? currentSheet.attr : '';
+  let triangleHint = '';
+  if (attrTypeBonus === 'VACINA')   triangleHint = '+2 dano vs VÍRUS';
+  else if (attrTypeBonus === 'VÍRUS') triangleHint = '+2 dano vs DADO';
+  else if (attrTypeBonus === 'DADO')  triangleHint = '+2 dano vs VACINA  (+1d Inteligência)';
+
+  // Monta linha de dado + bônus
+  const bonusLines = traitBonuses.map(b =>
+    `<span style="color:var(--green);font-size:10px;font-family:Share Tech Mono,monospace">+ ${b.bonus} <span style="color:var(--dim)">[${b.src}]</span></span>`
+  ).join('');
+  const triangleLine = triangleHint
+    ? `<span style="color:var(--gold);font-size:10px;font-family:Share Tech Mono,monospace">⊕ ${triangleHint} <span style="color:var(--dim)">[Triângulo]</span></span>`
+    : '';
+
+  return `<div class="power-card ${isLocked?'locked':''}" style="border-left-color:${col}" data-power-name="${p.name.replace(/"/g,'&quot;')}">
+    <div class="power-top">
+      <div class="power-name" style="color:${col}">${p.name}</div>
+      <div style="display:flex;gap:6px;align-items:flex-start">
+        <button class="lock-btn ${isLocked?'is-locked':''}" title="Fixar poder (não muda ao 'Retirar Poderes')" onclick="togglePowerLock('${p.name.replace(/'/g,"\\'")}')">${isLocked?'🔒':'🔓'}</button>
+        <div class="power-badges">
+          <span class="badge" style="color:${col};border-color:${col}">${sd.label}</span>
+          <span class="badge" style="color:var(--gold);border-color:rgba(201,168,76,0.5)">Rank ${rank}</span>
+          <span class="badge" style="color:var(--dim);border-color:var(--border)">${elemList.join('/')}</span>
+        </div>
+      </div>
+    </div>
+    <p class="power-desc">${p.desc}</p>
+    <div class="power-effects">${effectsHtml}</div>
+    <div class="power-footer" style="flex-direction:column;align-items:flex-start;gap:6px">
+      <div style="display:flex;justify-content:space-between;width:100%;flex-wrap:wrap;gap:4px">
+        <span class="power-uses">⊙ ${p.uses}</span>
+        <span class="power-dmg" style="display:flex;align-items:center;gap:6px">
+          <span style="color:var(--dim);font-size:10px;font-family:Share Tech Mono,monospace">${attrLabel}:</span>
+          <strong>${baseDiceForPower}</strong>
+        </span>
+      </div>
+      ${bonusLines || triangleLine ? `<div style="display:flex;flex-wrap:wrap;gap:4px;padding-top:4px;border-top:1px solid var(--border)">${bonusLines}${triangleLine}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+// ════════════════════════════════════════════════════════════
+//  RENDER HELPERS — Item, Traço de Personalidade, Arquétipo, Elemento
+// ════════════════════════════════════════════════════════════
+function renderItemHtml(item) {
+  if (!item) {
+    return `<div class="item-none-box">Este Digimon não está equipado com nenhum item no momento. Ative "Digimon vem com item equipado?" na barra lateral e gere novamente para sortear um.</div>`;
+  }
+  return `<div class="item-card-gen">
+    <div class="item-top-gen">
+      <span class="item-name-gen">${item.name}</span>
+      <span class="item-rarity-gen">${item.rarity}</span>
+    </div>
+    <p class="item-desc-gen">${item.desc}</p>
+    <div class="item-effect-gen"><strong>Efeito:</strong> ${item.effect}</div>
+  </div>`;
+}
+
+function renderPersonaHtml(personaKey) {
+  const p = PERSONA_TRAITS[personaKey];
+  if (!p) return '';
+  return `<div class="persona-card">
+    <div class="persona-name">☆ ${personaKey}</div>
+    <p class="persona-desc">${p.desc}</p>
+    <div class="persona-skill"><strong>Habilidade de Traço:</strong> ${p.skill}</div>
+  </div>`;
+}
+
+function renderArchetypeHtml(arq, stage, sd) {
+  const arqPts = sd.arqPts;
+  if (arqPts <= 0 || !arq) {
+    return `<div class="no-arq-note">Na E1 (Bebê) o Digimon ainda não recebe Pontos de Arquétipo. A classe escolhida funciona apenas como um indicativo narrativo ("Talento Latente") de qual identidade de combate ele provavelmente desenvolverá a partir da E2.</div>`;
+  }
+  const stageLabelByPts = {1:'E2 Criança',2:'E3 Adulto',3:'E4 Perfeito',4:'E5 Final'};
+  let html = `<div class="arq-class-badge">${arq.mainClass === 'MISTO' ? '◈ MISTO (multiclasse)' : '◈ ' + arq.mainClass}</div>
+  <div class="arq-pts-note">${arqPts} pt(s) de Arquétipo investidos até ${stageLabelByPts[arqPts] || 'este estágio'} · ${arq.talents.length} talento(s) comprado(s)</div>`;
+  html += arq.talents.map(t => `
+    <div class="talent-card-gen">
+      <div class="talent-top-gen">
+        <span class="talent-name-gen">${t.name}</span>
+        <span class="talent-stage-tag">${t.classe}</span>
+      </div>
+      <div class="talent-desc-gen">${t.desc}</div>
+    </div>`).join('');
+  if (arq.capstoneUnlocked && arq.capstone) {
+    html += `
+    <div class="talent-card-gen capstone-gen">
+      <div class="talent-top-gen">
+        <span class="talent-name-gen">${arq.capstone.name}</span>
+        <span class="talent-stage-tag">CLASSE COMPLETA</span>
+      </div>
+      <div class="talent-desc-gen">${arq.capstone.desc}</div>
+    </div>`;
+  }
+  return html;
+}
+
+function renderElementInfoHtml(elemList) {
+  return elemList.map(e => {
+    const info = ELEMENT_INFO[e];
+    if (!info) return '';
+    return `<div class="elem-info-card">
+      <div class="elem-info-name">${e}</div>
+      <p class="elem-info-desc">${info.desc}</p>
+      <div class="elem-info-tags">
+        ${info.vantagens.map(v => `<span class="elem-tag-v">▲ ${v}</span>`).join('')}
+        ${info.fraquezas.map(f => `<span class="elem-tag-f">▼ ${f}</span>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+//  BÔNUS NUMÉRICOS — extrai e aplica bônus reais de Item + Arquétipo
+//  (HP máximo, Pontos de Atributo extra, RD, dano fixo, regen)
+//  Sem isso os efeitos descritos nos cards eram só texto decorativo.
+// ════════════════════════════════════════════════════════════
+function computeBonuses(item, archetype, sd) {
+  const b = { hp: 0, rd: 0, attrPts: 0, fixedDmg: 0, regenBonus: 0, sources: [] };
+
+  // ── Bônus de Item equipado ──
+  if (item) {
+    const eff = item.effect;
+    let m;
+    if ((m = eff.match(/\+(\d+)\s*HP\s*m[áa]ximo/i))) { b.hp += parseInt(m[1],10); b.sources.push(`${item.name}: +${m[1]} HP máx.`); }
+    if ((m = eff.match(/RD\s*(\d+)\s*permanente/i)))   { b.rd += parseInt(m[1],10); b.sources.push(`${item.name}: RD +${m[1]}`); }
+    if ((m = eff.match(/RD\s*(\d+)\s*(?:e\s)?(?!permanente)/i)) && !/RD\s*\d+\s*permanente/i.test(eff)) {
+      // captura "RD 6 e +2 dados..." (Capacete de Chrome Digizoid)
+      b.rd += parseInt(m[1],10); b.sources.push(`${item.name}: RD +${m[1]}`);
+    }
+    if ((m = eff.match(/causam?\s*\+(\d+)\s*de\s*dano\s*fixo/i))) { b.fixedDmg += parseInt(m[1],10); b.sources.push(`${item.name}: +${m[1]} dano fixo`); }
+    if ((m = eff.match(/\+(\d+)\s*em\s*F[íi]sico\s*ou\s*Sentidos/i))) { b.attrPts += 0; b.sources.push(`${item.name}: +${m[1]} em Físico ou Sentidos (escolha ao equipar)`); }
+  }
+
+  // ── Bônus de talentos de Arquétipo ──
+  if (archetype && archetype.talents) {
+    archetype.talents.forEach(t => {
+      if (t.name === 'Colosso') {
+        b.attrPts += 2 * sd.arqPts; // +2 Pontos de Atributo extra por estágio já decorrido (acumulado)
+        b.sources.push(`Colosso: +${2 * sd.arqPts} Pontos de Atributo (acumulado)`);
+      }
+    });
+    if (archetype.capstoneUnlocked && archetype.capstone && /Inquebrável/i.test(archetype.capstone.name)) {
+      const barrier = 5 * sd.rank; // +5 HP por estágio atual, usando rank (1..4) como proxy de "estágio atual" em combate
+      b.sources.push(`Inquebrável: barreira de +${5 * (['bebe','crianca','adulto','perfeito','final'].indexOf(sd.cls)+1)} HP no início de cada combate (não soma ao HP máximo)`);
+    }
+  }
+
+  return b;
+}
+
+// ════════════════════════════════════════════════════════════
+//  DIGIMON SELVAGEM — mais forte que Digimon de Treinador.
+//  Ganha: (1) RD aleatória escalando com o estágio ("Habilidade Selvagem:
+//  Redução de Dano Aumentada!") e (2) +2 dados extra (upgrades de lado de
+//  dado) num atributo sorteado entre Físico, Habilidade ou Movimento.
+// ════════════════════════════════════════════════════════════
+const WILD_RD_RANGE = {
+  bebe:     [10, 30],
+  crianca:  [10, 50],
+  adulto:   [10, 70],
+  perfeito: [10, 85],
+  final:    [10, 100],
+};
+const WILD_BONUS_ATTRS = ['fisico', 'habilidade', 'movimento'];
+const WILD_BONUS_ATTR_LABEL = { fisico: 'Físico', habilidade: 'Habilidade', movimento: 'Movimento' };
+
+function generateWildTrait(stage) {
+  const [min, max] = WILD_RD_RANGE[stage] || WILD_RD_RANGE.final;
+  const rd = rng(min, max);
+  const bonusAttrKey = pick(WILD_BONUS_ATTRS);
+  return { rd, bonusAttrKey, bonusAttrLabel: WILD_BONUS_ATTR_LABEL[bonusAttrKey] };
+}
+
+function renderWildHtml(wild) {
+  if (!wild) return '';
+  return `<div class="item-card-gen" style="border-left-color:var(--red)">
+    <div class="item-top-gen">
+      <span class="item-name-gen" style="color:var(--red)">🐾 Habilidade Selvagem: Redução de Dano Aumentada!</span>
+      <span class="item-rarity-gen" style="color:var(--red);border-color:var(--red)">SELVAGEM</span>
+    </div>
+    <p class="item-desc-gen">Digimon Selvagens crescem sem o vínculo e o refino de um parceiro, mas sobrevivem sozinhos na Cyberede — o que os torna naturalmente mais resistentes e brutais em combate do que os Digimon de Treinador.</p>
+    <div class="item-effect-gen">
+      <strong>RD ${wild.rd}</strong> permanente contra todo tipo de dano (sorteada para este estágio).<br>
+      <strong>+2 dados extra</strong> (upgrades de lado de dado) em <strong>${wild.bonusAttrLabel}</strong>, além da distribuição normal de pontos.
+    </div>
+  </div>`;
+}
+
+function renderResult(name, stage, level, attr, elemList, species, style, persona, arqSel) {
+  const sd = STAGE_DATA[stage];
+  const perigo = getPerigo(stage, level);
+  const carga = getCarga(stage);
+  const col = sd.color;
+
+  // Powers — mantém poderes fixados (🔒) entre estágios/elementos diferentes
+  const pool = getPowerPool(elemList);
+  const locked = currentPowers.filter(p => lockedPowerNames.has(p.name)).slice(0, sd.pows);
+  const lockedNames = locked.map(p => p.name);
+  const remainingSlots = sd.pows - locked.length;
+  const available = pool.filter(p => !lockedNames.includes(p.name));
+  const rolled = available.sort(() => Math.random() - .5).slice(0, remainingSlots);
+  const chosen = [...locked, ...rolled];
+  currentPowers = chosen;
+  let powersHtml = chosen.map((p,i) => renderPowerCard(p, i+1, stage, elemList, level, sd)).join('');
+
+  // Traits (passive — afinidades elementais)
+  const traitPool = getTraits(elemList);
+  const numTraits = {bebe:1,crianca:2,adulto:3,perfeito:4,final:5}[stage] || 2;
+  const chosenTraits = traitPool.sort(() => Math.random() - .5).slice(0, numTraits);
+  const traitsHtml = chosenTraits.map(t =>
+    `<div class="trait-card"><div class="trait-name">◆ ${traitName(t)}</div><div class="trait-desc">${traitMechanic(t)}</div></div>`
+  ).join('');
+
+  // Traço de Personalidade (buff único)
+  const personaKey = persona || pick(Object.keys(PERSONA_TRAITS));
+  const personaHtml = renderPersonaHtml(personaKey);
+
+  // Arquétipo (talentos de combate) — calculado ANTES dos atributos, pois "Colosso" injeta pontos extra
+  const archetype = generateArchetype(arqSel, sd.arqPts);
+  const archetypeHtml = renderArchetypeHtml(archetype, stage, sd);
+
+  // Item equipado (opcional)
+  const item = itemEnabled ? generateItem() : null;
+  const itemHtml = renderItemHtml(item);
+
+  // Digimon Selvagem (opcional) — mais forte que Digimon de Treinador:
+  // RD aleatória escalando com estágio + 2 dados extra num atributo sorteado
+  const wild = isWildEnabled ? generateWildTrait(stage) : null;
+  const wildHtml = renderWildHtml(wild);
+  const wildBonusForAttrs = wild ? { attrKey: wild.bonusAttrKey } : null;
+
+  // Bônus numéricos reais de Item + Arquétipo (HP, RD, pontos extra, dano fixo)
+  const bonuses = computeBonuses(item, archetype, sd);
+  if (wild) {
+    bonuses.rd += wild.rd;
+    bonuses.sources.push(`Habilidade Selvagem: RD +${wild.rd}`);
+    bonuses.sources.push(`Habilidade Selvagem: +2 dados em ${wild.bonusAttrLabel}`);
+  }
+
+  // Attributes (computado uma única vez, reaproveitado na tabela e no texto de exportação)
+  // bônus de Pontos de Atributo (ex.: talento Colosso) e o bônus direto de dados (Selvagem) entram na geração real
+  const attrsData = generateAttrs(stage, style, level, bonuses.attrPts, wildBonusForAttrs);
+  const attrHtml = renderAttrTable(stage, style, level, attrsData, bonuses.attrPts);
+
+  // HP final = HP base do estágio + bônus de itens equipados
+  const hpFinal = sd.hp + bonuses.hp;
+
+  // Info de elemento (descrição oficial + vantagens/fraquezas)
+  const elemInfoHtml = renderElementInfoHtml(elemList);
+
+  // dice chain visual for current stage
+  const stageKeys = ['bebe','crianca','adulto','perfeito','final'];
+  const stageLabels = ['E1','E2','E3','E4','E5'];
+  const currentIdx = stageKeys.indexOf(stage);
+  const chainHtml = DICE_CHAIN.map((d,i) => {
+    const isActive = i <= currentIdx;
+    return `<span class="dice-pip ${isActive?'active-dice':''}">${d}</span>`;
+  }).join('<span style="color:var(--dim);font-size:10px">→</span>');
+
+  // Salva a ficha atual para "Copiar como Texto" e para o Histórico
+  currentSheet = { name, stage, sd, level, attr, elemList, species, style, perigo, carga, attrsData, traits: chosenTraits, powers: chosen, persona: personaKey, archetype, item, itemEnabled, bonuses, hpFinal, wild, isWildEnabled };
+  pushHistory(currentSheet);
+
+  const html = `
+<div class="digi-header border-${stage}" style="border-top-color:${col}">
+  <div>
+    <div class="digi-name-big" style="color:${col}">${name}</div>
+    <div class="digi-meta">
+      <span class="meta-tag" style="color:${col};border-color:${col}">${sd.label}</span>
+      <span class="meta-tag" style="color:var(--gold);border-color:rgba(201,168,76,.4)">Nível ${level}</span>
+      <span class="meta-tag" style="color:var(--text);border-color:var(--border)">${attr}</span>
+      ${elemList.map(e=>`<span class="meta-tag" style="color:var(--cyan);border-color:rgba(62,207,207,.4)">${e}</span>`).join('')}
+      <span class="meta-tag" style="color:var(--dim);border-color:var(--border)">${species}</span>
+      <span class="meta-tag" style="color:var(--orange);border-color:rgba(232,147,74,.4)">${style}</span>
+      <span class="meta-tag" style="color:var(--traco-pers);border-color:rgba(232,106,154,.4)">☆ ${personaKey}</span>
+      ${wild ? `<span class="meta-tag" style="color:var(--red);border-color:var(--red)">🐾 SELVAGEM</span>` : `<span class="meta-tag" style="color:var(--dim);border-color:var(--border)">DE TREINADOR</span>`}
+    </div>
+    <div style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="font-family:Share Tech Mono,monospace;font-size:10px;color:var(--dim)">Dados:</span>
+      ${chainHtml}
+    </div>
+  </div>
+  <div class="digi-header-right">
+    <div class="hp-label">HP BASE${bonuses.hp > 0 ? ' + ITEM' : ''}</div>
+    <div class="hp-display">${hpFinal}${bonuses.hp > 0 ? `<span style="font-size:14px;color:var(--item-cor)"> (${sd.hp}+${bonuses.hp})</span>` : ''}</div>
+    ${bonuses.rd > 0 ? `<div class="hp-label" style="margin-bottom:2px;color:${wild ? 'var(--red)' : 'var(--item-cor)'}">RD ${bonuses.rd}${wild ? ' (selvagem' + (item ? ' + item' : '') + ')' : ' (equipamento)'}</div>` : ''}
+    <div class="hp-label" style="margin-bottom:6px">${bonuses.sources.length ? '' : '+ bônus de equipamentos (nenhum ativo)'}</div>
+    <div class="perigo-display" style="color:${perigo.color};border-color:${perigo.color}">${perigo.label}</div>
+    <div class="carga-display">
+      <span style="color:var(--cyan)">⚡ Carga: ${carga.max}</span>
+      <span class="carga-sub">regen ${carga.regen}/turno · custo = pts×4</span>
+    </div>
+  </div>
+</div>
+
+${bonuses.sources.length ? `
+<div class="section-block">
+  <div class="section-title" style="color:var(--item-cor)">BÔNUS ATIVOS <span style="font-size:10px;color:var(--dim);font-family:Share Tech Mono,monospace"> — aplicados de Origem, Item e Arquétipo</span></div>
+  <div class="traits-grid">${bonuses.sources.map(s => `<div class="trait-card"><div class="trait-desc">✦ ${s}</div></div>`).join('')}</div>
+</div>` : ''}
+
+${wild ? `
+<div class="section-block">
+  <div class="section-title" style="color:var(--red)">ORIGEM <span style="font-size:10px;color:var(--dim);font-family:Share Tech Mono,monospace"> — Digimon Selvagem (mais forte que Digimon de Treinador)</span></div>
+  ${wildHtml}
+</div>` : ''}
+
+<div class="section-block">
+  <div class="section-title" style="color:${col}">ATRIBUTOS — ${sd.label}</div>
+  ${attrHtml}
+</div>
+
+<div class="section-block">
+  <div class="section-title" style="color:var(--cyan)">ELEMENTO(S) <span style="font-size:10px;color:var(--dim);font-family:Share Tech Mono,monospace"> — afinidades, vantagens e fraquezas</span></div>
+  <div class="elem-info-grid">${elemInfoHtml}</div>
+</div>
+
+<div class="section-block">
+  <div class="section-title" style="color:${col}">AFINIDADES PASSIVAS DE ELEMENTO</div>
+  <div class="traits-grid">${traitsHtml}</div>
+</div>
+
+<div class="section-block">
+  <div class="section-title" style="color:var(--traco-pers)">TRAÇO DE PERSONALIDADE <span style="font-size:10px;color:var(--dim);font-family:Share Tech Mono,monospace"> — buff único de comportamento</span></div>
+  ${personaHtml}
+</div>
+
+<div class="section-block">
+  <div class="section-title" style="color:var(--arquetipo)">ARQUÉTIPO DE COMBATE <span style="font-size:10px;color:var(--dim);font-family:Share Tech Mono,monospace"> — talentos fixos por Digievolução</span></div>
+  ${archetypeHtml}
+</div>
+
+<div class="section-block">
+  <div class="section-title" style="color:var(--item-cor)">EQUIPAMENTO</div>
+  ${itemHtml}
+</div>
+
+<div class="section-block">
+  <div class="section-title" style="color:${col}">PODERES ESPECIAIS <span style="font-size:10px;color:var(--dim);font-family:Share Tech Mono,monospace"> — ${sd.pows} poder(es) para este estágio</span></div>
+  <div id="powers-section">
+    <div class="powers-grid">${powersHtml}</div>
+  </div>
+  <button class="btn btn-secondary" onclick="generatePowers()" style="margin-top:12px;width:auto;padding:8px 16px">🎲 Retirar Poderes</button>
+</div>
+
+<div class="section-block" style="background:transparent;border:none;padding:0">
+  <p class="info">Gerado automaticamente com base nas regras do DigiRider RPG. Os poderes podem ser ajustados pelo Mestre durante a sessão.</p>
+</div>`;
+
+  document.getElementById('empty-state').style.display = 'none';
+  const result = document.getElementById('result');
+  result.classList.add('visible');
+  result.innerHTML = html;
+}
+
+// ════════════════════════════════════════════════════════════
+//  HISTÓRICO DA SESSÃO (em memória — não persiste ao recarregar a página)
+// ════════════════════════════════════════════════════════════
+function pushHistory(sheet) {
+  history.unshift(sheet);
+  if (history.length > HISTORY_MAX) history = history.slice(0, HISTORY_MAX);
+  renderHistoryList();
+}
+
+function renderHistoryList() {
+  const wrap = document.getElementById('history-wrap');
+  const list = document.getElementById('history-list');
+  if (history.length === 0) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  list.innerHTML = history.map((s, i) => `
+    <div class="history-chip" onclick="loadFromHistory(${i})">
+      <span class="hc-name">${s.name}</span>
+      <span class="hc-meta">${s.sd.label.replace('E','E')} · Nv.${s.level}</span>
+    </div>`).join('');
+}
+
+function loadFromHistory(idx) {
+  const s = history[idx];
+  if (!s) return;
+
+  document.getElementById('digi-name').value = s.name;
+  setStage(s.stage);
+  document.getElementById('digi-level').value = s.level;
+  document.getElementById('level-val').textContent = s.level;
+
+  const setSingle = (groupId, value) => {
+    document.querySelectorAll(`#${groupId}-tags .tag-btn`).forEach(b => {
+      b.classList.toggle('active', b.textContent === value);
+    });
+  };
+  setSingle('attr', s.attr);
+  setSingle('species', s.species);
+  setSingle('style', s.style);
+  if (s.persona) setSingle('persona', s.persona);
+  if (s.archetype && s.archetype.mainClass) {
+    setSingle('arq', s.archetype.mainClass === 'MISTO' ? 'MISTO (ALEATÓRIO)' : s.archetype.mainClass);
+  }
+  itemEnabled = !!s.itemEnabled;
+  const itemToggleEl = document.getElementById('item-toggle');
+  if (itemToggleEl) itemToggleEl.classList.toggle('on', itemEnabled);
+  isWildEnabled = !!s.isWildEnabled;
+  const wildToggleEl = document.getElementById('wild-toggle');
+  if (wildToggleEl) wildToggleEl.classList.toggle('on', isWildEnabled);
+  document.querySelectorAll('#elem-tags .tag-btn').forEach(b => {
+    b.classList.toggle('active', s.elemList.includes(b.textContent));
+  });
+  updateElemHint();
+
+  // Recarrega exatamente os poderes/traços que estavam nessa ficha (sem re-rolar)
+  currentPowers = s.powers;
+  lockedPowerNames = new Set(s.powers.map(p => p.name).filter(n => lockedPowerNames.has(n)));
+  renderResultFromSheet(s);
+}
+
+// Re-renderiza uma ficha já existente (histórico) sem rolar nada de novo
+function renderResultFromSheet(s) {
+  const sd = s.sd;
+  const col = sd.color;
+  const powersHtml = s.powers.map((p,i) => renderPowerCard(p, i+1, s.stage, s.elemList, s.level, sd)).join('');
+  const traitsHtml = s.traits.map(t =>
+    `<div class="trait-card"><div class="trait-name">◆ ${traitName(t)}</div><div class="trait-desc">${traitMechanic(t)}</div></div>`
+  ).join('');
+  // Compatibilidade: fichas de histórico geradas antes da correção de bônus podem não ter `bonuses`/`hpFinal`/`wild`
+  const wild = (typeof s.wild !== 'undefined') ? s.wild : null;
+  const wildHtml = renderWildHtml(wild);
+  const bonuses = s.bonuses || computeBonuses(s.item, s.archetype, sd);
+  const hpFinal = (typeof s.hpFinal === 'number') ? s.hpFinal : sd.hp + bonuses.hp;
+  const attrHtml = renderAttrTable(s.stage, s.style, s.level, s.attrsData, bonuses.attrPts);
+  const elemInfoHtml = renderElementInfoHtml(s.elemList);
+  const personaHtml = renderPersonaHtml(s.persona || 'MISTERIOSO');
+  const archetypeHtml = renderArchetypeHtml(s.archetype, s.stage, sd);
+  const itemHtml = renderItemHtml(s.item);
+  const stageKeys = ['bebe','crianca','adulto','perfeito','final'];
+  const currentIdx = stageKeys.indexOf(s.stage);
+  const chainHtml = DICE_CHAIN.map((d,i) => {
+    const isActive = i <= currentIdx;
+    return `<span class="dice-pip ${isActive?'active-dice':''}">${d}</span>`;
+  }).join('<span style="color:var(--dim);font-size:10px">→</span>');
+
+  currentSheet = s;
+
+  const html = `
+<div class="digi-header border-${s.stage}" style="border-top-color:${col}">
+  <div>
+    <div class="digi-name-big" style="color:${col}">${s.name}</div>
+    <div class="digi-meta">
+      <span class="meta-tag" style="color:${col};border-color:${col}">${sd.label}</span>
+      <span class="meta-tag" style="color:var(--gold);border-color:rgba(201,168,76,.4)">Nível ${s.level}</span>
+      <span class="meta-tag" style="color:var(--text);border-color:var(--border)">${s.attr}</span>
+      ${s.elemList.map(e=>`<span class="meta-tag" style="color:var(--cyan);border-color:rgba(62,207,207,.4)">${e}</span>`).join('')}
+      <span class="meta-tag" style="color:var(--dim);border-color:var(--border)">${s.species}</span>
+      <span class="meta-tag" style="color:var(--orange);border-color:rgba(232,147,74,.4)">${s.style}</span>
+      ${s.persona ? `<span class="meta-tag" style="color:var(--traco-pers);border-color:rgba(232,106,154,.4)">☆ ${s.persona}</span>` : ''}
+      ${wild ? `<span class="meta-tag" style="color:var(--red);border-color:var(--red)">🐾 SELVAGEM</span>` : `<span class="meta-tag" style="color:var(--dim);border-color:var(--border)">DE TREINADOR</span>`}
+    </div>
+    <div style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="font-family:Share Tech Mono,monospace;font-size:10px;color:var(--dim)">Dados:</span>
+      ${chainHtml}
+    </div>
+  </div>
+  <div class="digi-header-right">
+    <div class="hp-label">HP BASE${bonuses.hp > 0 ? ' + ITEM' : ''}</div>
+    <div class="hp-display">${hpFinal}${bonuses.hp > 0 ? `<span style="font-size:14px;color:var(--item-cor)"> (${sd.hp}+${bonuses.hp})</span>` : ''}</div>
+    ${bonuses.rd > 0 ? `<div class="hp-label" style="margin-bottom:2px;color:${wild ? 'var(--red)' : 'var(--item-cor)'}">RD ${bonuses.rd}${wild ? ' (selvagem' + (s.item ? ' + item' : '') + ')' : ' (equipamento)'}</div>` : ''}
+    <div class="hp-label" style="margin-bottom:6px">${bonuses.sources.length ? '' : '+ bônus de equipamentos (nenhum ativo)'}</div>
+    <div class="perigo-display" style="color:${s.perigo.color};border-color:${s.perigo.color}">${s.perigo.label}</div>
+    <div class="carga-display">
+      <span style="color:var(--cyan)">⚡ Carga: ${s.carga.max}</span>
+      <span class="carga-sub">regen ${s.carga.regen}/turno · custo = pts×4</span>
+    </div>
+  </div>
+</div>
+
+${bonuses.sources.length ? `
+<div class="section-block">
+  <div class="section-title" style="color:var(--item-cor)">BÔNUS ATIVOS <span style="font-size:10px;color:var(--dim);font-family:Share Tech Mono,monospace"> — aplicados de Origem, Item e Arquétipo</span></div>
+  <div class="traits-grid">${bonuses.sources.map(src => `<div class="trait-card"><div class="trait-desc">✦ ${src}</div></div>`).join('')}</div>
+</div>` : ''}
+
+${wild ? `
+<div class="section-block">
+  <div class="section-title" style="color:var(--red)">ORIGEM <span style="font-size:10px;color:var(--dim);font-family:Share Tech Mono,monospace"> — Digimon Selvagem (mais forte que Digimon de Treinador)</span></div>
+  ${wildHtml}
+</div>` : ''}
+
+<div class="section-block">
+  <div class="section-title" style="color:${col}">ATRIBUTOS — ${sd.label}</div>
+  ${attrHtml}
+</div>
+
+<div class="section-block">
+  <div class="section-title" style="color:var(--cyan)">ELEMENTO(S) <span style="font-size:10px;color:var(--dim);font-family:Share Tech Mono,monospace"> — afinidades, vantagens e fraquezas</span></div>
+  <div class="elem-info-grid">${elemInfoHtml}</div>
+</div>
+
+<div class="section-block">
+  <div class="section-title" style="color:${col}">AFINIDADES PASSIVAS DE ELEMENTO</div>
+  <div class="traits-grid">${traitsHtml}</div>
+</div>
+
+<div class="section-block">
+  <div class="section-title" style="color:var(--traco-pers)">TRAÇO DE PERSONALIDADE <span style="font-size:10px;color:var(--dim);font-family:Share Tech Mono,monospace"> — buff único de comportamento</span></div>
+  ${personaHtml}
+</div>
+
+<div class="section-block">
+  <div class="section-title" style="color:var(--arquetipo)">ARQUÉTIPO DE COMBATE <span style="font-size:10px;color:var(--dim);font-family:Share Tech Mono,monospace"> — talentos fixos por Digievolução</span></div>
+  ${archetypeHtml}
+</div>
+
+<div class="section-block">
+  <div class="section-title" style="color:var(--item-cor)">EQUIPAMENTO</div>
+  ${itemHtml}
+</div>
+
+<div class="section-block">
+  <div class="section-title" style="color:${col}">PODERES ESPECIAIS <span style="font-size:10px;color:var(--dim);font-family:Share Tech Mono,monospace"> — ${sd.pows} poder(es) para este estágio</span></div>
+  <div id="powers-section">
+    <div class="powers-grid">${powersHtml}</div>
+  </div>
+  <button class="btn btn-secondary" onclick="generatePowers()" style="margin-top:12px;width:auto;padding:8px 16px">🎲 Retirar Poderes</button>
+</div>
+
+<div class="section-block" style="background:transparent;border:none;padding:0">
+  <p class="info">Carregado do histórico desta sessão.</p>
+</div>`;
+
+  document.getElementById('empty-state').style.display = 'none';
+  const result = document.getElementById('result');
+  result.classList.add('visible');
+  result.innerHTML = html;
+}
+
+// ════════════════════════════════════════════════════════════
+//  COPIAR COMO TEXTO (para colar em Discord, Roll20, etc.)
+// ════════════════════════════════════════════════════════════
+function copyAsText() {
+  if (!currentSheet) { alert('Gere um Digimon primeiro!'); return; }
+  const s = currentSheet;
+  const sd = s.sd;
+  const attrNames = ['Físico','Habilidade','Movimento','Sentidos','Inteligência'];
+  const attrKeys  = ['fisico','habilidade','movimento','sentidos','inteligencia'];
+  const wild = (typeof s.wild !== 'undefined') ? s.wild : null;
+  const bonuses = s.bonuses || computeBonuses(s.item, s.archetype, sd);
+  const hpFinal = (typeof s.hpFinal === 'number') ? s.hpFinal : sd.hp + bonuses.hp;
+  const rdLabel = bonuses.rd > 0 ? ` | RD +${bonuses.rd}${wild ? ' (selvagem' + (s.item ? ' + item' : '') + ')' : ' (equipamento)'}` : '';
+
+  let txt = '';
+  txt += `═══ ${s.name.toUpperCase()} ═══\n`;
+  txt += `${sd.label} · Nível ${s.level} · ${s.attr} · ${s.elemList.join('/')} · ${s.species} · ${s.style}${s.persona ? ' · Traço: ' + s.persona : ''} · ${wild ? '🐾 Selvagem' : 'De Treinador'}\n`;
+  txt += `HP: ${hpFinal}${bonuses.hp > 0 ? ` (base ${sd.hp} + ${bonuses.hp} de item)` : ' (base)'}${rdLabel} | Periculosidade: ${s.perigo.label}\n`;
+  txt += `Carga de Dados: ${s.carga.max} (regen ${s.carga.regen}/turno, mín. 16 · custo = pts×4)\n`;
+  if (wild) {
+    txt += `\n-- ORIGEM: DIGIMON SELVAGEM --\n`;
+    txt += `Habilidade Selvagem: Redução de Dano Aumentada! RD ${wild.rd} permanente contra todo tipo de dano.\n`;
+    txt += `+2 dados extra em ${wild.bonusAttrLabel}, além da distribuição normal de pontos.\n`;
+  }
+  if (bonuses.sources.length) {
+    txt += `\n-- BÔNUS ATIVOS (Origem + Item + Arquétipo) --\n`;
+    bonuses.sources.forEach(src => { txt += `✦ ${src}\n`; });
+  }
+  txt += `\n`;
+
+  txt += `-- ATRIBUTOS --\n`;
+  attrKeys.forEach((k,i) => {
+    const a = s.attrsData[k];
+    txt += `${attrNames[i]}: ${a.dice}${a.upgrades > 0 ? ` (+${a.upgrades} upgrades)` : ''}\n`;
+  });
+  if (bonuses.attrPts > 0) txt += `(Pontos de Atributo distribuídos incluem +${bonuses.attrPts} de talento Colosso)\n`;
+
+  txt += `\n-- ELEMENTO(S) --\n`;
+  s.elemList.forEach(e => {
+    const info = ELEMENT_INFO[e];
+    if (!info) return;
+    txt += `${e}: ${info.desc}\n`;
+    info.vantagens.forEach(v => { txt += `  ▲ ${v}\n`; });
+    info.fraquezas.forEach(f => { txt += `  ▼ ${f}\n`; });
+  });
+
+  txt += `\n-- AFINIDADES PASSIVAS DE ELEMENTO --\n`;
+  s.traits.forEach(t => { txt += `◆ ${traitName(t)}: ${traitMechanic(t)}\n`; });
+
+  if (s.persona && PERSONA_TRAITS[s.persona]) {
+    const p = PERSONA_TRAITS[s.persona];
+    txt += `\n-- TRAÇO DE PERSONALIDADE: ${s.persona} --\n`;
+    txt += `${p.desc}\n`;
+    txt += `Habilidade de Traço: ${p.skill}\n`;
+  }
+
+  if (s.archetype) {
+    txt += `\n-- ARQUÉTIPO DE COMBATE: ${s.archetype.mainClass === 'MISTO' ? 'MISTO (multiclasse)' : s.archetype.mainClass} --\n`;
+    if (s.archetype.talents.length === 0) {
+      txt += `Sem Pontos de Arquétipo neste estágio (E1 Bebê).\n`;
+    } else {
+      s.archetype.talents.forEach(t => { txt += `• ${t.name} [${t.classe}]: ${t.desc}\n`; });
+      if (s.archetype.capstoneUnlocked && s.archetype.capstone) {
+        txt += `${s.archetype.capstone.name} (CLASSE COMPLETA): ${s.archetype.capstone.desc}\n`;
+      }
+    }
+  }
+
+  txt += `\n-- EQUIPAMENTO --\n`;
+  if (s.item) {
+    txt += `${s.item.name} (${s.item.rarity})\n${s.item.desc}\nEfeito: ${s.item.effect}\n`;
+  } else {
+    txt += `Nenhum item equipado.\n`;
+  }
+
+  txt += `\n-- PODERES ESPECIAIS --\n`;
+  s.powers.forEach(p => {
+    txt += `\n${p.name} (${p.uses})\n${p.desc}\n`;
+    p.effects.forEach((ef,i) => { txt += `  ${i+1}. ${ef}\n`; });
+  });
+
+  txt += `\n— Gerado com o Gerador de Digimon · DigiRider RPG —`;
+
+  const btn = document.getElementById('copy-btn');
+  const original = btn.textContent;
+  const fallbackCopy = () => {
+    const ta = document.createElement('textarea');
+    ta.value = txt;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+  };
+
+  const showCopied = () => {
+    btn.textContent = '✓ COPIADO!';
+    setTimeout(() => { btn.textContent = original; }, 1800);
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(showCopied).catch(() => { fallbackCopy(); showCopied(); });
+  } else {
+    fallbackCopy();
+    showCopied();
+  }
+}
+
+function exportPDF() {
+  window.print();
+}
+
+// ── Init ──
+setStage('final');
+</script>
+</body>
+</html>
