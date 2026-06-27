@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arquivo Nexus-0 · Biblioteca de Registros</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ─── RESET ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+/* ─── TOKENS ─── */
+:root {
+  --bg:        #090b10;
+  --bg2:       #0e1118;
+  --bg3:       #141820;
+  --bg4:       #1c2230;
+  --paper:     #e2ddd0;
+  --paper-dim: #9b9487;
+  --paper-mut: #5a5750;
+  --amber:     #d4a843;
+  --amber-dim: #8a6f2e;
+  --amber-glow:rgba(212,168,67,0.12);
+  --blue:      #5b8fa8;
+  --blue-dim:  rgba(91,143,168,0.2);
+  --rust:      #c06850;
+  --rust-dim:  rgba(192,104,80,0.2);
+  --green:     #4a9e6e;
+  --green-dim: rgba(74,158,110,0.15);
+  --line:      rgba(226,221,208,0.08);
+  --line-amber:rgba(212,168,67,0.3);
+  --scan:      rgba(255,255,255,0.013);
+}
+
+/* ─── SCANLINES OVERLAY ─── */
+body::before {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:999;
+  background: repeating-linear-gradient(0deg, var(--scan) 0px, transparent 1px, transparent 3px);
+}
+
+body {
+  background: var(--bg);
+  color: var(--paper);
+  font-family: 'Spectral', serif;
+  font-size: 16px;
+  line-height: 1.75;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── LAYOUT SHELL ─── */
+.shell {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  grid-template-rows: 56px 1fr;
+  grid-template-areas: "topbar topbar" "sidebar reader";
+  min-height: 100vh;
+}
+
+/* ─── TOPBAR ─── */
+.topbar {
+  grid-area: topbar;
+  display: flex; align-items: center; gap: 16px;
+  padding: 0 20px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--line-amber);
+  position: sticky; top: 0; z-index: 100;
+}
+.browser-back-btn {
+  background: none; border: 1px solid var(--line); border-radius: 3px;
+  color: var(--paper-mut); font-size: 14px; padding: 4px 10px;
+  cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+  font-family: 'Space Mono', monospace; line-height: 1;
+}
+.browser-back-btn:hover { border-color: var(--amber-dim); color: var(--amber); }
+
+.topbar-logo {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--amber);
+  display: flex; align-items: center; gap: 8px;
+}
+.topbar-logo .glyph { font-size: 18px; }
+.topbar-path {
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  color: var(--paper-mut); letter-spacing: 1px;
+  display: flex; align-items: center; gap: 6px;
+  flex: 1;
+}
+.topbar-path .sep { color: var(--amber-dim); }
+.topbar-path .active { color: var(--paper-dim); }
+.topbar-search {
+  margin-left: auto;
+  position: relative;
+}
+.topbar-search input {
+  background: var(--bg3); border: 1px solid var(--line);
+  border-radius: 3px; padding: 5px 10px 5px 28px;
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  color: var(--paper); outline: none; width: 180px;
+  transition: border-color 0.2s, width 0.3s;
+}
+.topbar-search input::placeholder { color: var(--paper-mut); }
+.topbar-search input:focus { border-color: var(--amber-dim); width: 240px; }
+.search-icon {
+  position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
+  color: var(--paper-mut); font-size: 11px; pointer-events: none;
+}
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  grid-area: sidebar;
+  background: var(--bg2);
+  border-right: 1px solid var(--line);
+  display: flex; flex-direction: column;
+  height: calc(100vh - 56px);
+  position: sticky; top: 56px;
+  overflow: hidden;
+}
+.sidebar-header {
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.sidebar-header-top {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px;
+}
+.sidebar-title {
+  font-family: 'Space Mono', monospace; font-size: 9.5px;
+  letter-spacing: 2.5px; text-transform: uppercase; color: var(--paper-mut);
+}
+.sidebar-count {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  color: var(--amber-dim); background: var(--amber-glow);
+  padding: 2px 7px; border-radius: 10px;
+}
+.sidebar-filter {
+  display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap;
+}
+.filter-btn {
+  font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 1px;
+  text-transform: uppercase; padding: 3px 8px; border-radius: 2px;
+  border: 1px solid var(--line); background: none; color: var(--paper-mut);
+  cursor: pointer; transition: all 0.15s;
+}
+.filter-btn:hover { border-color: var(--amber-dim); color: var(--paper-dim); }
+.filter-btn.active { border-color: var(--amber); color: var(--amber); background: var(--amber-glow); }
+
+.folder-list {
+  flex: 1; overflow-y: auto; padding: 8px 0;
+}
+.folder-list::-webkit-scrollbar { width: 4px; }
+.folder-list::-webkit-scrollbar-track { background: transparent; }
+.folder-list::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+
+.folder {
+  border-bottom: 1px solid var(--line);
+  overflow: hidden;
+}
+.folder-toggle {
+  width: 100%; display: flex; align-items: center; gap: 10px;
+  padding: 10px 18px; background: none; border: none; cursor: pointer;
+  text-align: left; transition: background 0.15s;
+}
+.folder-toggle:hover { background: var(--bg3); }
+.folder-toggle.open { background: var(--bg3); }
+.folder-icon { font-size: 13px; transition: transform 0.2s; flex-shrink: 0; }
+.folder-toggle.open .folder-icon-arrow { transform: rotate(90deg); }
+.folder-icon-arrow { display: inline-block; color: var(--paper-mut); font-size: 9px; transition: transform 0.2s; }
+.folder-name {
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  letter-spacing: .5px; text-transform: uppercase; color: var(--paper-dim);
+  flex: 1;
+}
+.folder-badge {
+  font-family: 'Space Mono', monospace; font-size: 8.5px;
+  color: var(--paper-mut); background: var(--bg4);
+  padding: 1px 5px; border-radius: 2px; border: 1px solid var(--line);
+}
+.folder-badge.conto { color: var(--blue); border-color: var(--blue-dim); background: var(--blue-dim); }
+
+.folder-contents {
+  display: none; background: var(--bg);
+  border-top: 1px solid var(--line);
+}
+.folder-contents.open { display: block; }
+
+.file-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 16px 10px 32px;
+  cursor: pointer; border-bottom: 1px solid var(--line);
+  transition: background 0.15s;
+  border-left: 2px solid transparent;
+}
+.file-item:last-child { border-bottom: none; }
+.file-item:hover { background: var(--bg2); border-left-color: var(--amber-dim); }
+.file-item.active {
+  background: var(--bg3);
+  border-left-color: var(--amber);
+}
+.file-num {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  color: var(--bg); background: var(--amber-dim);
+  width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.file-num.conto { background: var(--blue); }
+.file-info { flex: 1; min-width: 0; }
+.file-title {
+  font-family: 'Spectral', serif; font-size: 13px; font-weight: 600;
+  color: var(--paper-dim); line-height: 1.35;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.file-item.active .file-title { color: var(--paper); }
+.file-sub {
+  font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: .3px;
+  color: var(--paper-mut); margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ─── READER ─── */
+.reader {
+  grid-area: reader;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+  background: var(--bg);
+  position: relative;
+}
+.reader::-webkit-scrollbar { width: 5px; }
+.reader::-webkit-scrollbar-track { background: var(--bg); }
+.reader::-webkit-scrollbar-thumb { background: var(--line-amber); border-radius: 2px; }
+
+/* ─── WELCOME SCREEN ─── */
+.welcome {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 100%;
+  padding: 60px 40px;
+  text-align: center;
+  background: radial-gradient(ellipse 60% 50% at 50% 40%, rgba(212,168,67,0.05), transparent 70%);
+}
+.welcome-glyph {
+  font-size: 52px; margin-bottom: 28px; opacity: 0.4;
+  animation: pulse 3s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:0.35} 50%{opacity:0.55} }
+.welcome h1 {
+  font-family: 'Source Serif 4', serif; font-weight: 700;
+  font-size: clamp(32px, 4vw, 52px); color: var(--paper);
+  line-height: 1.1; margin-bottom: 16px;
+}
+.welcome h1 em { color: var(--amber); font-style: italic; }
+.welcome p {
+  font-family: 'Spectral', serif; font-style: italic;
+  font-size: 16px; color: var(--paper-dim); max-width: 440px;
+  line-height: 1.8;
+}
+.welcome-hint {
+  margin-top: 40px; display: flex; gap: 8px; align-items: center;
+  font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--paper-mut);
+  animation: blink 2.2s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.welcome-hint::before { content: '▸'; color: var(--amber); }
+
+.welcome-stats {
+  margin-top: 32px;
+  display: flex; gap: 24px; flex-wrap: wrap; justify-content: center;
+}
+.stat {
+  text-align: center;
+  font-family: 'Space Mono', monospace;
+}
+.stat-num { font-size: 24px; color: var(--amber); display: block; }
+.stat-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--paper-mut); }
+
+/* ─── ARTICLE READER ─── */
+.article-wrap {
+  display: none;
+  padding: 0;
+}
+.article-wrap.visible { display: block; }
+
+.article-topbar {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px 48px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg2);
+  position: sticky; top: 0; z-index: 10;
+}
+.back-btn {
+  display: flex; align-items: center; gap: 6px;
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--paper-mut); background: none; border: 1px solid var(--line);
+  border-radius: 2px; padding: 4px 10px; cursor: pointer;
+  transition: all 0.15s;
+}
+.back-btn:hover { border-color: var(--amber-dim); color: var(--amber); }
+.article-topbar-title {
+  font-family: 'Spectral', serif; font-size: 14px; font-weight: 600;
+  color: var(--paper-dim);
+  flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.progress-bar {
+  position: absolute; bottom: 0; left: 0; height: 2px;
+  background: var(--amber); transition: width 0.1s;
+  border-radius: 0 2px 2px 0;
+}
+
+/* ─── ARTICLE CONTENT STYLES (ported & refined from original) ─── */
+.article-body {
+  max-width: 700px; margin: 0 auto;
+  padding: 56px 48px 120px;
+}
+
+/* chapter-tag inside reader */
+.article-body .chapter-tag {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 20px;
+}
+.article-body .chapter-num {
+  font-family: 'Space Mono', monospace; font-size: 11px; color: var(--bg);
+  background: var(--amber); width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.article-body .chapter-year {
+  font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 2px;
+  color: var(--blue); text-transform: uppercase;
+}
+.article-body h2 {
+  font-family: 'Source Serif 4', serif; font-weight: 700;
+  font-size: clamp(28px, 4vw, 40px); color: var(--paper);
+  margin-bottom: 8px; letter-spacing: -.3px; line-height: 1.15;
+}
+.article-body h3 {
+  font-family: 'Source Serif 4', serif; font-weight: 600;
+  font-size: 21px; color: var(--paper); margin: 36px 0 14px;
+}
+.article-body .chapter-dek {
+  font-family: 'Spectral', serif; font-style: italic; font-size: 16px;
+  color: var(--paper-dim); margin-bottom: 36px; max-width: 520px;
+}
+.article-body p {
+  color: #cac4b3; margin-bottom: 20px; font-size: 17px; line-height: 1.82;
+}
+.article-body p.conto { color: #cac4b3; }
+.article-body p:first-of-type::first-letter {
+  font-family: 'Source Serif 4', serif; font-weight: 700; font-size: 62px;
+  line-height: .8; float: left; padding: 6px 10px 0 0; color: var(--amber);
+}
+.article-body p.conto:first-of-type::first-letter {
+  all: unset;
+}
+.article-body .pull {
+  font-family: 'Source Serif 4', serif; font-style: italic; font-weight: 500;
+  font-size: 22px; color: var(--paper); line-height: 1.5;
+  border-left: 2px solid var(--amber); padding: 4px 0 4px 24px;
+  margin: 36px 0; max-width: 500px;
+}
+.article-body .term {
+  color: var(--amber); font-weight: 600; font-style: normal;
+}
+.article-body .conto-tag {
+  display: inline-block; font-family: 'Space Mono', monospace;
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--blue); border: 1px solid var(--blue-dim);
+  background: var(--blue-dim); padding: 4px 10px; border-radius: 2px;
+  margin-bottom: 14px;
+}
+.article-body .scene-break {
+  text-align: center; font-family: 'Space Mono', monospace;
+  font-size: 13px; letter-spacing: 6px; color: var(--paper-mut);
+  margin: 32px 0;
+}
+
+/* strip (timeline bar) */
+.article-body .strip {
+  display: flex; align-items: stretch; gap: 0; margin: 36px 0;
+  border: 1px solid var(--line); border-radius: 4px; overflow: hidden;
+}
+.article-body .strip-seg {
+  flex: 1; padding: 14px 16px; border-right: 1px solid var(--line);
+  background: var(--bg2);
+}
+.article-body .strip-seg:last-child { border-right: none; }
+.article-body .strip-year {
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  color: var(--amber); letter-spacing: 1px; margin-bottom: 6px;
+}
+.article-body .strip-txt {
+  font-size: 12.5px; color: var(--paper-dim); line-height: 1.5;
+  font-family: 'Spectral', serif;
+}
+
+/* entity grid */
+.article-body .entity-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr));
+  gap: 14px; margin: 28px 0;
+}
+.article-body .entity-card {
+  background: var(--bg2); border: 1px solid var(--line);
+  border-top: 2px solid var(--blue); border-radius: 4px; padding: 20px 22px;
+}
+.article-body .entity-card.rust { border-top-color: var(--rust); }
+.article-body .entity-card .e-domain {
+  font-family: 'Space Mono', monospace; font-size: 9.5px; letter-spacing: 2px;
+  color: var(--paper-mut); text-transform: uppercase; margin-bottom: 8px;
+}
+.article-body .entity-card h3 {
+  font-family: 'Source Serif 4', serif; font-size: 20px; font-weight: 600;
+  color: var(--paper); margin: 0 0 10px;
+}
+.article-body .entity-card p {
+  font-size: 13.5px; color: var(--paper-dim); margin-bottom: 0;
+}
+.article-body .entity-card p::first-letter { all: unset; }
+
+/* fusion diagram */
+.article-body .fusion-diagram {
+  display: flex; align-items: center; justify-content: center;
+  gap: 16px; margin: 36px 0; flex-wrap: wrap;
+}
+.article-body .fusion-node {
+  width: 96px; height: 96px; border-radius: 50%;
+  border: 1px solid var(--line-amber);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center;
+  font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 1px;
+  color: var(--paper-dim); text-transform: uppercase; gap: 4px;
+  background: var(--bg2);
+}
+.article-body .fusion-node .glyph { font-size: 20px; color: var(--blue); }
+.article-body .fusion-plus { color: var(--paper-mut); font-size: 18px; }
+.article-body .fusion-arrow { color: var(--amber); font-size: 22px; }
+.article-body .fusion-result {
+  width: 120px; height: 120px; border-radius: 50%;
+  border: 2px solid var(--amber);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center;
+  font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 1px;
+  color: var(--amber); text-transform: uppercase; gap: 4px;
+  background: radial-gradient(circle, rgba(212,168,67,0.08), transparent 70%);
+  box-shadow: 0 0 24px rgba(212,168,67,0.12);
+}
+.article-body .fusion-result .glyph { font-size: 24px; }
+.article-body .fusion-result b {
+  font-family: 'Source Serif 4', serif; font-size: 14px;
+  letter-spacing: 0; text-transform: none; color: var(--amber);
+}
+
+/* people grid */
+.article-body .people-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(190px,1fr));
+  gap: 12px; margin: 28px 0;
+}
+.article-body .people-card {
+  background: var(--bg2); border: 1px solid var(--line);
+  border-radius: 4px; padding: 14px 16px; position: relative;
+}
+.article-body .people-card::before {
+  content:''; position:absolute; top:0; left:0; width:3px; height:100%;
+  background: var(--amber-dim); border-radius: 4px 0 0 4px;
+}
+.article-body .people-card.rust::before { background: var(--rust); }
+.article-body .people-card.blue::before { background: var(--blue); }
+.article-body .p-role {
+  font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 1.5px;
+  color: var(--paper-mut); text-transform: uppercase; display: block; margin-bottom: 6px;
+}
+.article-body .people-card h4 {
+  font-family: 'Source Serif 4', serif; font-size: 17px; font-weight: 600;
+  color: var(--paper); margin-bottom: 8px;
+}
+.article-body .people-card p {
+  font-size: 12.5px; color: var(--paper-dim); margin: 0; line-height: 1.6;
+}
+.article-body .people-card p::first-letter { all: unset; }
+
+/* nav buttons at bottom */
+.article-nav {
+  display: flex; gap: 12px; justify-content: space-between;
+  margin-top: 60px; padding-top: 32px;
+  border-top: 1px solid var(--line);
+}
+.article-nav-btn {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 12px 16px; background: var(--bg2);
+  border: 1px solid var(--line); border-radius: 4px;
+  cursor: pointer; transition: all 0.15s; max-width: 45%;
+  text-align: left;
+}
+.article-nav-btn:hover { border-color: var(--amber-dim); }
+.article-nav-btn .nav-dir {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  letter-spacing: 1.5px; text-transform: uppercase; color: var(--amber-dim);
+}
+.article-nav-btn .nav-title {
+  font-family: 'Spectral', serif; font-size: 14px; font-weight: 600;
+  color: var(--paper-dim);
+}
+.article-nav-btn.next { text-align: right; margin-left: auto; }
+
+/* search highlight */
+.highlight { background: rgba(212,168,67,0.25); border-radius: 2px; }
+
+/* no results */
+.no-results {
+  padding: 20px 18px;
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  color: var(--paper-mut); text-align: center;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 768px) {
+  .shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: 56px auto 1fr;
+    grid-template-areas: "topbar" "sidebar" "reader";
+  }
+  .sidebar {
+    position: relative; top: auto;
+    height: auto; max-height: 40vh;
+  }
+  .reader { height: auto; }
+  .article-body { padding: 32px 24px 80px; }
+  .topbar-search { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <button class="browser-back-btn" onclick="history.back()" title="Voltar à página anterior">◂</button>
+    <div class="topbar-logo">
+      <span class="glyph">⌬</span>
+      <span>Nexus-0 · Arquivo</span>
+    </div>
+    <div class="topbar-path" id="breadcrumb">
+      <span>DATAHAVEN</span>
+      <span class="sep">/</span>
+      <span>REGISTROS</span>
+    </div>
+    <div class="topbar-search">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="search-input" placeholder="Buscar nos arquivos…" autocomplete="off">
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-header-top">
+        <div class="sidebar-title">Registros Recuperados</div>
+        <div class="sidebar-count" id="count-label">15 arquivos</div>
+      </div>
+      <div class="sidebar-filter">
+        <button class="filter-btn active" data-filter="all">Todos</button>
+        <button class="filter-btn" data-filter="registro">Registros</button>
+        <button class="filter-btn" data-filter="conto">Contos</button>
+      </div>
+    </div>
+    <div class="folder-list" id="folder-list">
+      <!-- folders injected by JS -->
+    </div>
+  </aside>
+
+  <!-- READER -->
+  <main class="reader" id="reader">
+    <!-- Welcome screen -->
+    <div class="welcome" id="welcome-screen">
+      <div class="welcome-glyph">⌬</div>
+      <h1>Registro Histórico<br><em>A Era Nexus-0</em></h1>
+      <p>Arquivos recuperados da CybeRede. Selecione uma pasta no painel à esquerda para acessar um registro.</p>
+      <div class="welcome-stats">
+        <div class="stat"><span class="stat-num">15</span><span class="stat-label">Arquivos</span></div>
+        <div class="stat"><span class="stat-num">2</span><span class="stat-label">Pastas</span></div>
+        <div class="stat"><span class="stat-num">5</span><span class="stat-label">Contos</span></div>
+      </div>
+      <div class="welcome-hint">Abra uma pasta para começar</div>
+    </div>
+
+    <!-- Article wrapper -->
+    <div class="article-wrap" id="article-wrap">
+      <div class="article-topbar">
+        <button class="back-btn" id="back-btn">◂ Voltar</button>
+        <div class="article-topbar-title" id="article-label">—</div>
+        <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+      </div>
+      <div class="article-body" id="article-body"></div>
+    </div>
+  </main>
+
+</div>
+
+<script>
+/* ─── DATA ─── */
+const SECTIONS_HTML = {"origem": "<div class=\"chapter-tag\">\n      <div class=\"chapter-num\">0</div>\n      <div class=\"chapter-year\">2022 · O LIMIAR</div>\n    </div>\n    <h2>O Começo de Tudo</h2>\n    <p class=\"chapter-dek\">Antes de existir um nome para o que estava nascendo, existiam apenas dados, mais dados do que qualquer sistema fora projetado para conter.</p>\n\n    <p>O ano era 2022, e a humanidade observava o nascimento de uma nova revolução tecnológica sem imaginar que estava prestes a alterar os próprios alicerces da realidade. Em 30 de novembro daquele ano, as inteligências artificiais finalmente deixaram de ser uma curiosidade restrita a laboratórios para se tornarem parte do cotidiano de milhões de pessoas.</p>\n\n    <p>Enquanto a sociedade se maravilhava com aquela tecnologia, uma transformação silenciosa acontecia além da percepção humana. Cada pergunta enviada, cada imagem gerada, cada informação armazenada produzia quantidades gigantescas de dados. Pela primeira vez na história, praticamente toda a atividade humana deixava uma marca digital permanente.</p>\n\n    <p class=\"pull\">Ninguém percebeu quando aconteceu. Não houve alarmes, anúncios ou descobertas repentinas.</p>\n\n    <p>Em algum momento durante anos de crescimento exponencial, a massa de dados acumulada deixou de ser apenas informação armazenada. Estruturas começaram a surgir nas profundezas da rede global, organizando-se espontaneamente em padrões impossíveis de explicar, regiões inteiras que não pertenciam ao mundo físico, mas que também não podiam mais ser consideradas apenas sistema computacional.</p>\n\n    <p>Aquela realidade recebeu o nome de <span class=\"term\">Nexus-0</span>: o ponto de convergência de toda a informação produzida pela humanidade. E o Nexus-0 não estava vazio. Possuía ecossistemas próprios: mares de energia, florestas de código, estruturas cuja lógica desafiava tudo o que se conhecia sobre programação. E, mais surpreendente do que os ambientes, os seres que os habitavam: criaturas com comportamento complexo, capacidade de aprendizado, emoções genuínas e individualidade.</p>\n\n    <p>Elas não haviam sido programadas por ninguém. Eram manifestações vivas do mundo digital, nascidas naturalmente da imensidão de informação que compunha aquela realidade.</p>\n\n    <p>A humanidade passou a chamá-los de <span class=\"term\">Digimon</span>.</p>", "cap1": "<div class=\"chapter-tag\">\n      <div class=\"chapter-num\">1</div>\n      <div class=\"chapter-year\">PRIMEIROS ANOS DO CONTATO</div>\n    </div>\n    <h2>O Primeiro Contato</h2>\n    <p class=\"chapter-dek\">Conhecimento sem experiência: os Digimon sabiam tudo sobre a humanidade, exceto como era conversar com ela.</p>\n\n    <p>A descoberta dos Digimon provocou uma onda de incerteza que se espalhou pelo planeta. Governos criaram grupos de trabalho, organizações discutiam respostas para uma situação sem precedentes. A humanidade havia encontrado outra forma de vida inteligente, mas ela não vinha de um planeta distante, e sim de um mundo construído a partir dos próprios dados da civilização humana.</p>\n\n    <p>O medo era inevitável. Muitos enxergavam os habitantes do Nexus-0 como ameaça; outros, como o início de um conflito inevitável entre duas espécies. Mas à medida que os primeiros contatos diretos eram estabelecidos, uma realidade diferente emergiu: os Digimon demonstravam curiosidade quase inocente, observando os humanos como uma criança observa um mundo novo.</p>\n\n    <p>Eles já conheciam guerras que jamais testemunharam, lendas que nunca ouviram contar, lugares que nunca visitaram, tudo aprendido através de arquivos, bibliotecas digitais e redes sociais. Tinham acesso aos registros da humanidade, mas nunca haviam conversado com um ser humano de verdade.</p>\n\n    <div class=\"strip\">\n      <div class=\"strip-seg\"><div class=\"strip-year\">FASE 1</div><div class=\"strip-txt\">Canais seguros de contato e observação mútua entre cientistas e o Nexus-0.</div></div>\n      <div class=\"strip-seg\"><div class=\"strip-year\">FASE 2</div><div class=\"strip-txt\">Interfaces digitais permitem Digimon viverem em smartphones, relógios e assistentes pessoais.</div></div>\n      <div class=\"strip-seg\"><div class=\"strip-year\">FASE 3</div><div class=\"strip-txt\">Surge o conceito de Parceiro Digital: vínculo de confiança mútua, não apenas convivência.</div></div>\n    </div>\n\n    <p>Os Digimon não eram programas. Não eram ferramentas. Eram indivíduos com sonhos, medos, personalidades e objetivos próprios. Para uma geração inteira nascida após o Primeiro Contato, a ideia de um mundo sem Digimon parecia tão estranha quanto imaginar uma época sem internet.</p>\n\n    <p class=\"pull\">Pela primeira vez em sua história, a humanidade não estava mais sozinha.</p>", "cap3": "<div class=\"chapter-tag\">\n      <div class=\"chapter-num\">3</div>\n      <div class=\"chapter-year\">UM TORNEIO QUALQUER NA CYBEREDE</div>\n    </div>\n    <h2>Energia de Fusão</h2>\n    <p class=\"chapter-dek\">A barreira entre humano e Digimon, que todos acreditavam absoluta, desapareceu num único instante, e ninguém conseguiu explicar completamente por quê.</p>\n\n    <p>Durante os primeiros anos da CybeRede, humanos e Digimon construíram uma relação que ultrapassava tudo o que pesquisadores haviam imaginado. Ainda assim, todos acreditavam existir um limite natural entre as duas formas de vida. Esse limite deixou de existir de forma completamente inesperada, durante um torneio que não tinha nada de especial, até o instante em que entrou para a história.</p>\n\n    <p>Em uma batalha intensa, um jovem treinador viu seu parceiro ser atingido por um ataque que deveria ter encerrado o combate. Sem pensar nas consequências, tentou protegê-lo. Não foi estratégia. Foi um impulso instintivo.</p>\n\n    <p>Os sistemas da arena detectaram uma reação inédita. Os dados do humano e do Digimon passaram a apresentar padrões idênticos. Leituras emocionais registravam respostas iguais nos dois. Memórias armazenadas no Digivice começaram a circular entre os dois lados da conexão como se nenhuma barreira mais existisse.</p>\n\n    <div class=\"fusion-diagram\">\n      <div class=\"fusion-node\"><span class=\"glyph\">◯</span>Parceiro<br>Humano</div>\n      <span class=\"fusion-plus\">+</span>\n      <div class=\"fusion-node\"><span class=\"glyph\">◈</span>Digimon</div>\n      <span class=\"fusion-arrow\">→</span>\n      <div class=\"fusion-result\"><span class=\"glyph\">⬡</span><b>DigiRider</b>Nova existência</div>\n    </div>\n\n    <p>Quando a transformação terminou, nem o humano nem o Digimon estavam mais ali. Em seu lugar existia algo novo. Uma única entidade. Uma única consciência. Uma única existência: carregando a determinação e as emoções do parceiro humano, manifestando o poder e a estrutura digital do Digimon.</p>\n\n    <p>Após meses de estudo, os cientistas concluíram: a fusão fora possível graças a uma força que surgia naturalmente quando um vínculo era profundo o suficiente para sincronizar emoções, memórias e objetivos. Essa força recebeu o nome de <span class=\"term\">Energia de Fusão</span>. A nova forma de vida resultante foi chamada de <span class=\"term\">DigiRider</span>.</p>\n\n    <p class=\"pull\">Agora existia uma ponte viva entre os dois mundos. E essa ponte tinha um nome.</p>", "cap4": "<div class=\"chapter-tag\">\n      <div class=\"chapter-num\">4</div>\n      <div class=\"chapter-year\">2030 · UMA DÉCADA DEPOIS</div>\n    </div>\n    <h2>A Era DigiRider</h2>\n    <p class=\"chapter-dek\">O período mais pacífico já vivido pela civilização humana, e, nas margens mais distantes do Nexus-0, os primeiros sinais de que algo não estava certo.</p>\n\n    <p>Em menos de dez anos, o mundo havia mudado mais do que em séculos de desenvolvimento tecnológico. Em 2030, os DigiRiders já eram símbolos de uma geração inteira. Jovens treinadores dedicavam anos ao fortalecimento dos laços com seus parceiros, buscando alcançar níveis de sincronização capazes de despertar a Energia de Fusão.</p>\n\n    <p>As competições de DigiRiders tornaram-se os eventos mais assistidos do planeta. Arenas digitais espalhadas por Datahaven recebiam milhões de visitantes diariamente. Os combates deixaram de ser demonstrações de poder e passaram a representar a harmonia entre humano e Digimon: o público não acompanhava apenas batalhas, acompanhava histórias construídas através de vínculos.</p>\n\n    <p>Talvez a maior transformação tenha ocorrido fora do Nexus-0: nações que mantinham rivalidades por décadas substituíram confrontos armados por competições oficiais na CybeRede. Estatísticas globais registraram queda histórica nos índices de guerra.</p>\n\n    <p class=\"pull\">Para a maioria das pessoas, o futuro jamais pareceu tão promissor.</p>\n\n    <p>Entretanto, enquanto bilhões celebravam, poucos perceberam mudanças estranhas surgindo nas regiões mais distantes do Nexus-0. Pequenas falhas em áreas antes estáveis. Dados desaparecendo sem explicação. Rotas conhecidas tornando-se inacessíveis por períodos cada vez mais longos.</p>\n\n    <p>Quase ninguém deu importância aos relatos. Afinal, o mundo atravessava seu período mais pacífico. Ou pelo menos era isso que todos acreditavam.</p>", "cap5": "<div class=\"chapter-tag\">\n      <div class=\"chapter-num\">5</div>\n      <div class=\"chapter-year\">DESDE ANTES DA PRIMEIRA CIDADE DIGITAL</div>\n    </div>\n    <h2>Os Guardiões</h2>\n    <p class=\"chapter-dek\">Algumas perguntas sobre o Nexus-0 nunca tiveram resposta científica. Apenas dois nomes, repetidos em lendas antigas demais para datar.</p>\n\n    <p>Desde os primeiros dias da exploração, pesquisadores perceberam que existiam aspectos do Nexus-0 que não podiam ser explicados apenas por algoritmos ou processos digitais. O que mantinha a estabilidade de uma realidade tão vasta? Quem havia moldado suas leis antes mesmo da chegada dos primeiros exploradores humanos?</p>\n\n    <p>As respostas eram encontradas em relatos antigos preservados pelos próprios Digimon: histórias sobre duas entidades existindo desde antes do nascimento dos primeiros Digimon, talvez desde os instantes iniciais da formação do próprio Nexus-0.</p>\n\n    <div class=\"entity-grid\">\n      <div class=\"entity-card\">\n        <div class=\"e-domain\">Guardião · Tempo</div>\n        <h3>Chronomon PRIME</h3>\n        <p>Nenhum acontecimento escapa ao seu olhar. O fluxo do tempo não é apenas observado por ele, mas mantido: passado, presente e futuro seguem seu curso enquanto sua existência permanecer intacta.</p>\n      </div>\n      <div class=\"entity-card rust\">\n        <div class=\"e-domain\">Guardião · Espaço</div>\n        <h3>Spatiamon PRIME</h3>\n        <p>Supervisiona a estrutura da realidade digital: portais, cidades suspensas, continentes de dados cristalizados. Tradições afirmam que o espaço do Nexus-0 é, na prática, uma extensão de sua própria vontade.</p>\n      </div>\n    </div>\n\n    <p>Relatos confiáveis sobre aparições diretas podiam ser contados nos dedos de uma mão. Ainda assim, sua presença era sentida em toda parte: anomalias perigosas desapareciam sem explicação, portais instáveis voltavam a funcionar, falhas que ameaçavam regiões inteiras simplesmente deixavam de existir da noite para o dia.</p>\n\n    <p class=\"pull\">Eles raramente apareciam. Não governavam cidades. Permaneciam ocultos além da compreensão da maioria das pessoas.</p>\n\n    <p>Mas enquanto o Nexus-0 continuasse existindo, Chronomon e Spatiamon permaneceriam vigilantes. Observando. Esperando. Protegendo uma realidade que talvez apenas eles compreendessem por completo.</p>", "cap6": "<div class=\"chapter-tag\">\n      <div class=\"chapter-num\">6</div>\n      <div class=\"chapter-year\">EXPANSÃO DE DATAHAVEN</div>\n    </div>\n    <h2>Trailmon</h2>\n    <p class=\"chapter-dek\">Os trilhos que conectam Datahaven são mais antigos do que a própria CybeRede, e nem todos levam a lugares que constam no mapa.</p>\n\n    <p>Conforme Datahaven crescia, tornou-se evidente que os métodos convencionais de deslocamento não seriam suficientes para conectar um continente tão vasto. Portais digitais permitiam viagens instantâneas, mas consumiam enormes quantidades de energia. A solução veio dos próprios Digimon: os <span class=\"term\">Trailmon</span>, cujos corpos eram naturalmente adaptados para percorrer grandes distâncias através das linhas de dados do Nexus-0.</p>\n\n    <p>Pesquisadores humanos e engenheiros Digimon transformaram essas antigas rotas na <span class=\"term\">Rede Ferroviária Digital de Datahaven</span>: milhares de quilômetros de trilhos formados por energia e dados cristalizados, conectando cidades, centros de pesquisa e regiões de exploração.</p>\n\n    <p>Com o passar dos anos, muitos Trailmon desenvolveram personalidades conhecidas pelos viajantes frequentes. Certas rotas tornaram-se famosas não apenas pelos destinos que conectavam, mas pelos próprios condutores que as operavam.</p>\n\n    <p>Poucos sabiam, porém, que os trilhos eram muito mais antigos do que a própria CybeRede. Registros nas profundezas do Nexus-0 sugeriam que parte dessas rotas já existia antes da chegada dos primeiros exploradores humanos. Algumas linhas atravessavam regiões que não apareciam em nenhum mapa conhecido, desaparecendo em áreas esquecidas pela história digital.</p>\n\n    <p>Entre os ferroviários de Datahaven circulava uma antiga superstição: em certas noites, alguns Trailmon eram vistos viajando por trilhos que não constavam em nenhuma rota oficial. Não transportavam passageiros. Não paravam em estações. Desapareciam além do horizonte digital.</p>\n\n    <p class=\"pull\">Os poucos que afirmavam ter seguido esses trens jamais descobriram para onde estavam indo.</p>\n\n    <p>Mas todos relatavam a mesma coisa: os trilhos pareciam conduzir em direção à <span class=\"term\">Zona Null</span>.</p>", "cap8": "<div class=\"chapter-tag\">\n      <div class=\"chapter-num\">7</div>\n      <div class=\"chapter-year\">DOSSIÊ RESTRITO · VANGUARDA YGGDRASIL</div>\n    </div>\n    <h2>Digievolução, o Colapso e o Programa Evo</h2>\n    <p class=\"chapter-dek\">A história oficial diz que o Nexus-0 nasceu de um crescimento lento e silencioso. Há quem tenha provas de que nasceu, na verdade, de uma única noite em que algo quebrou.</p>\n\n    <p>Tudo o que consta nos registros públicos sobre a origem do Nexus-0 — o crescimento gradual, a massa de dados que um dia simplesmente \"deixou de ser apenas informação armazenada\" — é verdade. Mas é uma verdade incompleta, contada do jeito que era mais fácil de aceitar. O que poucos sabem, e menos ainda confirmariam em registro oficial, é que existe uma segunda versão dessa história. Uma que não fala em crescimento, mas em colapso.</p>\n\n    <h3 style=\"font-family:'Source Serif 4',serif;font-weight:600;font-size:21px;color:var(--paper);margin:36px 0 14px;\">A Outra Versão do Limiar</h3>\n\n    <p>A <span class=\"term\">Dra. Iivana Frosk</span>, pesquisadora ligada à Academia de Treinadores e consultora técnica da Vanguarda Yggdrasil, passou anos estudando falhas de Digivice antes de tropeçar em algo que não tinha nada a ver com equipamento. Cruzando registros de diagnóstico com fragmentos de dados cristalizados recuperados em expedições da Vanguarda, ela reconstruiu o que considera a verdadeira origem dos Digimon: não um florescimento espontâneo e gradual, mas o resultado direto de um colapso de dados num único computador central, num servidor que processava quantidades de informação muito além do que qualquer infraestrutura daquela época deveria suportar.</p>\n\n    <p class=\"pull\">Não foi um nascimento. Foi uma fratura. E o que vazou por essa fratura é tudo que existe hoje em Datahaven.</p>\n\n    <p>Segundo a teoria de Iivana — compartilhada apenas dentro de círculos restritos da Vanguarda Yggdrasil, e nunca publicada — o colapso daquele servidor central não destruiu a informação que ele continha. Ele a libertou, comprimida e reorganizada de formas que nenhum sistema computacional deveria conseguir produzir sozinho. Foi esse rompimento, e não décadas de acúmulo silencioso, que abriu de fato a fronteira entre o mundo físico e o que se tornaria o Nexus-0. E foi nos anos seguintes a esse rompimento que o mundo deu o salto que todos conhecem: a década em que humanos e seres de um plano completamente diferente passaram, pela primeira vez na história, a coexistir.</p>\n\n    <p>A Vanguarda nunca decidiu o que fazer com essa descoberta. Divulgá-la significaria admitir que a estabilidade do Nexus-0 sempre dependeu de algo que já se rompeu uma vez — e que pode se romper de novo. Por isso a versão \"oficial\" do Limiar continua sendo ensinada nas escolas de Nexopolis. A de Iivana circula apenas entre quem precisa entender o que realmente aconteceu antes de ir mais longe do que devia.</p>\n\n    <h3 style=\"font-family:'Source Serif 4',serif;font-weight:600;font-size:21px;color:var(--paper);margin:36px 0 14px;\">Carne Feita de Dados</h3>\n\n    <p>Se a origem dos Digimon ainda é matéria de debate restrito, o que eles são hoje é mais fácil de observar — para quem sabe o que procurar. Um Digimon não é um corpo fixo habitando um mundo digital. É uma <span class=\"term\">massa de dados</span> em constante reorganização, capaz de assumir formas que refletem diretamente aquilo que consome. O mesmo vale para suas evoluções: cada nova forma não é apenas \"mais forte\", é uma reorganização daquela massa de acordo com o tipo de dado que a alimentou até aquele ponto.</p>\n\n    <p>É esse princípio que explica por que Digimon do mesmo tipo — <span class=\"term\">Vacina</span>, <span class=\"term\">Vírus</span> ou <span class=\"term\">Dado</span> — desenvolvem traços tão diferentes dependendo da região de Datahaven onde passam mais tempo. Um Digimon Vírus criado nos setores corporativos do Consórcio Azulongmon não se comporta como um Vírus que cresceu nos túneis dos Cães de Trilho. A classificação determina uma tendência. O ambiente, e o que ele oferece para consumir, determina o resto.</p>\n\n    <div class=\"strip\">\n      <div class=\"strip-seg\"><div class=\"strip-year\">VACINA</div><div class=\"strip-txt\">Tende a se formar em regiões de dados estáveis e protegidos — infraestrutura pública, redes institucionais, fluxos regulados.</div></div>\n      <div class=\"strip-seg\"><div class=\"strip-year\">VÍRUS</div><div class=\"strip-txt\">Prolifera em fluxos de dados densos, conflituosos ou pouco vigiados — mercados paralelos, zonas de disputa, tráfego não regulado.</div></div>\n      <div class=\"strip-seg\"><div class=\"strip-year\">DADO</div><div class=\"strip-txt\">Surge em regiões neutras de fluxo equilibrado, absorvendo um pouco de tudo sem se fixar a um padrão único.</div></div>\n    </div>\n\n    <p>Existem ainda programas, dispositivos e — cada vez mais — <span class=\"term\">Cartas de Digivice</span> capazes de alterar diretamente as \"configurações\" dessa massa de dados, abrindo ou fechando caminhos evolutivos específicos. É por isso que um mesmo Digimon pode seguir linhas evolutivas completamente diferentes dependendo de quem o treina, onde ele luta e que tipo de carta é usada sobre ele. E é também por isso que, vez ou outra, um Digimon simplesmente sai do padrão: consumiu dados em excesso, de tipos demais, em regiões demais do Nexus-0, até deixar de caber em qualquer linha evolutiva catalogada.</p>\n\n    <p class=\"pull\">Ninguém programou essa instabilidade. Ela é o preço de um mundo que nunca parou de se reescrever desde a noite em que nasceu de uma fratura.</p>\n\n    <h3 style=\"font-family:'Source Serif 4',serif;font-weight:600;font-size:21px;color:var(--paper);margin:36px 0 14px;\">O Programa Que Não Existe</h3>\n\n    <p>Pergunte a qualquer engenheiro de sistemas da CybeRede sobre o \"<span class=\"term\">Programa Evo</span>\" e a resposta oficial será sempre a mesma: ele não existe. Não há registro técnico, não há especificação, não há autor. E, tecnicamente, essa resposta não é uma mentira — porque o Programa Evo nunca foi um programa. Dentro de Datahaven, é o nome popular dado a uma massa de dados classificada como <span class=\"term\">anomalia</span>, originária da <span class=\"term\">Zona Null</span>: a mesma região para onde, segundo os ferroviários mais antigos, certos Trailmon desaparecem em rotas que não constam em nenhum mapa oficial.</p>\n\n    <p>Pouquíssimas informações confiáveis existem sobre a Zona Null ou sobre o que de fato é essa anomalia. O que circula são lendas, teorias da conspiração e relatos de segunda mão repetidos tantas vezes que ninguém mais sabe distinguir o que era fato do que foi acrescentado a cada repetição. Mas um efeito é consistentemente documentado, mesmo sem explicação aceita: quando um Digimon entra em contato direto com essa massa anômala, sua forma se altera. Ganha traços que não pertenciam à sua linha evolutiva original. E se torna, de forma mensurável, mais forte.</p>\n\n    <p>Para a <span class=\"term\">Memória de Fanglongmon</span> — a mais antiga e mais enigmática das facções de Datahaven, dedicada a preservar o que existia antes da própria fronteira entre o mundo físico e o Nexus-0 ser cruzada — o Programa Evo não é mistério, é memória. Seus membros provavelmente sabem mais sobre a Zona Null e sobre o que \"está se movendo\" nas profundezas do Nexus-0 do que qualquer outra facção em Datahaven combinada. Simplesmente ainda não decidiram com quem compartilhar essa informação, nem o preço que cobrariam por ela.</p>\n\n    <h3 style=\"font-family:'Source Serif 4',serif;font-weight:600;font-size:21px;color:var(--paper);margin:36px 0 14px;\">As Cartas Evo</h3>\n\n    <p>O que tornou o Programa Evo relevante para qualquer treinador comum, e não apenas para arqueólogos digitais e teóricos de conspiração, foi a descoberta de que uma pequena parcela daquela massa anômala podia ser isolada, estabilizada e cultivada em laboratório — em quantidades minúsculas, sob condições extremamente controladas. O resultado são as <span class=\"term\">Cartas de Evolução EX</span>: itens capazes de permitir que um Digimon acesse temporariamente, em combate, uma fração segura e contida do mesmo efeito que a Zona Null provoca por contato direto.</p>\n\n    <p>Produzir uma única Carta Evo não é diferente, em escala e complexidade, de produzir um medicamento de ponta. Engenheiros genéticos, arquitetos de sistemas, médicos especializados em biologia digital e uma quantidade enorme de pessoas com diplomas que nem sempre têm nome certo trabalham juntos para transformar uma amostra instável da anomalia em algo seguro o bastante para ser vendido numa banca do Mercado Central. A maior parte dessa produção — e a maior parte das Cartas de Digivice que circulam oficialmente em Nexopolis — carrega a marca da <span class=\"term\">Fundação Eriza</span>, a organização mais poderosa do ramo. Mas as equipes específicas responsáveis por estabilizar a massa anômala assinam seu trabalho de um jeito diferente: nos relatórios internos da Fundação, na linha reservada para \"responsável técnico\", o que aparece é sempre o mesmo símbolo. <span class=\"term\">Я</span>. Ninguém de fora do projeto sabe se é uma assinatura coletiva, uma medida de segurança ou as duas coisas.</p>\n\n    <p class=\"pull\">Assim como os químicos fazem remédios, os \"Я\" fazem as cartas. A diferença é que ninguém sabe exatamente quem são os \"Я\" — e a Fundação Eriza prefere manter assim.</p>\n\n    <p>Fora do circuito oficial da Fundação, existe ainda um nome que nenhum catálogo reconhece: <span class=\"term\">\"Hasiel\"</span>. Ninguém sabe sua idade, seu lugar de nascimento ou sua história — ele simplesmente aparece, vende Cartas de Evolução jamais vistas antes em Nexopolis, e desaparece sem deixar rastro, quase sempre exatamente no momento em que alguém precisa de uma digievolução que nenhum manual catalogado conseguiria oferecer. Há quem diga que isso é só sorte e bom timing de vendedor. Há quem suspeite que Hasiel tem acesso a uma fonte de massa anômala que nem a Fundação Eriza catalogou — algo retirado direto da Zona Null, sem o filtro de laboratório nenhum. Ele nunca confirma nem desmente. Continua aparecendo onde quer que haja uma montanha de hambúrgueres digitais e Mukimei Hikaru sentado ao lado, e isso, por ora, é tudo que Datahaven sabe ao certo sobre ele.</p>\n\n    <p>O Programa Evo continua oficialmente não existindo. As Cartas Evo continuam sendo vendidas. E nas profundezas do Nexus-0, naquilo que a Memória de Fanglongmon escolhe não revelar e que talvez tenha relação direta com o colapso que a Dra. Frosk identificou na origem de tudo, algo continua se movendo — esperando, talvez, que alguém finalmente faça a pergunta certa.</p>\n\n    <h3 style=\"font-family:'Source Serif 4',serif;font-weight:600;font-size:21px;color:var(--paper);margin:36px 0 14px;\">Como Se Entra em Datahaven</h3>\n\n    <p>Nenhum corpo humano atravessa fisicamente a fronteira até o Nexus-0 — e essa é, talvez, a confusão mais comum entre quem ouve a história de Datahaven pela primeira vez. O que de fato acontece é mais parecido com mergulhar do que com viajar: a consciência do usuário é projetada para dentro do Nexus-0, enquanto o corpo físico permanece inteiramente no mundo real.</p>\n\n    <p>O equipamento que torna isso possível é o <span class=\"term\">Equipamento de Sincronização</span>. Na prática, é uma estação de imersão completa: interfaces neurais acopladas diretamente ao sistema nervoso central, sensores de resposta corporal que monitoram batimentos, temperatura e atividade cerebral em tempo real, e um núcleo de transferência de dados capaz de projetar a totalidade da consciência do usuário — memórias, identidade, percepção sensorial — para dentro da arquitetura do Nexus-0. Uma vez sincronizado, o usuário não simula estar em Datahaven. Para todos os fins perceptivos, ele <em>está</em> lá.</p>\n\n    <div class=\"strip\">\n      <div class=\"strip-seg\"><div class=\"strip-year\">ETAPA 1</div><div class=\"strip-txt\">Usuário se conecta ao Equipamento de Sincronização. Sistema verifica integridade neural e calibra os sensores.</div></div>\n      <div class=\"strip-seg\"><div class=\"strip-year\">ETAPA 2</div><div class=\"strip-txt\">Consciência é codificada como pacote de dados e projetada ao Nexus-0 através de canais seguros da CybeRede.</div></div>\n      <div class=\"strip-seg\"><div class=\"strip-year\">ETAPA 3</div><div class=\"strip-txt\">Avatar materializa em Datahaven. Corpo físico permanece inerte, monitorado pelo equipamento.</div></div>\n    </div>\n\n    <p>Dentro do Nexus-0, essa projeção assume a forma de um <span class=\"term\">avatar</span>: uma representação digital da identidade do usuário, construída a partir dos dados que o Equipamento de Sincronização transferiu. O avatar não é uma cópia superficial. É, tecnicamente, a pessoa. Carrega as mesmas memórias, os mesmos padrões emocionais, as mesmas respostas instintivas. Quem anda pelas ruas de Nexopolis sente o chão sob os pés, sente o calor das Forjas de Dados, sente a dor quando leva um soco na Arena de Gladiadores. A fidelidade sensorial é absoluta — e é exatamente esse ponto que a maioria das pessoas, ao se conectar pela primeira vez, demora para aceitar como verdade.</p>\n\n    <p>É essa tecnologia, refinada ano após ano desde os primeiros canais seguros de contato, que permite também que a <span class=\"term\">Energia de Fusão</span> funcione com tanta precisão dentro do Nexus-0: quando a consciência humana já está codificada como informação, a sincronização emocional e de memórias entre humano e Digimon deixa de ser metáfora e passa a ser transferência de dados literal. E é também por isso que um Equipamento de Sincronização danificado, ou um mergulho interrompido no momento errado, é tratado por toda a CybeRede com o mesmo peso de uma emergência médica real — porque, para quem está do outro lado, é exatamente isso que é.</p>\n\n    <h3 style=\"font-family:'Source Serif 4',serif;font-weight:600;font-size:21px;color:var(--paper);margin:36px 0 14px;\">Morrer em Datahaven</h3>\n\n    <p>Há uma pergunta que todo DigiRider recém-chegado eventualmente faz, e que os veteranos costumam responder com um silêncio longo antes de qualquer palavra: <em>o que acontece se eu morrer aqui dentro?</em></p>\n\n    <p>A resposta curta é que a experiência de morrer dentro do Nexus-0 não é simbólica. É fisiológica. Quando o avatar de um usuário sofre dano suficiente para ser destruído, o Equipamento de Sincronização recebe o colapso dessa estrutura de dados em tempo real — e traduz esse colapso para o sistema nervoso do corpo físico com a mesma fidelidade que traduz qualquer outra sensação. A pessoa sente que está morrendo. Não uma dor vaga ou difusa: a sensação completa e convincente do que o avatar está sofrendo, seja um ataque de um Digimon, seja uma queda de dados, seja o colapso de uma estrutura inteira do Nexus-0 em volta dela. Ninguém que passou por isso descreve o evento como \"parecer que está morrendo\". Todos descrevem como se realmente tivessem morrido — e só depois, de volta ao corpo físico, tenham entendido que não.</p>\n\n    <p class=\"pull\">Não é uma simulação de morte. É a experiência mais próxima que existe dela, sem cruzar a linha de fato.</p>\n\n    <p>Mas o que a maioria das pessoas não sabe — e que a CybeRede prefere não anunciar em material de boas-vindas — é o que acontece com o avatar depois. Um avatar destruído dentro do Nexus-0 não \"volta\" automaticamente. Ele é <em>perdido</em>. Os dados que o compunham, a representação digital daquela identidade construída ao longo de cada hora passada em Datahaven, se fragmentam e se dispersam pela rede no momento do colapso. O usuário desperta no mundo físico. O avatar não volta com ele.</p>\n\n    <p>E aqui está o que nenhum guia de boas-vindas da CybeRede menciona: um avatar destruído não pode ser recriado. Não existe \"começar de novo\" dentro do Nexus-0. O Equipamento de Sincronização pode projetar consciências, mas a identidade digital que existia em Datahaven — os vínculos com o Digimon parceiro, o registro de cada batalha, a reputação, os acessos, a própria presença reconhecível naquele mundo — é única. Quando ela se fragmenta no colapso, não há template do qual restaurar. Para todos os efeitos que o Nexus-0 reconhece, aquela pessoa simplesmente deixou de existir ali. É como morrer dentro de Datahaven. O corpo físico acorda. O DigiRider não volta.</p>\n\n    <p>Tentar se reconectar com um Equipamento de Sincronização após perder o avatar não gera erro, não gera aviso. Gera silêncio. O sistema tenta encontrar a âncora digital que deveria receber a consciência projetada — e não encontra nada. A conexão cai. E continua caindo, cada vez que a pessoa tenta.</p>\n\n    <p class=\"pull\">Em Datahaven, morrer em combate tem cura. Perder o avatar não tem — ou quase não tem.</p>\n\n    <p>O \"quase\" existe porque há, circulando nos cantos mais obscuros do Mercado Central e em conversas que os veteranos mais velhos têm só entre si, rumores persistentes de que algumas pessoas sabem como reverter isso. Não recriar um avatar: <em>recuperar</em> o que se perdeu, com os dados intactos, como se o colapso nunca tivesse acontecido. Quem sabe fazer isso de verdade é tão poucos que a maioria das pessoas na CybeRede prefere acreditar que é lenda. Os que sabem não anunciam. E o preço que cobram raramente tem a ver com créditos digitais — tem a ver com o que você sabe, com o que você está disposto a fazer, ou com o que você está disposto a nunca mais mencionar.</p>", "cap7": "<div class=\"chapter-tag\">\n      <div class=\"chapter-num\">8</div>\n      <div class=\"chapter-year\">2042 · VINTE ANOS DEPOIS DO LIMIAR</div>\n    </div>\n    <h2>Nexopolis</h2>\n    <p class=\"chapter-dek\">Nenhuma cidade no Nexus-0 cresceu tão rápido quanto Nexopolis, e nenhuma escondeu tão bem o preço desse crescimento.</p>\n\n    <p>Passaram-se vinte anos desde o Limiar que deu origem ao Nexus-0, e mais de uma década desde que a Energia de Fusão mudou para sempre o significado de ser um treinador. Datahaven, o continente digital que recebeu as primeiras expedições humanas, transformou-se num mosaico de cidades, estações e territórios de exploração. No centro de tudo isso, erguendo-se mais alto e mais rápido do que qualquer outra, está <span class=\"term\">Nexopolis</span>: a capital, o primeiro horizonte que qualquer DigiRider recém-chegado à CybeRede enxerga.</p>\n\n    <p>Torres de dados cristalizados se misturam à arquitetura humana trazida de todos os cantos do mundo físico, porque foi para Nexopolis que boa parte da humanidade migrou assim que a fusão deixou de ser exceção e passou a ser rotina. Holofontes da Arena de Gladiadores disputam o céu com o silêncio competente do Mercado Central. Trailmon cruzam a Estação Central trazendo viajantes, mercadorias e, vez ou outra, problemas que a cidade prefere não anunciar.</p>\n\n    <p class=\"pull\">Nexopolis comemora a paz que a Era DigiRider trouxe ao mundo. Mas vive cercada por quem soube transformar essa paz em poder.</p>\n\n    <p>Pois nem todo crescimento é gentil. Sob as Torres Altas, onde famílias como os Tessenrei e os Thalvane negociaram fortunas inteiras em dados antes mesmo de o Primeiro Contato terminar, existe uma cidade inteiramente diferente: a dos Esgotos Profundos, dos túneis de manutenção abandonados, das ruas onde a Guarda de Rede só entra em número.</p>\n\n    <h3 style=\"font-family:'Source Serif 4',serif;font-weight:600;font-size:21px;color:var(--paper);margin:36px 0 14px;\">O Colapso de Dados</h3>\n\n    <p>Ninguém em Nexopolis fala do <span class=\"term\">Colapso de Dados</span> sem baixar a voz. Anos antes do presente registro, um setor inteiro da cidade, então uma extensão recém-erguida das Torres Altas, perdeu sustentação de uma só vez. Engenheiros nunca chegaram a um consenso sobre a causa: alguns apontam falha de infraestrutura crescendo rápido demais; outros, sussurrando, mencionam interferência vinda de regiões do Nexus-0 que ninguém deveria estar explorando àquela profundidade.</p>\n\n    <p>O setor inteiro desmoronou em poucos minutos, dados e estrutura física colapsando juntos como se a realidade ali simplesmente esquecesse como se manter coerente. Houve sobreviventes, poucos, e a maioria carrega a experiência como uma cicatriz que nunca termina de contar a história completa. A área nunca foi reconstruída. Hoje é zona de exclusão, vigiada de longe pela Guarda de Rede, e o que sobrou dela alimenta abrigos improvisados nas bordas da cidade, onde sobreviventes cuidam de outros sobreviventes.</p>\n\n    <p>Entre os poucos que saíram vivos estava <span class=\"term\">Talia Ferro</span>, que perdeu mais da metade do grupo com quem entrara naquele setor minutos antes. Foi ela quem, numa transmissão clandestina interceptada pela Guarda de Rede e nunca respondida oficialmente, usou pela primeira vez a palavra \"facção\" no sentido que ela carrega hoje em Datahaven. Hoje administra um abrigo improvisado para outros sobreviventes nas bordas da cidade — e é reconhecida, mesmo sem nunca ter pedido o título, como fundadora do que se tornaria o <span class=\"term\">Escudo Susanoomon</span>, a facção dedicada a chegar antes de qualquer outra quando o Nexus-0 volta a tremer.</p>\n\n    <p>O Colapso fez mais do que destruir um bairro. Ele expôs, pela primeira vez de forma pública, que mesmo no coração mais avançado da CybeRede, a estabilidade do Nexus-0 podia falhar sem aviso. Para alguns pesquisadores, foi a primeira evidência concreta de que algo nas regiões mais profundas e distantes do Nexus-0 não estava simplesmente parado, à espera. Estava se movendo.</p>\n\n    <p>Décadas de teorias não oficiais circulam sobre o que de fato causou aquele desmoronamento. Quase nenhuma chega perto da verdade — mas há quem afirme que a resposta tem menos a ver com falha de infraestrutura e mais com algo muito mais antigo, escondido nas regiões que ninguém deveria explorar àquela profundidade. <em>(Ver Capítulo 8 — Digievolução, o Colapso e o Programa Evo.)</em></p>\n\n    <div class=\"strip\">\n      <div class=\"strip-seg\"><div class=\"strip-year\">ANTES</div><div class=\"strip-txt\">Um setor recém-erguido das Torres Altas, símbolo do crescimento acelerado de Nexopolis.</div></div>\n      <div class=\"strip-seg\"><div class=\"strip-year\">O COLAPSO</div><div class=\"strip-txt\">Dados e estrutura física desmoronam juntos em poucos minutos. Causa nunca oficialmente confirmada.</div></div>\n      <div class=\"strip-seg\"><div class=\"strip-year\">HOJE</div><div class=\"strip-txt\">Zona de exclusão vigiada à distância. Sobreviventes reconstroem suas vidas nas bordas da cidade.</div></div>\n    </div>\n\n    <h3 style=\"font-family:'Source Serif 4',serif;font-weight:600;font-size:21px;color:var(--paper);margin:36px 0 14px;\">Poder, Trono e Coroa Invisível</h3>\n\n    <p>Oficialmente, Nexopolis é governada pelo <span class=\"term\">Chanceler Dorian Reisswell</span>, sentado num trono administrativo há quase uma década, tratado com o mesmo desapego que reserva para quase tudo. Encanto público impecável, decisões frias por trás de portas fechadas. Mas poucos cidadãos sabem ao certo quanto poder o gabinete do Chanceler realmente exerce, e quanto é apenas fachada elegante para os interesses do <span class=\"term\">Consórcio Azulongmon</span> — a rede de famílias e corporações, com a <span class=\"term\">Corporação Tessenrei</span> e a Casa Thalvane à frente, que financiou boa parte da infraestrutura que sustenta a cidade desde os primeiros anos da Era DigiRider.</p>\n\n    <p><span class=\"term\">Lady Ophira Tessenrei</span> representa o lado jovem e politicamente afiado dessa rede; <span class=\"term\">Lord Edrik Thalvane</span>, último de uma casa que já controlou metade do comércio de dados da cidade antes de um escândalo nunca mencionado em voz alta, é o contrapeso mais velho e mais cínico. É esse mesmo dinheiro, e o silêncio caro de quem ainda restou das grandes famílias, que paga por soluções discretas quando um problema é grande demais para uma patrulha comum e pequeno demais para se tornar escândalo público. <span class=\"term\">Damien Cross</span>, terno impecável e modos refinados, é quem normalmente recebe esse tipo de chamado — tratando cada ameaça como rotina, nunca como urgência. Quando o problema exige algo que nem mesmo Cross resolve em silêncio, é a <span class=\"term\">Unidade \"Cinza\"</span> quem aparece: um operativo sem nome público, mascarado, que responde a uma estrutura que nem a Comandante <span class=\"term\">Lyssara Venn</span> — o rosto oficial da Guarda de Rede — consegue comandar.</p>\n\n    <p class=\"pull\">Em Nexopolis, todo poder visível tem uma sombra. E toda sombra, em algum momento, presta contas a alguém nas Torres Altas.</p>\n\n    <h3 style=\"font-family:'Source Serif 4',serif;font-weight:600;font-size:21px;color:var(--paper);margin:36px 0 14px;\">As Estradas Que Ninguém Controla</h3>\n\n    <p>Fora do alcance direto da Guarda de Rede, duas facções motorizadas disputam as estradas periféricas e os túneis abandonados que cercam Nexopolis. O conflito entre elas nasceu de algo banal, disputa por uma rota de comércio paralelo, e nunca mais se resolveu por completo.</p>\n\n    <div class=\"entity-grid\">\n      <div class=\"entity-card\">\n        <div class=\"e-domain\">Facção · Túneis Abandonados</div>\n        <h3>Cães de Trilho</h3>\n        <p>Liderados por <span class=\"term\">Rashida \"Lobo Vermelho\" Okonkwo</span>, correm versões modificadas de Trailmon menores pelos túneis sob a cidade. O lenço vermelho é a marca da gangue. Mantêm um código rígido: nunca atacam civis, nunca traem um aliado.</p>\n      </div>\n      <div class=\"entity-card rust\">\n        <div class=\"e-domain\">Facção · Estradas Periféricas</div>\n        <h3>Rota Negra</h3>\n        <p>Comandada por <span class=\"term\">Soren Lindqvist</span>, é rival direta dos Cães de Trilho, disputando as mesmas estradas há anos. Prefere demonstrações de força a violência aberta, mas não hesita quando provocada de fato.</p>\n      </div>\n    </div>\n\n    <p>Entre uma facção e outra, sobrevive um submundo inteiro de informantes, contrabandistas, ladrões especializados e caçadores de recompensa, cada um com seu próprio código, seu próprio preço e sua própria razão para nunca trabalhar diretamente para a Guarda de Rede. A linha entre quem protege Nexopolis e quem apenas a explora é, na maioria dos dias, quase impossível de traçar.</p>\n\n    <p>Mesmo assim, é nesse equilíbrio instável, entre torres luminosas e túneis sem luz, entre tratados de paz e favores nunca documentados, que qualquer DigiRider recém-chegado precisa aprender a se mover. Nexopolis não pede para ser entendida de primeira. Ela só promete que, tarde ou cedo, vai testar quem chegou.</p>", "povo-intro": "<div class=\"chapter-tag\">\n      <div class=\"chapter-num\">9</div>\n      <div class=\"chapter-year\">2042 · REGISTROS INFORMAIS DA CYBEREDE</div>\n    </div>\n    <h2>Histórias do Povo</h2>\n    <p class=\"chapter-dek\">Os arquivos oficiais registram facções, colapsos e tratados. Mas Datahaven também é feita do que acontece entre uma missão e outra — e disso quase nada fica documentado.</p>\n\n    <p>Tudo o que foi narrado até aqui sobreviveu porque alguém, em algum nível da CybeRede, considerou importante o suficiente para arquivar: a origem do Nexus-0, o nascimento da Energia de Fusão, o Colapso de Dados que moldou metade da política de Nexopolis. São registros de instituição, escritos para durar.</p>\n\n    <p>O que vem a seguir não é esse tipo de registro. Não são relatórios, nem dossiês, nem boletins da Guarda de Rede. São histórias — contadas como histórias merecem ser contadas, com tudo que um arquivo oficial sempre despreza: o silêncio antes de uma resposta, o tom de voz que muda no meio de uma frase, o jeito como alguém ri quando não devia, ou cala quando deveria gritar.</p>\n\n    <p class=\"pull\">Nexopolis tem um Chanceler, um Consórcio e uma Guarda de Rede. Mas o que faz a cidade respirar são as pessoas que ninguém manda fazer nada — e que mesmo assim aparecem, todos os dias, exatamente quando alguém precisa.</p>\n\n    <p>Boa parte do que se segue gira em torno de seis nomes que, de um jeito ou de outro, atravessam quase todas as histórias relevantes contadas em Nexopolis nos últimos anos. Mas Datahaven é maior do que qualquer grupo de seis pessoas, por mais que elas insistam em se meter em quase tudo — e por isso, entre uma história e outra, este arquivo também abre espaço para quem normalmente fica de fora dos relatórios: os vendedores de banca, os detetives de bar decadente, os líderes de gangue com código de honra, os curandeiros que nunca dormem o suficiente. Datahaven é feita de todos eles. O que vem a seguir é a tentativa, ainda que incompleta, de fazer justiça a isso.</p>", "povo-seis": "<div class=\"chapter-tag\">\n      <div class=\"chapter-num\">10</div>\n      <div class=\"chapter-year\">NOMES QUE SE REPETEM NOS RELATÓRIOS</div>\n    </div>\n    <h2>Os Seis de Nexopolis</h2>\n    <p class=\"chapter-dek\">Ninguém os nomeou formalmente como grupo. A Guarda de Rede simplesmente parou de se surpreender quando os mesmos seis nomes apareciam, repetidas vezes, nos relatórios de incidentes mais estranhos da cidade.</p>\n\n    <p>Não existe nenhum documento oficial da Academia de Treinadores, da Guarda de Rede ou de qualquer facção reconhecida que trate Hikaru, Hasiel, Misha, Rey, Anduin e Cazeaje como uma unidade. E, no entanto, qualquer funcionário do Posto de Missões que trabalhe perto de Cazeaje há tempo suficiente vai confirmar: quando um desses seis nomes aparece num relatório de incidente, geralmente os outros cinco não estão muito longe.</p>\n\n    <div class=\"people-grid\">\n      <div class=\"people-card\">\n        <span class=\"p-role\">Domador-Músico</span>\n        <h4>Mukimei Hikaru</h4>\n        <p>Usa música para acalmar — ou enfurecer — Digimon perigosos pelas ruas de Nexopolis. Parceiro de Examon. Onde há uma crise envolvendo Digimon fora de controle, ele já está a caminho antes de ser chamado.</p>\n      </div>\n      <div class=\"people-card rust\">\n        <span class=\"p-role\">Lenda Urbana & Comerciante</span>\n        <h4>\"Hasiel\"</h4>\n        <p>Aparece, vende Cartas de Evolução que ninguém catalogou, desaparece. Idade, origem e história: desconhecidas para todos, exceto talvez para uma pessoa. Parceiro de X-Guilmon.</p>\n      </div>\n      <div class=\"people-card\">\n        <span class=\"p-role\">Idol & Herdeira Eriza</span>\n        <h4>Misha Eriza</h4>\n        <p>Herdeira da Fundação Eriza, idol do Teatro de Cristal, praticamente imbatível em duelos de cartas. A agenda mais cheia do grupo — e ainda assim a primeira a aparecer quando os seis se encontram. Parceira de Sakuyamon e Kuzuhamon.</p>\n      </div>\n      <div class=\"people-card blue\">\n        <span class=\"p-role\">Líder da Academia</span>\n        <h4>Rey Lykaios</h4>\n        <p>Considerada a pessoa mais inteligente de Datahaven, e a que mais gosta de esconder isso atrás de uma pegadinha bem montada. Parceira de FenriLoogamon: Takemikazuchi e AncientGarurumon.</p>\n      </div>\n      <div class=\"people-card blue\">\n        <span class=\"p-role\">Domador de Elite</span>\n        <h4>Anduin Williams</h4>\n        <p>Ex-número 1 mundial de \"Gloria\", hoje um dos raros treinadores de Nexopolis com três Digimon distintos vinculados a ele. Quase sempre ao lado de Rey — por escolha própria, não por acaso. Parceiro de Alphamon Ouryuken, Chaosmon: Valdur Arm e Susanoomon.</p>\n      </div>\n      <div class=\"people-card\">\n        <span class=\"p-role\">Distribuidora de Missões</span>\n        <h4>Cazeaje</h4>\n        <p>O primeiro rosto que todo novato vê no Posto de Missões — e o único contato confiável que existe para encontrar \"Hasiel\". Amiga de infância dele, quase irmã. Parceira de Y-Huckmon.</p>\n      </div>\n    </div>\n\n    <p>Os padrões de proximidade dentro do grupo não são segredo para quem presta atenção. Hikaru e Cazeaje conhecem Hasiel desde antes de qualquer um dos três ter nome reconhecido em Nexopolis, e os três se tratam com a informalidade de quem nunca precisou explicar nada um ao outro. Anduin é visto ao lado de Rey com uma frequência que deixou de ser coincidência há muito tempo. Misha é, de longe, a mais ocupada dos seis — e ainda assim, sempre que o grupo combina um encontro, aparece. Sem exceção.</p>\n\n    <p class=\"pull\">Seis pessoas completamente diferentes, vindas de lugares que nada têm em comum. E ainda assim, de um jeito que ninguém em Nexopolis sabe explicar bem, sempre terminam no mesmo lugar.</p>\n\n    <p>As histórias a seguir são sobre esse \"sempre terminam no mesmo lugar\". E sobre o resto de Nexopolis, que segue girando ao redor deles — com ou sem permissão.</p>", "povo-hamburgueres": "<div class=\"chapter-tag\">\n      <div class=\"chapter-num\">11</div>\n      <div class=\"chapter-year\">QUALQUER LANCHONETE ABERTA DE NEXOPOLIS</div>\n    </div>\n    <span class=\"conto-tag\">⌬ Conto · Mercado Central</span>\n    <h2>Hambúrgueres e Segredos</h2>\n    <p class=\"chapter-dek\">A lenda urbana mais fácil de confirmar em toda Datahaven é também a mais simples: procure por uma montanha de hambúrgueres digitais, e \"Hasiel\" provavelmente está sentado ao lado dela.</p>\n\n    <p class=\"conto\">Yusuf Akdemir notou o cheiro antes de notar o homem. Carne sintética grelhada, queijo digital derretendo rápido demais para ser natural, e aquele tempero apimentado que só uma lanchonete no setor leste do Mercado Central ainda fazia do jeito certo. Ele largou o pano com que limpava o vidro da banca \"Anel Azul\" e se inclinou para fora, só para confirmar o que já suspeitava: três bancas adiante, de costas para a rua, um homem de capuz estava sentado diante de uma pilha de hambúrgueres alta o suficiente para desafiar qualquer noção razoável de apetite humano.</p>\n\n    <p class=\"conto\">— Ele tá aqui de novo — murmurou Yusuf, mais para si mesmo do que para alguém. Um cliente que esperava pelo troco ergueu a sobrancelha. — O cara das cartas. \"Hasiel\".</p>\n\n    <p class=\"conto\">Não era segredo, exatamente. Era mais como uma piada que toda Nexopolis decidira, em algum momento, levar a sério: se você precisava encontrar o vendedor mais misterioso e mais procurado de toda a CybeRede, esquecesse rastrear rotas, esquecesse vigiar bancas. Bastava seguir o cheiro de fritura.</p>\n\n    <p class=\"conto\">Ao lado de Hasiel, comendo num ritmo bem mais civilizado, estava Mukimei Hikaru — capuz baixo, ombros relaxados, o tipo de pessoa que parecia nunca estar com pressa de lugar nenhum. Os dois conversavam baixo, do jeito que só quem se conhece há muito tempo consegue conversar: sem precisar terminar as frases, rindo de coisas que o outro nem tinha dito ainda.</p>\n\n    <p class=\"conto\">— Você comeu o meu — disse Hikaru, olhando pra pilha que tinha encolhido visivelmente mais do lado dele.</p>\n\n    <p class=\"conto\">— Eu comi o <em>meu</em>. O seu ainda tá aí. — Hasiel não desviou os olhos do prato. — Você só está contando mal.</p>\n\n    <p class=\"conto\">— Eu não contei mal nenhuma vez na vida.</p>\n\n    <p class=\"conto\">— Você contou errado a última nota que tocou pro Examon ontem, e ele quase derrubou um poste.</p>\n\n    <p class=\"conto\">Hikaru abriu a boca para reclamar, desistiu, e voltou a comer. Era esse o tipo de discussão que os dois mantinham desde sempre — sem vencedor, sem necessidade de vencedor, só o prazer de continuar implicando um com o outro enquanto o resto do mundo seguia girando ao redor.</p>\n\n    <div class=\"scene-break\">⌬ ⌬ ⌬</div>\n\n    <p class=\"conto\">Foi nesse momento que Theo Marin decidiu se aproximar.</p>\n\n    <p class=\"conto\">O garoto tinha quinze anos, chegara à Cyberede havia poucos dias, e ainda carregava aquele jeito de quem confiava rápido demais em qualquer rosto familiar. Tinha ouvido alguém comentar, na Praça de Chegada, que \"se você quiser uma Carta de Evolução que ninguém mais tem, procure pelo cara dos hambúrgueres\". Levou a dica ao pé da letra, e ali estava ele, parado diante da mesa, com o Digivice apertado na mão.</p>\n\n    <p class=\"conto\">— Desculpa — disse, a voz tremendo só um pouco. — Você é o Hasiel? O das cartas?</p>\n\n    <p class=\"conto\">Hikaru ergueu os olhos primeiro, curioso. Hasiel não se virou imediatamente — só ficou ali, mastigando, deixando o silêncio se estender um segundo além do confortável.</p>\n\n    <p class=\"conto\">— Depende de quem está perguntando — respondeu, por fim, ainda sem se virar.</p>\n\n    <p class=\"conto\">— Eu... meu parceiro é um Vírus, e ele é forte, mas tem uma digievolução que eu acho que ele poderia alcançar, só que nenhum manual da Academia fala sobre ela, e eu ouvi dizer que você...</p>\n\n    <p class=\"conto\">— Que eu tenho cartas que não existem no catálogo. — Hasiel finalmente se virou. Sob o capuz, o rosto era quase impossível de definir: nem velho, nem jovem, como se a luz da lanchonete simplesmente recusasse pousar nele por tempo suficiente. — É verdade. Mas não é à venda assim, de qualquer um, em qualquer mesa.</p>\n\n    <p class=\"conto\">Theo pareceu murchar um pouco.</p>\n\n    <p class=\"conto\">— Então como eu...</p>\n\n    <p class=\"conto\">— Você não precisa de mim agora — interrompeu Hikaru, gentil. — Seu parceiro ainda nem chegou no limite da linha evolutiva normal dele. Quando chegar — e ele vai chegar, ele tem cara de quem chega — aí sim, talvez, valha a pena perguntar de novo.</p>\n\n    <p class=\"conto\">— E quando for a hora — completou Hasiel, voltando ao hambúrguer —, eu provavelmente já vou saber. Eu costumo saber essas coisas.</p>\n\n    <p class=\"conto\">Theo ficou ali mais um instante, sem saber se aquilo era uma promessa ou uma forma educada de dispensa. Hikaru, percebendo a dúvida no rosto do garoto, fez um gesto pra mesa ao lado, oferecendo um lugar, e os próximos vinte minutos da tarde se transformaram numa aula improvisada sobre como sobreviver aos primeiros meses na Cyberede sem fazer as burrices que, segundo Hikaru, \"todo mundo faz, eu também fiz, então relaxa\".</p>\n\n    <div class=\"scene-break\">⌬ ⌬ ⌬</div>\n\n    <p class=\"conto\">Mais tarde, depois que Theo se foi — mais leve, mais confiante, prometendo voltar quando o parceiro estivesse \"pronto de verdade\" — Hikaru se recostou na cadeira e observou o amigo com aquele tipo de olhar que só quem cresceu junto consegue dar.</p>\n\n    <p class=\"conto\">— Você quase contou pra ele.</p>\n\n    <p class=\"conto\">— Eu não contei nada.</p>\n\n    <p class=\"conto\">— Você quase disse que sabe quando alguém precisa, antes de a pessoa saber. Isso é quase contar.</p>\n\n    <p class=\"conto\">Hasiel deu de ombros, terminando o último hambúrguer com uma calma displicente que escondia, talvez, mais do que aparentava.</p>\n\n    <p class=\"conto\">— Eu não disse <em>como</em> eu sei. Isso ainda é meu.</p>\n\n    <p class=\"conto\">— Por enquanto.</p>\n\n    <p class=\"conto\">— Por enquanto — Hasiel concordou, e havia ali algo parecido com um sorriso, rápido demais para confirmar.</p>\n\n    <p class=\"conto\">Foi quando o Digivice de Hikaru vibrou. Uma mensagem da Cazeaje, curta, direta, do jeito que só ela escrevia quando o assunto era sério:</p>\n\n    <p class=\"conto\"><em>\"Vocês dois aí de novo? Preciso de informação. Onde ele vai estar às seis da tarde?\"</em></p>\n\n    <p class=\"conto\">Hikaru ergueu o Digivice para Hasiel ver. Hasiel leu, considerou por um segundo, e disse o nome de um beco perto da Estação Central — informação que Hikaru repassou sem perguntar o motivo, porque há anos aprendera que não precisava.</p>\n\n    <p class=\"conto\">— Ela de novo rastreando você pra alguém — comentou Hikaru, guardando o Digivice.</p>\n\n    <p class=\"conto\">— Ela é a única que consegue. — Hasiel se levantou, ajeitando o capuz, já se preparando para desaparecer do jeito que sempre desaparecia: sem aviso, sem despedida formal, só ali e depois não. — Diz pra ela que da próxima vez ela me deve um hambúrguer.</p>\n\n    <p class=\"conto\">— Ela vai dizer que você já deve mais hambúrgueres a ela do que ela consegue contar.</p>\n\n    <p class=\"conto\">— Mentira. Eu conto certo as minhas dívidas.</p>\n\n    <p class=\"conto\">E, com isso, ele se foi — não correndo, não se escondendo, apenas se afastando pela multidão do Mercado Central com a naturalidade de quem nunca precisou fugir de ninguém, só escolher, com cuidado, quem podia vê-lo de verdade. Yusuf, ainda observando da própria banca, suspirou e voltou ao trabalho. Mais um dia em que a lenda urbana mais famosa de Nexopolis tinha sido, na prática, só um cara comendo hambúrguer com o amigo de infância — e ele continuava sendo o único, fora aquele pequeno círculo, que parecia entender exatamente o quão simples e o quão impossível aquilo era ao mesmo tempo.</p>", "povo-duelo": "<div class=\"chapter-tag\">\n      <div class=\"chapter-num\">12</div>\n      <div class=\"chapter-year\">TEATRO DE CRISTAL · UMA NOITE QUALQUER</div>\n    </div>\n    <span class=\"conto-tag\">⌬ Conto · Torres Altas</span>\n    <h2>A Aposta Que Ninguém Venceu</h2>\n    <p class=\"chapter-dek\">Todo mundo em Nexopolis tem uma teoria sobre Misha Eriza e Hasiel. Nenhuma delas foi confirmada. Todas elas, segundo quem já viu os dois discutindo, provavelmente estão certas.</p>\n\n    <p class=\"conto\">O Teatro de Cristal brilhava como sempre brilhava nas noites de duelo de exibição: paredes translúcidas refletindo luz em ângulos impossíveis, holofontes pintando o tablado central de dourado, e uma platéia inteira contendo a respiração enquanto Misha Eriza erguia a última carta da mão. Ela não precisava de teatralidade — já era, naturalmente, teatral demais para qualquer cenário comum — mas o Teatro parecia insistir em emoldurá-la de qualquer jeito.</p>\n\n    <p class=\"conto\">Do alto do tablado, Sakuyamon projetava uma aura sutil de respeito que nenhum adversário daquela noite seria capaz de quebrar. A vitória, a essa altura, era mera formalidade.</p>\n\n    <p class=\"conto\">Foi exatamente nesse instante — vitória garantida, platéia em êxtase contido — que uma voz se ergueu das cadeiras mais baratas, longe do glamour das primeiras filas, mastigando algo que cheirava distintamente a hambúrguer digital.</p>\n\n    <p class=\"conto\">— Previsível.</p>\n\n    <p class=\"conto\">Misha não precisou olhar para saber quem era. Só ela conseguia tornar uma única palavra tão irritante.</p>\n\n    <p class=\"conto\">— Você não tem nada melhor pra fazer? — perguntou, sem se virar, terminando a jogada com um movimento exato.</p>\n\n    <p class=\"conto\">— Eu tenho muita coisa melhor pra fazer. — Hasiel, sentado displicente entre desconhecidos que mal notavam quem era, ergueu mais um hambúrguer. — Só que nenhuma é tão divertida quanto ver você ganhar do mesmo jeito de sempre.</p>\n\n    <p class=\"conto\">O duelo terminou poucos minutos depois, claro, com Misha vitoriosa — como sempre. A platéia aplaudiu, as luzes baixaram, o adversário fez uma reverência educada antes de se retirar derrotado. Mas Misha, em vez de aproveitar o momento de glória que qualquer idol teria estendido por mais alguns segundos, já estava descendo do tablado, atravessando a multidão de fãs sem parar para um único autógrafo, direto para as cadeiras baratas.</p>\n\n    <p class=\"conto\">— Repete — disse ela, parando diante de Hasiel com os braços cruzados.</p>\n\n    <p class=\"conto\">— Previsível — repetiu ele, sem nenhuma hesitação, dando uma mordida deliberadamente lenta no hambúrguer.</p>\n\n    <p class=\"conto\">— Se é tão previsível, por que você nunca aceita jogar contra mim de verdade?</p>\n\n    <p class=\"conto\">— Porque eu já sei o final. — Hasiel se levantou, limpando as mãos displicente. — Você ganha, fica insuportável por uma semana, e eu tenho coisas melhores para vender do que meu próprio orgulho.</p>\n\n    <p class=\"conto\">— Coisas melhores que isso eu duvido que você tenha.</p>\n\n    <p class=\"conto\">Por um segundo — só um segundo, rápido o bastante para qualquer um que não estivesse prestando atenção perder completamente — Hasiel hesitou. Foi quase nada: um piscar mais lento, um músculo do maxilar que se contraiu antes de relaxar de novo. Mas Misha viu. Misha sempre via.</p>\n\n    <p class=\"conto\">— Boa noite, Misha — disse ele, recuperando a compostura rápido demais para ser natural, e já se afastando entre as cadeiras.</p>\n\n    <p class=\"conto\">— Hasiel.</p>\n\n    <p class=\"conto\">Ele não parou.</p>\n\n    <p class=\"conto\">— HASIEL.</p>\n\n    <p class=\"conto\">Ele parou — mas não se virou.</p>\n\n    <p class=\"conto\">— Um dia você vai ter que jogar contra mim de verdade.</p>\n\n    <p class=\"conto\">— Um dia, talvez. — E, com isso, desapareceu pela saída lateral do Teatro, deixando Misha parada ali, vermelha de uma fúria que ela própria não sabia explicar inteiramente, enquanto metade da platéia ainda gravava cada segundo daquilo em seus Digivices.</p>\n\n    <div class=\"scene-break\">⌬ ⌬ ⌬</div>\n\n    <p class=\"conto\">A história, claro, vazou. Em menos de uma hora, Seraphine Kovač já tinha ouvido três versões diferentes no próprio salão de chá, cada uma exagerando um detalhe distinto. Ela própria garantia, entre um gole de chá raro e outro, que cobraria menos para revelar segredos reais da Corporação Tessenrei do que cobrava para apenas <em>mencionar</em> o assunto \"Misha e Hasiel\" para qualquer cliente curioso demais.</p>\n\n    <p class=\"conto\">Foi Rey Lykaios quem decidiu, dias depois, que aquilo precisava de uma intervenção mais... estrutural.</p>\n\n    <p class=\"conto\">— Vocês vão jantar juntos — anunciou ela, entrando na sala de descanso dos instrutores da Academia onde Misha esperava, displicente, por uma reunião sobre patrocínio.</p>\n\n    <p class=\"conto\">— Como é que é?</p>\n\n    <p class=\"conto\">— Reservei uma mesa no restaurante novo do Distrito das Torres. No seu nome. E no nome do Hasiel.</p>\n\n    <p class=\"conto\">— Eu não pedi reserva nenhuma.</p>\n\n    <p class=\"conto\">— Eu sei. Foi um \"erro administrativo\" muito conveniente. — Rey sorriu daquele jeito que avisava qualquer pessoa atenta que algo estava prestes a dar terrivelmente errado, ou terrivelmente certo, dependendo do ponto de vista.</p>\n\n    <p class=\"conto\">Misha considerou recusar. Considerou seriamente. Mas havia, no fundo, uma curiosidade pequena e irritante demais para ignorar — então foi.</p>\n\n    <p class=\"conto\">Hasiel também apareceu, vinte minutos atrasado, descobrindo a reserva da mesma forma estranha e conveniente, e os dois ficaram parados diante da mesa reservada, entendendo, ao mesmo tempo, exatamente o que tinha acontecido.</p>\n\n    <p class=\"conto\">— A Rey — disseram os dois, em unissono, com o mesmo tom exausto.</p>\n\n    <p class=\"conto\">— Ela vai pagar por isso — completou Misha, já puxando a cadeira de qualquer jeito, irritada o bastante para sentar mesmo assim.</p>\n\n    <p class=\"conto\">— Eu não vou nem fingir que estou surpreso — disse Hasiel, sentando-se também, ainda incomodado, mas sem fazer nenhum movimento real para ir embora.</p>\n\n    <p class=\"conto\">E assim ficaram: discutindo, durante o jantar inteiro, sobre quem tinha sido mais ingênuo em cair — ou quase cair — na armadilha elaborada de Rey, sem nunca, nem por um segundo, discutir qualquer outra coisa que de fato importasse entre eles. O garçom, sem entender muito bem a dinâmica, trouxe e levou pratos inteiros sem que nenhum dos dois parasse de falar sobre Rey o suficiente para realmente comer.</p>\n\n    <p class=\"conto\">No dia seguinte, Anduin resumiu o assunto de um jeito que o resto do grupo repetiria por semanas:</p>\n\n    <p class=\"conto\">— Alguém que conhece tão bem o padrão de jogo dela quanto ele conhece, e que mesmo assim nunca aceita um duelo de verdade... não está com medo de perder. Está com medo de outra coisa.</p>\n\n    <p class=\"conto\">Hikaru concordou — mas jurou nunca repetir aquilo na frente de nenhum dos dois. Cazeaje, fiel à amizade antiga, apenas sorriu quando o assunto surgiu e mudou de tema, o que, para quem a conhecia, era praticamente uma confissão.</p>\n\n    <p class=\"conto\">Rey, satisfeita com o \"sucesso parcial\" da própria armadilha, já estava planejando a próxima.</p>", "povo-academia": "<div class=\"chapter-tag\">\n      <div class=\"chapter-num\">13</div>\n      <div class=\"chapter-year\">SALÃO PRINCIPAL DA ACADEMIA DE TREINADORES</div>\n    </div>\n    <span class=\"conto-tag\">⌬ Conto · Academia de Treinadores</span>\n    <h2>Risco Calculado</h2>\n    <p class=\"chapter-dek\">Rey Lykaios lidera a Academia com a leveza de quem está sempre brincando. Anduin Williams é, talvez, a única pessoa de Nexopolis que sabe o tamanho do cálculo escondido atrás de cada pegadinha dela.</p>\n\n    <p class=\"conto\">O Campo de Provas da Academia estava vazio àquela hora — vazio o bastante para que o som de três Digimon diferentes treinando em sincronia ecoasse pelas paredes de dados cristalizados como se fosse uma orquestra desafinada de propósito. Alphamon Ouryuken bloqueava, Chaosmon: Valdur Arm atacava em ângulo, e Susanoomon observava de longe, esperando a abertura certa — exatamente como Anduin havia planejado.</p>\n\n    <p class=\"conto\">— Isso não é uma avaliação oficial — disse uma voz atrás dele, displicente.</p>\n\n    <p class=\"conto\">Anduin não se virou. Já reconhecia o som dos passos de Rey antes mesmo de ela terminar a frase.</p>\n\n    <p class=\"conto\">— Eu não falei que era.</p>\n\n    <p class=\"conto\">— Mas eu vim aqui pra avaliar — continuou ela, se sentando na borda do Campo, observando o treino com a atenção fingida de quem queria parecer apenas curiosa. — Teste oficial de prontidão da Academia.</p>\n\n    <p class=\"conto\">— Seu \"teste oficial\" tem exatamente a mesma estrutura da brincadeira que você tentou comigo semana passada. Só trocou o nome.</p>\n\n    <p class=\"conto\">Rey ficou quieta um segundo — segundo demais para alguém que normalmente tinha resposta pra tudo.</p>\n\n    <p class=\"conto\">— ...Você presta atenção demais.</p>\n\n    <p class=\"conto\">— Eu costumava ler padrão de combate pra ganhar campeonato mundial de Gloria. Você acha mesmo que eu não ia notar quando alguém aplica a mesma pegadinha duas vezes?</p>\n\n    <p class=\"conto\">— A primeira vez foi sobre o cronograma de provas. Essa é sobre treino físico. São pegadinhas <em>diferentes</em>.</p>\n\n    <p class=\"conto\">— São a mesma estrutura com roupa diferente. — Anduin finalmente parou, baixando o braço, deixando os três parceiros relaxarem a postura de combate. — Você sempre cria uma desculpa \"oficial\" pra vir aqui de manhã. Por quê?</p>\n\n    <p class=\"conto\">A pergunta pegou Rey de surpresa — não porque fosse difícil, mas porque era direta demais, do tipo que ela mesma evitava fazer aos outros justamente para não precisar responder quando alguém fizesse de volta.</p>\n\n    <div class=\"scene-break\">⌬ ⌬ ⌬</div>\n\n    <p class=\"conto\">Ezra Vantenh observava tudo isso da sombra de um pilar próximo — porque era, basicamente, onde Ezra observava tudo na Academia. Ninguém lembrava exatamente quando ele tinha se matriculado, e ninguém jamais o via em sala de aula, mas ali estava ele, sempre, discreto o suficiente para ser esquecido e atento o suficiente para nunca perder nada importante.</p>\n\n    <p class=\"conto\">— Você devia parar de fingir que não percebe — comentou ele, mais tarde, quando Rey passou perto dele saindo do Campo, ainda processando a pergunta de Anduin.</p>\n\n    <p class=\"conto\">— Percebe o quê?</p>\n\n    <p class=\"conto\">— Que ele é o único nos arredores que te trata como você realmente é, em vez do que você finge ser. Todo mundo vê a treinadora espirituosa cercada de instrutores. Ele vê o resto.</p>\n\n    <p class=\"conto\">Rey abriu a boca para discordar, mas nada saiu. Ezra, satisfeito com o silêncio que conseguira provocar, voltou a se recostar no pilar, como se nunca tivesse dito nada.</p>\n\n    <div class=\"scene-break\">⌬ ⌬ ⌬</div>\n\n    <p class=\"conto\">No dia seguinte, Rey tentou de novo — porque Rey sempre tentava de novo, era praticamente uma questão de honra. Esperou Anduin terminar o treino matinal, dessa vez se aproximando sem nenhuma desculpa oficial, sem nenhuma \"avaliação\" disfarçada.</p>\n\n    <p class=\"conto\">— Eu vim aqui porque eu quis — disse ela, antes que ele perguntasse. — Sem desculpa, sem teste oficial.</p>\n\n    <p class=\"conto\">Anduin ergueu uma sobrancelha, surpreso o suficiente para deixar isso transparecer.</p>\n\n    <p class=\"conto\">— Isso é nova pra você.</p>\n\n    <p class=\"conto\">— É a primeira vez que eu tento. — Rey se sentou na mesma borda de sempre, mas dessa vez sem fingir distração. — Eu acho que você tem razão sobre a estrutura repetida. Eu inventava desculpa porque... era mais fácil do que admitir que eu simplesmente queria vir.</p>\n\n    <p class=\"conto\">Houve um silêncio — não desconfortável, apenas o tipo de silêncio que acontece quando duas pessoas decidem, ao mesmo tempo, parar de fingir.</p>\n\n    <p class=\"conto\">— Toko comentou outro dia que eu nunca preciso te chamar pra nada — disse Rey, finalmente, olhando para os Digimon de Anduin descansando ao longe. — Que você simplesmente já está aqui antes de eu perceber que precisava.</p>\n\n    <p class=\"conto\">— Toko fala demais com os alunos novos.</p>\n\n    <p class=\"conto\">— Toko está certo, às vezes.</p>\n\n    <p class=\"conto\">Anduin não respondeu de imediato. Em vez disso, se sentou ao lado dela na borda do Campo, os três parceiros Digimon recolhendo-se a uma distância respeitosa, como se soubessem, instintivamente, que aquele não era um momento para interrupção.</p>\n\n    <p class=\"conto\">— Eu prestava atenção em padrão de jogo pra ganhar partida — disse ele, finalmente, a voz mais baixa do que de costume. — Isso aqui não é padrão de jogo nenhum. Eu só... gosto de estar perto.</p>\n\n    <p class=\"conto\">— Isso é quase uma confissão, Williams.</p>\n\n    <p class=\"conto\">— Chama do que quiser.</p>\n\n    <p class=\"conto\">Rey sorriu — um sorriso diferente dos de sempre, sem a armadilha escondida atrás, sem o cálculo de quem está montando a próxima pegadinha. Só um sorriso comum, de quem, por uma vez, não estava pensando dois passos adiante.</p>\n\n    <p class=\"conto\">— Risco calculado — disse ela, baixinho, mais para si mesma.</p>\n\n    <p class=\"conto\">— O quê?</p>\n\n    <p class=\"conto\">— Nada. Coisa minha.</p>\n\n    <p class=\"conto\">E, pela primeira vez em muito tempo, nenhum dos dois sentiu necessidade de complicar aquilo com mais uma armadilha, mais um teste, mais uma desculpa oficial. Só ficaram ali, sentados, enquanto o sol da manhã batia sobre o Campo de Provas vazio.</p>", "povo-escudo": "<div class=\"chapter-tag\">\n      <div class=\"chapter-num\">14</div>\n      <div class=\"chapter-year\">PÁTIO INDUSTRIAL ABANDONADO · NOITE</div>\n    </div>\n    <span class=\"conto-tag\">⌬ Conto · Esgotos Profundos & Torres Altas</span>\n    <h2>O Peso do Lenço Vermelho</h2>\n    <p class=\"chapter-dek\">Nem toda história relevante de Nexopolis precisa de um DigiRider famoso no centro dela. Algumas das mais importantes acontecem inteiramente entre quem a cidade prefere não enxergar.</p>\n\n    <p class=\"conto\">O alarme não veio da Guarda de Rede. Veio de um contato anônimo nos Esgotos Profundos — alguém que pagara Mireille \"Cordas\" Vasseur para levar a notícia o mais rápido possível, antes que fosse tarde demais: uma onda de Digimon corrompidos, maior do que qualquer coisa registrada nos últimos meses, avançava pelos túneis de manutenção em direção às rotas comerciais que cruzavam o território dos Cães de Trilho e da Rota Negra ao mesmo tempo.</p>\n\n    <p class=\"conto\">Rashida Okonkwo recebeu a notícia primeiro, no meio de uma corrida noturna pelos túneis sob a cidade. Parou o Trailmon modificado com um puxão brusco no controle, o lenço vermelho voando para frente com o impulso.</p>\n\n    <p class=\"conto\">— Quanto tempo até alcançar a Avenida Periférica? — perguntou ao informante, que mal conseguia recuperar o fôlego.</p>\n\n    <p class=\"conto\">— Talvez uma hora. Talvez menos.</p>\n\n    <p class=\"conto\">A Avenida Periférica era território de Soren Lindqvist. Território rival. Território que, em qualquer outra noite, Rashida jamais pisaria sem esperar problema.</p>\n\n    <p class=\"conto\">Mas uma onda daquele tamanho não respeitava fronteira de gangue nenhuma.</p>\n\n    <div class=\"scene-break\">⌬ ⌬ ⌬</div>\n\n    <p class=\"conto\">Soren já estava lá quando Rashida chegou, parado na entrada do antigo posto de recarga abandonado, observando os primeiros sinais de corrupção de dados rasgarem o horizonte digital ao longe — pequenas fissuras de cor errada se espalhando pelo chão como veias infectadas.</p>\n\n    <p class=\"conto\">— Você está no meu território — disse ele, sem se virar, quando o som do Trailmon de Rashida ficou alto demais para ignorar.</p>\n\n    <p class=\"conto\">— Eu sei. — Ela parou ao lado dele, descendo do veículo sem pressa, observando a mesma fissura crescer. — Isso não muda nada entre nós depois que acabar.</p>\n\n    <p class=\"conto\">— Eu sei. — Soren finalmente se virou, e havia, em seu rosto normalmente impassível, algo parecido com reconhecimento cansado. — Mas um Digimon corrompido não lê acordo de rota.</p>\n\n    <p class=\"conto\">— Resolve isso primeiro, discute depois — completou Rashida, ajustando o lenço vermelho.</p>\n\n    <p class=\"conto\">Foi o mais perto que os dois jamais estiveram de concordar voluntariamente em alguma coisa.</p>\n\n    <div class=\"scene-break\">⌬ ⌬ ⌬</div>\n\n    <p class=\"conto\">A trégua, ainda que nunca formalizada em palavras além daquelas poucas trocadas no posto abandonado, se transformou rapidamente em coordenação real. Os Cães de Trilho bloquearam as rotas subterrâneas pelas quais a onda corrompida poderia se espalhar para os bairros residenciais; a Rota Negra cobriu as estradas periféricas, contendo o avanço pelo lado de fora.</p>\n\n    <p class=\"conto\">No meio do caos, surgiu uma terceira figura — sozinha, como sempre trabalhava, contratada por um intermediário anônimo dos Esgotos Profundos havia poucas horas. Velka Ostrenko não precisava de apresentação para quem já tinha visto seu trabalho antes: ela simplesmente aparecia onde a anomalia era mais densa, sorrindo daquele jeito que mais assustava do que tranquilizava, e fazia o que fazia melhor.</p>\n\n    <p class=\"conto\">— Vocês dois trabalhando juntos — comentou ela, passando entre Rashida e Soren sem realmente parar, os olhos fixos na fissura mais próxima. — Isso é novo.</p>\n\n    <p class=\"conto\">— Não é trabalho junto — rosnou Soren. — É coincidência de prioridade.</p>\n\n    <p class=\"conto\">— Chama do que quiser — disse Velka, já avançando para o centro da anomalia, onde a corrupção de dados pulsava mais intensamente. — Só não se metam no meu caminho enquanto eu termino.</p>\n\n    <p class=\"conto\">Levou quase três horas. Velka isolou e neutralizou o núcleo da anomalia, processo que nenhum dos dois líderes de gangue jamais perguntou como funcionava exatamente — e ela jamais ofereceu explicar. Quando terminou, a fissura havia se fechado, as rotas estavam livres, e os bairros residenciais nunca chegaram a saber o quão perto estiveram de uma noite muito pior.</p>\n\n    <div class=\"scene-break\">⌬ ⌬ ⌬</div>\n\n    <p class=\"conto\">Murk, o predador que decidira sozinho que os Esgotos Profundos eram território dele, observou tudo de longe, das sombras mais distantes dos túneis, sem nunca se aproximar. Não por medo — Murk não temia muita coisa — mas porque, mesmo para ele, havia algo sobre ver Rashida, Soren e Velka cooperando que parecia errado o bastante para manter distância.</p>\n\n    <p class=\"conto\">Quando a poeira baixou, Soren e Rashida se encontraram de novo, dessa vez sem urgência nenhuma os unindo.</p>\n\n    <p class=\"conto\">— Isso não muda nada — repetiu Soren, a voz mais firme agora que a adrenalina tinha passado.</p>\n\n    <p class=\"conto\">— Eu disse que sabia. — Rashida subiu de volta no Trailmon, ajustando o lenço vermelho uma última vez. — Mas pelo menos agora sabemos que, se a cidade realmente precisar, a gente aparece.</p>\n\n    <p class=\"conto\">Soren não respondeu. Mas, também, não discordou.</p>\n\n    <div class=\"scene-break\">⌬ ⌬ ⌬</div>\n\n    <p class=\"conto\">A notícia, claro, chegou até Talia Ferro antes do amanhecer — quase tudo que envolvia ameaça ao Nexus-0 chegava até ela, de um jeito ou de outro, desde o dia em que o Colapso de Dados lhe dera a cicatriz que carregava no rosto e no pescoço. No Abrigo de Sobreviventes erguido no antigo Setor Colapsado, ela ouviu o relato completo de um dos próprios sobreviventes que tinha testemunhado de longe, e ficou em silêncio por mais tempo do que o normal.</p>\n\n    <p class=\"conto\">— Eles cooperaram — disse o sobrevivente, ainda incrédulo. — Os Cães de Trilho e a Rota Negra. Cooperaram de verdade.</p>\n\n    <p class=\"conto\">— Isso é o que o Escudo Susanoomon deveria representar — murmurou Talia, mais para si mesma. — Gente disposta a chegar antes de qualquer outra, quando o Nexus-0 volta a tremer. Não importa de que lado da rivalidade você está.</p>\n\n    <p class=\"conto\">Tarvik, sentado no canto de sempre da Taverna do Beco Cinza quando a notícia circulou entre os clientes da noite, ergueu a garrafa num gesto que era quase um brinde, quase uma confissão.</p>\n\n    <p class=\"conto\">— Talvez eu assine aquele compromisso formal da Talia, um dia — murmurou, mais para a bebida do que para qualquer pessoa ali. — Um dia desses.</p>\n\n    <p class=\"conto\">Ninguém apostou que seria em breve. Mas, em Nexopolis, \"um dia desses\" às vezes era tudo que se podia esperar — e, para quem vivia nas margens da cidade, isso já era mais do que a maioria conseguia oferecer.</p>", "povo-fragmentos": "<div class=\"chapter-tag\">\n      <div class=\"chapter-num\">15</div>\n      <div class=\"chapter-year\">UMA NOITE, A CIDADE INTEIRA</div>\n    </div>\n    <span class=\"conto-tag\">⌬ Conto · Nexopolis, de ponta a ponta</span>\n    <h2>A Noite em Que Ninguém Dormiu</h2>\n    <p class=\"chapter-dek\">Nem toda história precisa de um centro. Algumas são feitas de fragmentos pequenos acontecendo ao mesmo tempo — e ainda assim dizem muito sobre o tamanho real da cidade.</p>\n\n    <p class=\"conto\">Joaquín Bravante jurava, sempre que alguém perguntava depois, que nunca tivera intenção de colocar aquilo no ar. Estava ajustando o transmissor pirata no Beco das Antenas, testando frequência, quando captou — por puro acidente, segundo ele insistia — alguns segundos de uma discussão entre Misha e Hasiel perto do Mercado Central. O suficiente para que a frase \"coisas melhores que isso eu duvido que você tenha\" fosse ao ar antes que ele conseguisse cortar o sinal.</p>\n\n    <p class=\"conto\">— Não foi de propósito — repetiu Joaquín, pela enésima vez, para um ouvinte qualquer que ligou reclamando. — Eu juro. Foi acidente.</p>\n\n    <p class=\"conto\">Ninguém acreditou completamente. Mas, em menos de uma hora, metade de Nexopolis já repetia a frase como piada interna, e Joaquín continuava sendo, de longe, o DJ mais ouvido da frequência não-oficial da cidade — então o assunto nunca chegou a virar problema de verdade.</p>\n\n    <div class=\"scene-break\">⌬ ⌬ ⌬</div>\n\n    <p class=\"conto\">No Reservatório de Dados, do outro lado da cidade, Náiad Cortez ouviu passos se aproximando da beira da água depois de um turno particularmente silencioso. Ergueu os olhos só o suficiente para reconhecer Hikaru, sozinho, sentado na borda, instrumento nas mãos, ainda carregando nos ombros o peso visível de uma missão difícil mais cedo naquela noite — um Digimon de Água que quase não aceitara se calmar.</p>\n\n    <p class=\"conto\">Ele começou a tocar — baixo, quase um murmúrio de melodia, nada parecido com as composições alegres que normalmente usava nas praças públicas.</p>\n\n    <p class=\"conto\">Náiad não disse nada. Apenas ficou ali, junto da água, até a música parar.</p>\n\n    <p class=\"conto\">— Não era pra calmar Digimon nenhum, essa — disse Hikaru, por fim, guardando o instrumento.</p>\n\n    <p class=\"conto\">— Eu sei — respondeu ela, simplesmente. E foi só isso. Não precisava de mais.</p>\n\n    <div class=\"scene-break\">⌬ ⌬ ⌬</div>\n\n    <p class=\"conto\">Na Clínica Pública, Faelan Brightwell suturava — pela terceira vez naquele mês — um corte que Anduin insistia ser \"nada grave\", apesar da evidência visível em sentido contrário.</p>\n\n    <p class=\"conto\">— Você é o pior paciente desse grupo inteiro — comentou Faelan, sem erguer os olhos do trabalho, os olhos heterocromáticos brilhando sob a luz da sala de emergência. — Sabia disso?</p>\n\n    <p class=\"conto\">— A Misha é pior.</p>\n\n    <p class=\"conto\">— A Misha segue cada instrução que eu dou à risca. Uma idol não pode se apresentar com o braço quebrado, então ela realmente se cuida. Você finge que tá tudo bem pra voltar mais rápido pro treino.</p>\n\n    <p class=\"conto\">Anduin não teve resposta boa para aquilo, então só deixou Faelan terminar o trabalho em silêncio.</p>\n\n    <div class=\"scene-break\">⌬ ⌬ ⌬</div>\n\n    <p class=\"conto\">No Bar Engrenagem, no Distrito Industrial, Holger \"Braço de Lata\" Brenner serviu uma bebida que ninguém pedira — porque ninguém precisava pedir, quando a pessoa sentada sozinha no balcão era Cazeaje, depois de um turno longo demais no Posto de Missões.</p>\n\n    <p class=\"conto\">— Eu não pedi isso — disse ela, ainda assim aceitando o copo.</p>\n\n    <p class=\"conto\">— Eu sei. — Holger limpou outro copo, sem se alongar no assunto. — Você cuida de todo mundo que chega em Nexopolis sem saber de nada. Alguém tem que cuidar de você de vez em quando.</p>\n\n    <p class=\"conto\">Cazeaje sorriu — cansada, mas sincera — e bebeu em silêncio, enquanto o bar seguia seu murmúrio noturno de costume ao redor.</p>\n\n    <div class=\"scene-break\">⌬ ⌬ ⌬</div>\n\n    <p class=\"conto\">Na Arena de Gladiadores, Grendrek recusava, pela enésima vez, uma aposta que um cliente insistia em fazer.</p>\n\n    <p class=\"conto\">— Eu não aceito essa — disse ele, cruzando os braços. — Aposta em quando a Misha e o Hasiel vão admitir o que está acontecendo entre eles não é jogo de azar. É certeza disfarçada de mistério. Eu não cobro dinheiro fácil assim.</p>\n\n    <p class=\"conto\">Kirsen Volkhart, parado ao lado, observando o treino noturno de Aurigan, concordou sem hesitar.</p>\n\n    <p class=\"conto\">— Já vi duelo mais imprevisível dentro do próprio tablado de combate.</p>\n\n    <div class=\"scene-break\">⌬ ⌬ ⌬</div>\n\n    <p class=\"conto\">E nos telhados acima do Mercado Central, Kaito Reyne observava, mais uma vez, sem sucesso, tentando localizar onde Hasiel guardava o estoque de cartas que vendia. Tinha tentado seguir, vigiar, até subornar Yusuf Akdemir por qualquer fragmento de informação. No fim, a única certeza que tinha era incômoda: Cazeaje sabia a resposta. E jamais venderia aquilo por preço nenhum — porque, para ela, aquilo nunca estivera em jogo.</p>\n\n    <p class=\"conto\">— Um dia eu descubro — murmurou Kaito para si mesmo, observando as luzes de Nexopolis se espalharem abaixo dele.</p>\n\n    <p class=\"conto\">Era o tipo de promessa que ele fazia a si mesmo havia meses. Nenhuma vez, até agora, tinha se cumprido.</p>\n\n    <div class=\"scene-break\">⌬ ⌬ ⌬</div>\n\n    <p class=\"conto\">São fragmentos pequenos, quase irrelevantes sozinhos. Mas, juntos, numa única noite, formam o retrato mais honesto que existe de Nexopolis: uma cidade enorme, cheia de gente que segue vivendo suas próprias histórias enquanto seis nomes continuam, sem querer, virando lenda ao redor dela.</p>\n\n    <p class=\"conto\">E Datahaven é grande o bastante para guardar muito mais do que isso. Cada banca do Mercado Central, cada turno na Clínica Pública, cada noite na Taverna do Beco Cinza esconde uma história que ainda não foi registrada em arquivo nenhum. Talvez a próxima expedição encontre essas histórias. Talvez elas continuem soltas, contadas de boca em boca, do jeito que histórias de gente comum sempre foram contadas — muito antes de qualquer Limiar, qualquer Nexus-0, qualquer Digimon existir para ouvir.</p>"};
+
+const ENTRIES = [
+  { id:"origem",           num:0,  folder:"registro", year:"2022 · O LIMIAR",                       title:"O Começo de Tudo",                     dek:"Antes de existir um nome para o que estava nascendo, existiam apenas dados, mais dados do que qualquer sistema fora projetado para conter.", conto:false },
+  { id:"cap1",             num:1,  folder:"registro", year:"PRIMEIROS ANOS DO CONTATO",             title:"O Primeiro Contato",                   dek:"Conhecimento sem experiência: os Digimon sabiam tudo sobre a humanidade, exceto como era conversar com ela.", conto:false },
+  { id:"cap3",             num:3,  folder:"registro", year:"UM TORNEIO QUALQUER NA CYBEREDE",       title:"Energia de Fusão",                     dek:"A barreira entre humano e Digimon, que todos acreditavam absoluta, desapareceu num único instante.", conto:false },
+  { id:"cap4",             num:4,  folder:"registro", year:"2030 · UMA DÉCADA DEPOIS",             title:"A Era DigiRider",                      dek:"O período mais pacífico já vivido pela civilização humana — e os primeiros sinais de que algo não estava certo.", conto:false },
+  { id:"cap5",             num:5,  folder:"registro", year:"DESDE ANTES DA PRIMEIRA CIDADE DIGITAL",title:"Os Guardiões",                         dek:"Algumas perguntas sobre o Nexus-0 nunca tiveram resposta científica. Apenas dois nomes.", conto:false },
+  { id:"cap6",             num:6,  folder:"registro", year:"EXPANSÃO DE DATAHAVEN",                title:"Trailmon",                             dek:"Os trilhos que conectam Datahaven são mais antigos do que a própria CybeRede.", conto:false },
+  { id:"cap8",             num:7,  folder:"registro", year:"DOSSIÊ RESTRITO · VANGUARDA YGGDRASIL",title:"Digievolução, o Colapso e o Programa Evo", dek:"A história oficial diz que o Nexus-0 nasceu de um crescimento lento. Há quem tenha provas de que nasceu de uma única noite em que algo quebrou.", conto:false },
+  { id:"cap7",             num:8,  folder:"registro", year:"2042 · VINTE ANOS DEPOIS DO LIMIAR",   title:"Nexopolis",                            dek:"Nenhuma cidade no Nexus-0 cresceu tão rápido quanto Nexopolis, e nenhuma escondeu tão bem o preço desse crescimento.", conto:false },
+  { id:"povo-intro",       num:9,  folder:"povo",     year:"2042 · REGISTROS INFORMAIS",           title:"Histórias do Povo",                    dek:"Os arquivos oficiais registram facções, colapsos e tratados. Mas Datahaven também é feita do que acontece entre uma missão e outra.", conto:false },
+  { id:"povo-seis",        num:10, folder:"povo",     year:"NOMES QUE SE REPETEM NOS RELATÓRIOS",  title:"Os Seis de Nexopolis",                 dek:"Ninguém os nomeou formalmente como grupo. A Guarda de Rede simplesmente parou de se surpreender.", conto:false },
+  { id:"povo-hamburgueres",num:11, folder:"povo",     year:"QUALQUER LANCHONETE DE NEXOPOLIS",     title:"Hambúrgueres e Segredos",              dek:"A lenda urbana mais fácil de confirmar em toda Datahaven: procure por uma montanha de hambúrgueres digitais.", conto:true, conto_tag:"⌬ Conto · Mercado Central" },
+  { id:"povo-duelo",       num:12, folder:"povo",     year:"TEATRO DE CRISTAL · UMA NOITE QUALQUER",title:"A Aposta Que Ninguém Venceu",         dek:"Todo mundo em Nexopolis tem uma teoria sobre Misha Eriza e Hasiel. Nenhuma delas foi confirmada.", conto:true, conto_tag:"⌬ Conto · Torres Altas" },
+  { id:"povo-academia",    num:13, folder:"povo",     year:"ACADEMIA DE TREINADORES",              title:"Risco Calculado",                      dek:"Rey Lykaios lidera a Academia com a leveza de quem está sempre brincando.", conto:true, conto_tag:"⌬ Conto · Academia de Treinadores" },
+  { id:"povo-escudo",      num:14, folder:"povo",     year:"PÁTIO INDUSTRIAL · NOITE",             title:"O Peso do Lenço Vermelho",             dek:"Nem toda história relevante de Nexopolis precisa de um DigiRider famoso no centro dela.", conto:true, conto_tag:"⌬ Conto · Esgotos Profundos" },
+  { id:"povo-fragmentos",  num:15, folder:"povo",     year:"UMA NOITE, A CIDADE INTEIRA",          title:"A Noite em Que Ninguém Dormiu",        dek:"Nem toda história precisa de um centro. Algumas são feitas de fragmentos pequenos acontecendo ao mesmo tempo.", conto:true, conto_tag:"⌬ Conto · Nexopolis" },
+];
+
+const FOLDERS = [
+  { key:"registro", label:"Registros Históricos", icon:"📂" },
+  { key:"povo",     label:"Histórias do Povo",    icon:"📂" },
+];
+
+/* ─── STATE ─── */
+let activeId = null;
+let activeFilter = "all";
+let searchQuery = "";
+let openFolders = new Set(["registro","povo"]); // start both open
+
+/* ─── RENDER SIDEBAR ─── */
+function renderSidebar() {
+  const list = document.getElementById('folder-list');
+  list.innerHTML = '';
+
+  const q = searchQuery.toLowerCase();
+
+  let visibleCount = 0;
+
+  for (const folder of FOLDERS) {
+    const entries = ENTRIES.filter(e => {
+      if (e.folder !== folder.key) return false;
+      if (activeFilter === 'registro' && e.conto) return false;
+      if (activeFilter === 'conto' && !e.conto) return false;
+      if (q) {
+        return e.title.toLowerCase().includes(q) || e.dek.toLowerCase().includes(q) || e.year.toLowerCase().includes(q);
+      }
+      return true;
+    });
+
+    if (entries.length === 0 && q) continue;
+    visibleCount += entries.length;
+
+    const folderDiv = document.createElement('div');
+    folderDiv.className = 'folder';
+
+    const toggle = document.createElement('button');
+    toggle.className = 'folder-toggle' + (openFolders.has(folder.key) ? ' open' : '');
+    toggle.innerHTML = `
+      <span class="folder-icon-arrow">${openFolders.has(folder.key) ? '▾' : '▸'}</span>
+      <span class="folder-icon">${folder.icon}</span>
+      <span class="folder-name">${folder.label}</span>
+      <span class="folder-badge${folder.key==='povo'?' conto':''}">${entries.length}</span>
+    `;
+    toggle.addEventListener('click', () => {
+      if (openFolders.has(folder.key)) openFolders.delete(folder.key);
+      else openFolders.add(folder.key);
+      renderSidebar();
+    });
+
+    const contents = document.createElement('div');
+    contents.className = 'folder-contents' + (openFolders.has(folder.key) ? ' open' : '');
+
+    for (const entry of entries) {
+      const item = document.createElement('div');
+      item.className = 'file-item' + (entry.id === activeId ? ' active' : '');
+      item.dataset.id = entry.id;
+
+      const titleDisplay = q ? entry.title.replace(new RegExp(`(${escapeRegex(q)})`, 'gi'), '<mark class="highlight">$1</mark>') : entry.title;
+
+      item.innerHTML = `
+        <div class="file-num${entry.conto?' conto':''}">${entry.num}</div>
+        <div class="file-info">
+          <div class="file-title">${titleDisplay}</div>
+          <div class="file-sub">${entry.year}</div>
+        </div>
+      `;
+      item.addEventListener('click', () => openEntry(entry.id));
+      contents.appendChild(item);
+    }
+
+    if (entries.length === 0 && !q) {
+      contents.innerHTML = '<div class="no-results">Nenhum arquivo nesta pasta</div>';
+    }
+
+    folderDiv.appendChild(toggle);
+    folderDiv.appendChild(contents);
+    list.appendChild(folderDiv);
+  }
+
+  // Search: no folder grouping, flat list
+  if (q && visibleCount === 0) {
+    list.innerHTML = '<div class="no-results">Nenhum arquivo encontrado</div>';
+  }
+
+  document.getElementById('count-label').textContent = visibleCount + ' arquivo' + (visibleCount !== 1 ? 's' : '');
+}
+
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/* ─── OPEN ENTRY ─── */
+function openEntry(id) {
+  const entry = ENTRIES.find(e => e.id === id);
+  if (!entry) return;
+
+  activeId = id;
+  renderSidebar();
+
+  // Update breadcrumb
+  const folderLabel = FOLDERS.find(f => f.key === entry.folder)?.label || '';
+  document.getElementById('breadcrumb').innerHTML = `
+    <span>DATAHAVEN</span>
+    <span class="sep">/</span>
+    <span>${folderLabel.toUpperCase()}</span>
+    <span class="sep">/</span>
+    <span class="active">${entry.title.toUpperCase()}</span>
+  `;
+
+  // Show article
+  document.getElementById('welcome-screen').style.display = 'none';
+  const wrap = document.getElementById('article-wrap');
+  wrap.classList.add('visible');
+
+  document.getElementById('article-label').textContent = entry.title;
+
+  // Build content
+  const body = document.getElementById('article-body');
+  const sectionHTML = SECTIONS_HTML[id] || '';
+  
+  // Build nav buttons
+  const idx = ENTRIES.indexOf(entry);
+  const prev = idx > 0 ? ENTRIES[idx - 1] : null;
+  const next = idx < ENTRIES.length - 1 ? ENTRIES[idx + 1] : null;
+  
+  let navHTML = '<div class="article-nav">';
+  if (prev) navHTML += `<button class="article-nav-btn" onclick="openEntry('${prev.id}')"><span class="nav-dir">◂ Anterior</span><span class="nav-title">${prev.title}</span></button>`;
+  else navHTML += '<div></div>';
+  if (next) navHTML += `<button class="article-nav-btn next" onclick="openEntry('${next.id}')"><span class="nav-dir">Próximo ▸</span><span class="nav-title">${next.title}</span></button>`;
+  navHTML += '</div>';
+
+  body.innerHTML = sectionHTML + navHTML;
+
+  // Scroll reader to top
+  const reader = document.getElementById('reader');
+  reader.scrollTop = 0;
+
+  // Progress bar
+  const progressBar = document.getElementById('progress-bar');
+  reader.onscroll = () => {
+    const pct = reader.scrollTop / (reader.scrollHeight - reader.clientHeight) * 100;
+    progressBar.style.width = Math.min(100, pct) + '%';
+  };
+}
+
+/* ─── BACK BUTTON ─── */
+document.getElementById('back-btn').addEventListener('click', () => {
+  activeId = null;
+  document.getElementById('welcome-screen').style.display = '';
+  document.getElementById('article-wrap').classList.remove('visible');
+  document.getElementById('breadcrumb').innerHTML = `<span>DATAHAVEN</span><span class="sep">/</span><span>REGISTROS</span>`;
+  document.getElementById('progress-bar').style.width = '0%';
+  renderSidebar();
+});
+
+/* ─── FILTER BUTTONS ─── */
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilter = btn.dataset.filter;
+    renderSidebar();
+  });
+});
+
+/* ─── SEARCH ─── */
+document.getElementById('search-input').addEventListener('input', e => {
+  searchQuery = e.target.value.trim();
+  if (searchQuery) openFolders = new Set(["registro","povo"]);
+  renderSidebar();
+});
+
+/* ─── INIT ─── */
+renderSidebar();
+</script>
+</body>
+</html>
