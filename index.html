@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DATAHAVEN_OS — DigiRider RPG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #06080d;
+  --panel:   #0d1119;
+  --border:  #1a2135;
+  --border2: #243050;
+  --text:    #c8d4e8;
+  --dim:     #4a5a78;
+  --dim2:    #2a3550;
+  --cyan:    #00e5ff;
+  --cyan2:   #00b8cc;
+  --gold:    #ffb930;
+  --green:   #39ff7a;
+  --purple:  #b06eff;
+  --red:     #ff4560;
+  --orange:  #ff8c42;
+  --pink:    #ff5fad;
+  --blue2:   #5b9ef5;
+  --yellow:  #fcee0a;
+  --magenta: #f000b8;
+  --cut: 12px;
+  --cut-sm: 7px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* ═══ BOOT SCREEN ═══ */
+#boot {
+  position: fixed; inset: 0;
+  background: #000;
+  z-index: 9999;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-family: 'Share Tech Mono', monospace;
+  padding: 40px;
+  transition: opacity 0.6s ease;
+}
+#boot.fade-out { opacity: 0; pointer-events: none; }
+.boot-logo {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(22px, 5vw, 44px);
+  font-weight: 900;
+  letter-spacing: 8px;
+  color: var(--cyan);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  text-shadow: 0 0 30px rgba(0,229,255,0.6);
+  animation: glitch-flicker 4s infinite;
+}
+.boot-sub {
+  font-size: 11px; letter-spacing: 4px;
+  color: var(--dim); margin-bottom: 40px;
+  text-transform: uppercase;
+}
+.boot-log {
+  width: min(520px, 90vw);
+  font-size: 12px;
+  color: #3a5070;
+  line-height: 2;
+  margin-bottom: 28px;
+  text-align: left;
+}
+.boot-log .ok  { color: var(--green); }
+.boot-log .warn{ color: var(--gold); }
+.boot-log .line{ display: block; opacity: 0; animation: logline 0.01s ease forwards; }
+.boot-bar-wrap {
+  width: min(520px, 90vw);
+  height: 3px;
+  background: #0f1a28;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.boot-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--magenta), var(--cyan2), var(--cyan));
+  border-radius: 2px;
+  transition: width 0.12s linear;
+  box-shadow: 0 0 12px var(--cyan);
+}
+.boot-pct { font-size: 11px; letter-spacing: 2px; color: var(--cyan2); }
+@keyframes logline { to { opacity: 1; } }
+
+/* ═══ GLITCH (elemento-assinatura) ═══ */
+@keyframes glitch-flicker {
+  0%, 92%, 100% { text-shadow: 0 0 20px rgba(0,229,255,0.5); transform: translate(0,0); }
+  93% { text-shadow: -2px 0 var(--magenta), 2px 0 var(--cyan2); transform: translate(-2px,0); }
+  94% { text-shadow: 2px 0 var(--magenta), -2px 0 var(--cyan2); transform: translate(2px,0); }
+  95% { text-shadow: -1px 0 var(--yellow), 1px 0 var(--cyan2); transform: translate(-1px,1px); }
+  96% { text-shadow: 0 0 20px rgba(0,229,255,0.5); transform: translate(0,0); }
+}
+
+/* ═══ SCANLINE / GRID BG ═══ */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 800;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1) 0px, transparent 1px, transparent 3px);
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none; z-index: 0;
+}
+
+/* ═══ HUD FRAME (cantos + feixe de varredura) ═══ */
+.hud-frame { position: fixed; inset: 0; z-index: 750; pointer-events: none; }
+.hud-corner {
+  position: absolute; width: 22px; height: 22px;
+  border: 2px solid var(--yellow);
+  opacity: 0.55;
+}
+.hud-corner.tl { top: 46px; left: 10px; border-right: none; border-bottom: none; }
+.hud-corner.tr { top: 46px; right: 10px; border-left: none; border-bottom: none; border-color: var(--magenta); }
+.hud-corner.bl { bottom: 4px; left: 10px; border-right: none; border-top: none; border-color: var(--magenta); }
+.hud-corner.br { bottom: 4px; right: 10px; border-left: none; border-top: none; }
+.hud-readout {
+  position: absolute;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px; letter-spacing: 2px;
+  color: var(--cyan2); opacity: 0.6;
+  text-transform: uppercase; white-space: nowrap;
+}
+.hud-readout.tl { top: 50px; left: 38px; }
+.hud-readout.tr { top: 50px; right: 38px; color: var(--magenta); }
+.hud-readout.bl { bottom: 8px; left: 38px; }
+.hud-readout.br { bottom: 8px; right: 38px; }
+.hud-readout .blink { color: var(--green); animation: pulse-dot 1.4s ease-in-out infinite; }
+.hud-scan {
+  position: absolute; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--cyan), var(--magenta), transparent);
+  opacity: 0.5;
+  animation: hud-scan-move 7s linear infinite;
+}
+@keyframes hud-scan-move { 0%{ top: -2px; } 100%{ top: 100%; } }
+@media (max-width: 640px) { .hud-frame { display: none; } }
+
+/* ═══ TASKBAR ═══ */
+.taskbar {
+  flex-shrink: 0;
+  z-index: 100;
+  background: rgba(6,8,13,0.92);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 20px;
+  height: 40px;
+}
+.taskbar-logo {
+  font-family: 'Orbitron', monospace;
+  font-size: 13px; font-weight: 700; letter-spacing: 2px;
+  color: var(--cyan);
+  text-shadow: 0 0 12px rgba(0,229,255,0.4);
+  padding-right: 20px;
+  margin-right: 20px;
+  white-space: nowrap;
+  position: relative;
+}
+.taskbar-logo::after {
+  content: '';
+  position: absolute; top: -10px; bottom: -10px; right: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--yellow), var(--magenta));
+  transform: skewX(-12deg);
+}
+.taskbar-items { display: flex; gap: 2px; flex: 1; }
+.tb-item {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; letter-spacing: 1px;
+  color: var(--dim); padding: 4px 10px; border-radius: 2px;
+  text-transform: uppercase; cursor: default;
+  position: relative;
+}
+.tb-item.active { color: var(--yellow); text-shadow: 0 0 8px rgba(252,238,10,0.5); }
+.tb-item.active::after {
+  content: '';
+  position: absolute; left: 8px; right: 8px; bottom: -1px; height: 2px;
+  background: var(--yellow); box-shadow: 0 0 6px var(--yellow);
+}
+.taskbar-right {
+  display: flex; align-items: center; gap: 16px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; letter-spacing: 1px;
+}
+.tb-status { display: flex; align-items: center; gap: 5px; color: var(--dim); }
+.tb-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.4} }
+.tb-clock { color: var(--cyan2); letter-spacing: 2px; }
+
+/* ═══ VIEWPORT (área que troca de tela, sem rolagem) ═══ */
+.viewport-area {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+.screen {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  width: 100%; max-width: 1200px;
+  margin: 0 auto;
+  padding: 14px 22px 10px;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+#screen-home { opacity: 1; transform: translateX(0); z-index: 2; }
+#screen-home.hide { opacity: 0; transform: translateX(-32px) scale(0.98); pointer-events: none; z-index: 1; }
+#screen-apps { opacity: 0; transform: translateX(32px) scale(0.98); pointer-events: none; z-index: 1; }
+#screen-apps.show { opacity: 1; transform: translateX(0); pointer-events: auto; z-index: 2; }
+
+/* ═══ TELA INICIAL DO DIGIVICE ═══ */
+.home-inner {
+  flex: 1; min-height: 0;
+  display: flex; align-items: center; justify-content: center;
+  gap: clamp(20px, 5vw, 56px);
+  flex-wrap: wrap;
+}
+.home-text { flex: 1 1 320px; max-width: 460px; }
+.hero-eyebrow {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+  color: var(--cyan2); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.hero-eyebrow::before { content: ''; width: 22px; height: 1px; background: var(--cyan2); }
+.hero-title {
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: clamp(26px, 5.5vh, 48px);
+  line-height: 1.0;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 14px;
+  position: relative;
+  animation: glitch-flicker 6s infinite;
+}
+.hero-title .c { color: var(--cyan); text-shadow: 0 0 20px rgba(0,229,255,0.5); }
+.hero-desc {
+  font-size: clamp(12px, 1.8vh, 15px); color: #7a8da8; line-height: 1.55;
+  margin-bottom: 24px; font-weight: 400;
+}
+.hero-cta {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: 'Orbitron', monospace; font-weight: 700;
+  font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--cyan); background: rgba(0,229,255,0.06);
+  border: 1px solid var(--cyan);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  padding: 12px 22px; cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s, transform 0.18s, color 0.18s;
+}
+.hero-cta:hover {
+  background: linear-gradient(90deg, var(--cyan), var(--magenta));
+  color: #000;
+  box-shadow: 0 0 28px rgba(0,229,255,0.45), 0 0 28px rgba(240,0,184,0.3);
+  transform: translateY(-2px);
+}
+
+/* ─ Card de status do parceiro digital ─ */
+.dv-card {
+  flex: 0 1 300px;
+  background: var(--panel);
+  border: 1px solid var(--border2);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  padding: 22px 24px;
+  position: relative;
+  overflow: hidden;
+}
+.dv-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,229,255,0.06), transparent);
+  pointer-events: none;
+}
+.dv-card::after {
+  content: '';
+  position: absolute; left: 0; top: var(--cut); bottom: var(--cut); width: 3px;
+  background: linear-gradient(180deg, var(--yellow), var(--magenta));
+}
+.dv-card-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--dim); text-align: center; margin-bottom: 16px;
+  position: relative; z-index: 1;
+}
+.dv-avatar-wrap {
+  width: 92px; height: 92px;
+  position: relative;
+  margin: 0 auto 18px;
+}
+.dv-avatar-wrap .dv-glyph { font-size: 42px; }
+.dv-card-name {
+  text-align: center;
+  font-family: 'Orbitron', monospace; font-weight: 700;
+  font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
+  color: #fff; margin-bottom: 18px;
+  position: relative; z-index: 1;
+}
+
+.stat-row {
+  display: flex; align-items: center; gap: 9px;
+  margin-bottom: 11px;
+  position: relative; z-index: 1;
+}
+.stat-row:last-child { margin-bottom: 0; }
+.stat-icon { font-size: 13px; flex-shrink: 0; width: 16px; text-align: center; }
+.stat-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8.5px; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--dim); width: 78px; flex-shrink: 0; line-height: 1.3;
+}
+.stat-bar-track {
+  flex: 1; height: 7px;
+  background: #0c121c;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.stat-bar-fill { height: 100%; border-radius: 1px; background-size: 8px 100%; }
+.stat-bar-fill.hp    { background-image: repeating-linear-gradient(90deg, var(--red) 0 6px, rgba(6,8,13,0.6) 6px 8px);   width: 86%;  box-shadow: 0 0 8px var(--red); }
+.stat-bar-fill.digi  { background-image: repeating-linear-gradient(90deg, var(--blue2) 0 6px, rgba(6,8,13,0.6) 6px 8px); width: 64%;  box-shadow: 0 0 8px var(--blue2); }
+.stat-bar-fill.fusion{ background-image: repeating-linear-gradient(90deg, var(--green) 0 6px, rgba(6,8,13,0.6) 6px 8px); width: 100%; box-shadow: 0 0 8px var(--green); }
+.stat-val {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px; color: #fff; width: 48px; text-align: right; flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .home-inner { flex-direction: column; gap: 18px; }
+  .home-text { text-align: center; max-width: 100%; }
+  .hero-eyebrow { justify-content: center; }
+  .hero-desc { display: none; }
+}
+@media (max-height: 560px) {
+  .hero-desc { display: none; }
+}
+
+/* ═══ APP SCREEN (tela única tipo Digivice) ═══ */
+.app-screen {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.back-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--dim); background: transparent;
+  border: 1px solid var(--border2);
+  clip-path: polygon(var(--cut-sm) 0, 100% 0, 100% calc(100% - var(--cut-sm)), calc(100% - var(--cut-sm)) 100%, 0 100%, 0 var(--cut-sm));
+  padding: 6px 10px; cursor: pointer; margin-right: 14px;
+  transition: color 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.back-btn:hover { color: var(--yellow); border-color: var(--yellow); }
+
+.screen-header {
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 10px;
+  padding-bottom: 10px; margin-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.sh-left { display: flex; align-items: center; gap: 14px; }
+.dv-mini { position: relative; width: 38px; height: 38px; flex-shrink: 0; }
+.dv-ring {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(0,229,255,0.25);
+  animation: spin-ring 8s linear infinite;
+}
+.dv-ring:nth-child(2) {
+  inset: 5px;
+  border-color: rgba(176,110,255,0.25);
+  animation-duration: 12s;
+  animation-direction: reverse;
+}
+.dv-glyph {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  color: var(--cyan);
+  filter: drop-shadow(0 0 8px rgba(0,229,255,0.6));
+}
+@keyframes spin-ring { from{transform:rotate(0)} to{transform:rotate(360deg)} }
+
+.sh-name {
+  font-family: 'Orbitron', monospace; font-weight: 900;
+  font-size: clamp(16px, 2.4vh, 22px);
+  letter-spacing: 1px; text-transform: uppercase;
+  color: #fff; line-height: 1;
+}
+.sh-name .c { color: var(--cyan); text-shadow: 0 0 14px rgba(0,229,255,0.5); }
+.sh-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--dim); margin-top: 3px;
+}
+.sh-stats { display: flex; gap: 18px; }
+.sstat { display: flex; flex-direction: column; align-items: flex-end; font-family: 'Share Tech Mono', monospace; }
+.sstat-val { font-family: 'Orbitron', monospace; font-weight: 700; font-size: 14px; color: var(--cyan); line-height: 1; }
+.sstat-lbl { font-size: 8px; letter-spacing: 1.5px; color: var(--dim); text-transform: uppercase; margin-top: 2px; }
+@media (max-width: 640px) { .sh-stats { display: none; } }
+
+/* ─ Grade de ícones de apps ─ */
+.app-grid-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.app-category {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  min-height: 0;
+}
+.app-category-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--dim);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.app-category-label::before {
+  content: '';
+  width: 3px;
+  height: 10px;
+  background: var(--cat-color, var(--cyan));
+  display: inline-block;
+  flex-shrink: 0;
+}
+.app-category-label span {
+  color: var(--cat-color, var(--cyan));
+}
+.app-category-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+}
+
+.appicon {
+  position: relative;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: clamp(4px, 1.2vh, 10px);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  clip-path: polygon(var(--cut-sm) 0, 100% 0, 100% calc(100% - var(--cut-sm)), calc(100% - var(--cut-sm)) 100%, 0 100%, 0 var(--cut-sm));
+  text-decoration: none; color: inherit;
+  overflow: hidden;
+  transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s;
+  padding: 6px 4px;
+}
+.appicon::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--ac, var(--cyan));
+  opacity: 0.5; transition: opacity 0.18s, height 0.18s;
+}
+.appicon::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at top left, var(--ac, var(--cyan)) 0%, transparent 65%);
+  opacity: 0; transition: opacity 0.25s;
+  pointer-events: none;
+}
+.appicon:hover {
+  border-color: var(--ac, var(--cyan));
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5), 0 0 0 1px var(--ac, var(--cyan)) inset;
+}
+.appicon:hover::before { opacity: 1; height: 3px; }
+.appicon:hover::after  { opacity: 0.08; }
+
+.ai-icon {
+  font-size: clamp(22px, 4.2vh, 36px);
+  line-height: 1;
+  filter: drop-shadow(0 0 8px var(--ac, var(--cyan)));
+  transition: filter 0.2s, transform 0.2s;
+}
+.appicon:hover .ai-icon {
+  filter: drop-shadow(0 0 14px var(--ac, var(--cyan)));
+  transform: scale(1.12);
+}
+.ai-name {
+  font-family: 'Orbitron', monospace; font-weight: 700;
+  font-size: clamp(8.5px, 1.5vh, 11px);
+  letter-spacing: 0.5px; text-transform: uppercase;
+  color: #fff; text-align: center; line-height: 1.2;
+  padding: 0 4px;
+}
+.ai-badge {
+  position: absolute; top: 5px; right: 5px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 6.5px; letter-spacing: 1px; font-weight: 700;
+  background: var(--ac, var(--cyan));
+  color: #000; padding: 2px 5px; border-radius: 2px;
+  text-transform: uppercase;
+}
+
+/* ═══ FOOTER ═══ */
+footer {
+  flex-shrink: 0;
+  position: relative; z-index: 1;
+  text-align: center;
+  padding: 6px 24px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8.5px; letter-spacing: 2px; color: var(--dim2);
+  text-transform: uppercase;
+}
+footer .f-credit { color: var(--cyan2); }
+footer .f-sep { color: var(--border2); margin: 0 8px; }
+</style>
+</head>
+<body>
+
+<div id="boot">
+  <div class="boot-logo">DATAHAVEN_OS</div>
+  <div class="boot-sub">// DigiRider RPG · Sistema de Referência v3.1 //</div>
+  <div class="boot-log" id="boot-log"></div>
+  <div class="boot-bar-wrap"><div class="boot-bar" id="boot-bar"></div></div>
+  <div class="boot-pct" id="boot-pct">0%</div>
+</div>
+
+<div class="hud-frame">
+  <div class="hud-corner tl"></div>
+  <div class="hud-corner tr"></div>
+  <div class="hud-corner bl"></div>
+  <div class="hud-corner br"></div>
+  <div class="hud-readout tl">SYNC <span class="blink">●</span> 100%</div>
+  <div class="hud-readout tr">LIVE-LINK <span class="blink">●</span></div>
+  <div class="hud-readout bl">DATAHAVEN_OS // CYBEREDE_3.1</div>
+  <div class="hud-readout br">SETOR: NEXOPOLIS-04</div>
+  <div class="hud-scan"></div>
+</div>
+
+<div class="taskbar">
+  <div class="taskbar-logo">DIGI<span style="color:#fff">RIDER</span></div>
+  <div class="taskbar-items">
+    <div class="tb-item active">Desktop</div>
+    <div class="tb-item">Sistema</div>
+    <div class="tb-item">Rede</div>
+  </div>
+  <div class="taskbar-right">
+    <div class="tb-status">
+      <div class="tb-dot"></div>
+      <span style="color:var(--green)">NEXUS-0 ONLINE</span>
+    </div>
+    <div class="tb-clock" id="tb-clock">--:--:--</div>
+  </div>
+</div>
+
+<div class="viewport-area">
+
+  <!-- ═══ TELA 1: DIGIVICE (status do parceiro) ═══ -->
+  <div class="screen" id="screen-home">
+    <div class="home-inner">
+
+      <div class="home-text">
+        <div class="hero-eyebrow">Portal de Referência · CybeRede · Datahaven</div>
+        <div class="hero-title">Digi<span class="c">Rider</span><br>RPG</div>
+        <div class="hero-desc">Seu Digivice está sincronizado. Acesse os módulos do sistema — regras, lore, ferramentas e tudo que precisa para sua aventura na CybeRede.</div>
+        <button class="hero-cta" onclick="goApps()">Acessar Módulos →</button>
+      </div>
+
+      <div class="dv-card">
+        <div class="dv-card-label">Parceiro Digital</div>
+        <div class="dv-avatar-wrap">
+          <div class="dv-ring"></div>
+          <div class="dv-ring"></div>
+          <div class="dv-glyph">🐲</div>
+        </div>
+        <div class="dv-card-name">Status do Parceiro</div>
+
+        <div class="stat-row">
+          <span class="stat-icon">❤️</span>
+          <span class="stat-label">HP</span>
+          <span class="stat-bar-track"><span class="stat-bar-fill hp"></span></span>
+          <span class="stat-val">86/100</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-icon">🔷</span>
+          <span class="stat-label">Energia de Digievolução</span>
+          <span class="stat-bar-track"><span class="stat-bar-fill digi"></span></span>
+          <span class="stat-val">64/100</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-icon">🟢</span>
+          <span class="stat-label">Energia de Fusão</span>
+          <span class="stat-bar-track"><span class="stat-bar-fill fusion"></span></span>
+          <span class="stat-val">100/100</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ TELA 2: APPS ═══ -->
+  <div class="screen app-screen" id="screen-apps">
+
+    <div class="screen-header">
+      <div class="sh-left">
+        <button class="back-btn" onclick="goHome()">◀ Digivice</button>
+        <div class="dv-mini">
+          <div class="dv-ring"></div>
+          <div class="dv-ring"></div>
+          <div class="dv-glyph">⬡</div>
+        </div>
+        <div>
+          <div class="sh-name">Digi<span class="c">Rider</span> RPG</div>
+          <div class="sh-sub">CybeRede · Datahaven · Nexus-0 Sincronizado</div>
+        </div>
+      </div>
+      <div class="sh-stats">
+        <div class="sstat"><span class="sstat-val">480+</span><span class="sstat-lbl">Digimon</span></div>
+        <div class="sstat"><span class="sstat-val">100+</span><span class="sstat-lbl">Cartas</span></div>
+        <div class="sstat"><span class="sstat-val">125+</span><span class="sstat-lbl">Itens</span></div>
+        <div class="sstat"><span class="sstat-val">16</span><span class="sstat-lbl">Regiões</span></div>
+      </div>
+    </div>
+
+    <div class="app-grid-main">
+
+      <!-- ── LORE ── -->
+      <div class="app-category" style="--cat-color:var(--gold)">
+        <div class="app-category-label"><span>Lore</span> — Contexto e Ambientação</div>
+        <div class="app-category-row">
+          <a class="appicon" href="nexus0_biblioteca.html" style="--ac:var(--gold)">
+            <div class="ai-icon">📜</div>
+            <div class="ai-name">História da CybeRede</div>
+          </a>
+          <a class="appicon" href="mapa_datahaven.html" style="--ac:var(--cyan)">
+            <div class="ai-icon">🗺️</div>
+            <div class="ai-name">Mapa de Datahaven</div>
+          </a>
+          <a class="appicon" href="npcs_nexopolis_digirpg.html" style="--ac:var(--orange)">
+            <div class="ai-badge">NOVO</div>
+            <div class="ai-icon">👥</div>
+            <div class="ai-name">NPCs de Nexopolis</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- ── PERSONAGEM ── -->
+      <div class="app-category" style="--cat-color:var(--cyan)">
+        <div class="app-category-label"><span>Personagem</span> — Criação e Progressão</div>
+        <div class="app-category-row">
+          <a class="appicon" href="criacao_personagem_digirpg.html" style="--ac:var(--cyan)">
+            <div class="ai-badge">NOVO</div>
+            <div class="ai-icon">👤</div>
+            <div class="ai-name">Criação de Personagem</div>
+          </a>
+          <a class="appicon" href="profissoes_digirpg.html" style="--ac:var(--purple)">
+            <div class="ai-icon">🎯</div>
+            <div class="ai-name">Profissões</div>
+          </a>
+          <a class="appicon" href="talentos_digirpg.html" style="--ac:var(--orange)">
+            <div class="ai-icon">⚡</div>
+            <div class="ai-name">Talentos</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- ── DIGIMON ── -->
+      <div class="app-category" style="--cat-color:var(--green)">
+        <div class="app-category-label"><span>Digimon</span> — Parceiros e Evolução</div>
+        <div class="app-category-row">
+          <a class="appicon" href="criacao_digimon_digirpg.html" style="--ac:var(--green)">
+            <div class="ai-icon">🐉</div>
+            <div class="ai-name">Criação de Digimon</div>
+          </a>
+          <a class="appicon" href="guia_digievoluções_digirpg.html" style="--ac:#9ae65c">
+            <div class="ai-badge">NOVO</div>
+            <div class="ai-icon">🧬</div>
+            <div class="ai-name">Guia de Digievoluções</div>
+          </a>
+          <a class="appicon" href="gerador_digimon.html" style="--ac:var(--blue2)">
+            <div class="ai-icon">🔧</div>
+            <div class="ai-name">Gerador de Digimon</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- ── COMBATE & EQUIPAMENTO ── -->
+      <div class="app-category" style="--cat-color:var(--red)">
+        <div class="app-category-label"><span>Combate & Equipamento</span> — Batalha e Recursos</div>
+        <div class="app-category-row">
+          <a class="appicon" href="manual_combate_digirpg_v2.html" style="--ac:var(--red)">
+            <div class="ai-icon">⚔️</div>
+            <div class="ai-name">Manual de Combate</div>
+          </a>
+          <a class="appicon" href="itens_digirpg.html" style="--ac:#4ecbb0">
+            <div class="ai-icon">🎒</div>
+            <div class="ai-name">Itens</div>
+          </a>
+          <a class="appicon" href="cartas_digivice_digirpg.html" style="--ac:var(--pink)">
+            <div class="ai-icon">🃏</div>
+            <div class="ai-name">Cartas de Digivice</div>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  DIGIRIDER RPG <span class="f-sep">●</span> DATAHAVEN_OS v3.1 <span class="f-sep">●</span>
+  <span class="f-credit">Criado por Cazeaje</span>
+</footer>
+
+<script>
+const bootLines = [
+  { text: 'BIOS DATAHAVEN_OS v3.1.0 · CybeRede Foundation', cls: '' },
+  { text: 'Iniciando kernel de sincronização neural...', cls: '' },
+  { text: '[OK] Módulo de Energia de Fusão carregado', cls: 'ok' },
+  { text: '[OK] Interface Nexus-0 estabelecida', cls: 'ok' },
+  { text: '[OK] Banco de dados Digimon: 822 registros', cls: 'ok' },
+  { text: '[!!] Zona Null detectada — monitoramento ativo', cls: 'warn' },
+  { text: '[OK] Protocolo CybeRede v3.1 ativado', cls: 'ok' },
+  { text: '[OK] Digivice autenticado com sucesso', cls: 'ok' },
+  { text: '[OK] Carregando portal DigiRider RPG...', cls: 'ok' },
+  { text: 'Bem-vindo, DigiRider. Nexus-0 aguarda.', cls: 'ok' },
+];
+
+const logEl  = document.getElementById('boot-log');
+const barEl  = document.getElementById('boot-bar');
+const pctEl  = document.getElementById('boot-pct');
+const bootEl = document.getElementById('boot');
+
+let lineIdx = 0;
+function addLine() {
+  if (lineIdx >= bootLines.length) {
+    setTimeout(() => {
+      bootEl.classList.add('fade-out');
+      setTimeout(() => { bootEl.style.display = 'none'; }, 650);
+    }, 300);
+    return;
+  }
+  const l = bootLines[lineIdx];
+  const span = document.createElement('span');
+  span.className = 'line' + (l.cls ? ' ' + l.cls : '');
+  span.textContent = l.text;
+  logEl.appendChild(span);
+  lineIdx++;
+  const pct = Math.round((lineIdx / bootLines.length) * 100);
+  barEl.style.width = pct + '%';
+  pctEl.textContent = pct + '%';
+  setTimeout(addLine, 160 + Math.random() * 140);
+}
+setTimeout(addLine, 400);
+
+function updateClock() {
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('tb-clock').textContent =
+    pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+/* ═══ TROCA DE TELA: DIGIVICE ↔ APPS ═══ */
+const screenHome = document.getElementById('screen-home');
+const screenApps = document.getElementById('screen-apps');
+
+function goApps() {
+  screenHome.classList.add('hide');
+  screenApps.classList.add('show');
+}
+function goHome() {
+  screenApps.classList.remove('show');
+  screenHome.classList.remove('hide');
+}
+</script>
+</body>
+</html>
